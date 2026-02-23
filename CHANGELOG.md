@@ -13,6 +13,37 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.5.0] – 2026-02-23
+
+### feat(bpsds)
+- Add new `projects/bpsds` — Bass Pro Shops Design System Storybook
+- Inventory of BPS UI patterns from fishing, hunting, camping, boating, clothing & footwear category/product pages
+- Bass Pro Shops theme tokens: forest green (`#1a472a`), gold (`#c9a227`), sale orange/red; full light-mode neutral scale
+- 18 React Aria-backed components mapped to BPS UI patterns:
+  - **Button** — Add to Cart / Shop Now / Gold CTA / Outline / Ghost / Destructive / Link variants + SM–XL sizes
+  - **Badge** — Sale, New, Clearance, Featured, Exclusive, Limited, Out of Stock
+  - **SearchBar** — site-wide search with SM/MD/LG sizes
+  - **PriceDisplay** — regular, sale (was/now + % savings), SM/MD/LG sizes
+  - **StarRating** — fractional stars using SVG gradient fills, review count
+  - **ProductCard** — image, brand, title, rating, price, badge, wishlist icon, Add to Cart
+  - **CategoryCard** — image tile with gradient overlay and Shop Now CTA
+  - **Breadcrumbs** — react-aria `Breadcrumbs` styled in BPS green
+  - **Navigation** — utility bar, logo, search, account/cart, category strip, mobile drawer
+  - **QuantityInput** — +/− stepper via `NumberField`
+  - **Tabs** — product detail tabs (Description, Specs, Reviews, Q&A)
+  - **Accordion** — FAQ and filter expand/collapse via `DisclosureGroup`
+  - **PromoBanner** — sale / info / shipping / loyalty variants, dismissible
+  - **Select** — sort-by and size/line-weight dropdowns
+  - **Checkbox / CheckboxGroupField** — brand/power/action filter checkboxes
+  - **RadioGroup / Radio** — availability and sort radio filters
+  - **TagGroup** — active filter chips with remove support
+  - **Dialog** — Add-to-cart confirmation and store-finder overlays
+  - **Filters** — sidebar panel composing Accordion + Checkbox/Radio sections
+- 20 Storybook stories including a full-page BPS category page overview (`BPS Pages/Full Page Preview`)
+- Registered in `docs/projects.json`
+
+
+
 ## [0.4.3] – 2026-02-23
 
 ### docs(ci)
