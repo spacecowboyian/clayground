@@ -1,0 +1,41 @@
+{
+  "name": "@bpsds/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "storybook dev --port 6007",
+    "build": "storybook build --output-dir ../../docs/bpsds",
+    "build-storybook": "storybook build --output-dir ../../docs/bpsds",
+    "storybook": "storybook dev --port 6007",
+    "preview": "vite preview"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles": "./src/styles/index.css"
+  },
+  "dependencies": {
+    "clsx": "2.1.1",
+    "lucide-react": "0.487.0",
+    "react-aria-components": "^1.15.1",
+    "tailwind-merge": "3.2.0",
+    "tw-animate-css": "1.3.8"
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "^8.6.0",
+    "@storybook/addon-essentials": "^8.6.0",
+    "@storybook/blocks": "^8.6.0",
+    "@storybook/react": "^8.6.0",
+    "@storybook/react-vite": "^8.6.0",
+    "@tailwindcss/vite": "^4.1.12",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "storybook": "^8.6.0",
+    "tailwindcss": "^4.1.12",
+    "typescript": "^5.7.0",
+    "vite": "^6.3.5"
+  }
+}

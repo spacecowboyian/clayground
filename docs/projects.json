@@ -1,5 +1,14 @@
 [
   {
+    "id": "bpsds",
+    "title": "BPS Design System",
+    "description": "A Bass Pro Shops-inspired component library — React Aria Components themed with BPS forest-green, gold, and outdoor palette. Storybook with 18 components covering product cards, navigation, filters, and more.",
+    "tags": ["design-system", "storybook", "react-aria", "tailwind", "ecommerce"],
+    "url": "bpsds/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/bpsds",
+    "date": "2026-02-23"
+  },
+  {
     "id": "gearhead",
     "title": "Gearhead",
     "description": "The clayground design system — React Aria Components + Tailwind CSS. Interactive Storybook with all shared UI primitives.",
