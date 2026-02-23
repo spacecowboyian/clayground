@@ -1,0 +1,64 @@
+name: Build & Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Allow one concurrent deployment
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # needed to push to gh-pages / write docs/
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build projects
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Build every project that has a package.json ──────────────────────
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          # Cache key covers all package-lock files under projects/
+          cache-dependency-path: projects/**/package-lock.json
+
+      - name: Build Next.js projects
+        env:
+          # Expose Supabase keys if they are added as repo secrets
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          for dir in projects/*/; do
+            if [ -f "${dir}package.json" ]; then
+              echo "▶ Building ${dir}"
+              (cd "${dir}" && npm ci && npm run build)
+            fi
+          done
+
+      # ── Upload the docs/ folder as the Pages artifact ────────────────────
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

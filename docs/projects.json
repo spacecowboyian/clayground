@@ -1,0 +1,11 @@
+[
+  {
+    "id": "template-nextjs",
+    "title": "Next.js Template",
+    "description": "A minimal Next.js starter wired up for GitHub Pages static export. Copy this to begin a new project.",
+    "tags": ["nextjs", "template"],
+    "url": "template-nextjs/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/template-nextjs",
+    "date": "2026-02-23"
+  }
+]

@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Next.js
+**/.next/
+**/out/
+
+# Build output – committed intentionally to docs/
+# (do NOT add docs/ here)
+
+# Env files – NEVER commit secrets
+**/.env
+**/.env.local
+**/.env.*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

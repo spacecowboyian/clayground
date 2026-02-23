@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clayground – Ian's AI Coding Experiments</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f1117;
+      --surface:  #1a1d27;
+      --border:   #2a2d3d;
+      --accent:   #6c63ff;
+      --accent2:  #00d4aa;
+      --text:     #e2e8f0;
+      --muted:    #8892a4;
+      --tag-bg:   #252840;
+      --radius:   12px;
+      --font:     'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      padding: 0 1rem 4rem;
+    }
+
+    /* ── Header ── */
+    header {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3.5rem 0 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    header .logo {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+    }
+    header p {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    header a.gh-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      margin-top: .5rem;
+      color: var(--muted);
+      font-size: .85rem;
+      text-decoration: none;
+      transition: color .2s;
+    }
+    header a.gh-link:hover { color: var(--accent2); }
+    header a.gh-link svg { flex-shrink: 0; }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      max-width: 900px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      align-items: center;
+    }
+    .filter-bar input {
+      flex: 1 1 200px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: .9rem;
+      padding: .5rem 1rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .filter-bar input:focus { border-color: var(--accent); }
+    .filter-bar input::placeholder { color: var(--muted); }
+
+    /* ── Grid ── */
+    .grid {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.4rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      transition: border-color .2s, transform .2s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: .5rem;
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .card-date {
+      font-size: .75rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .card-desc {
+      font-size: .875rem;
+      color: var(--muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .card-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tags { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .tag {
+      background: var(--tag-bg);
+      color: var(--accent2);
+      font-size: .7rem;
+      font-weight: 600;
+      padding: .15rem .55rem;
+      border-radius: 999px;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+    }
+    .card-source {
+      font-size: .75rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .card-source:hover { color: var(--accent2); }
+
+    /* ── Empty state ── */
+    #empty {
+      max-width: 900px;
+      margin: 3rem auto 0;
+      text-align: center;
+      color: var(--muted);
+      display: none;
+    }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 900px;
+      margin: 3rem auto 0;
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem;
+      font-size: .8rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--accent2); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span class="logo">🧪 Clayground</span>
+    <p>Ian's collection of AI coding experiments, published via GitHub Pages.</p>
+    <a class="gh-link" href="https://github.com/spacecowboyian/clayground" target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57
+        0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695
+        -.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99
+        .105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225
+        -.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405
+        c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225
+        0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3
+        0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+      </svg>
+      spacecowboyian/clayground
+    </a>
+  </header>
+
+  <div class="filter-bar">
+    <input id="search" type="search" placeholder="Search experiments…" aria-label="Search projects" />
+  </div>
+
+  <div class="grid" id="grid" role="list"></div>
+  <p id="empty">No experiments found. Check back soon! 🚀</p>
+
+  <footer>
+    <span>Built with ☕ &amp; AI — <a href="https://github.com/spacecowboyian/clayground" target="_blank" rel="noopener">Source on GitHub</a></span>
+    <span id="count"></span>
+  </footer>
+
+  <script>
+    async function loadProjects() {
+      const res = await fetch('projects.json');
+      if (!res.ok) throw new Error('Could not load projects.json');
+      return res.json();
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function renderCards(projects) {
+      const grid = document.getElementById('grid');
+      const empty = document.getElementById('empty');
+      const count = document.getElementById('count');
+      grid.innerHTML = '';
+
+      if (projects.length === 0) {
+        empty.style.display = 'block';
+        count.textContent = '';
+        return;
+      }
+      empty.style.display = 'none';
+      count.textContent = `${projects.length} experiment${projects.length !== 1 ? 's' : ''}`;
+
+      projects.forEach(p => {
+        const card = document.createElement('a');
+        card.className = 'card';
+        card.href = p.url || '#';
+        card.setAttribute('role', 'listitem');
+        card.setAttribute('aria-label', p.title);
+
+        const tags = (p.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+        const sourceLink = p.source
+          ? `<a class="card-source" href="${p.source}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Source ↗</a>`
+          : '';
+
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="card-title">${p.title}</span>
+            <span class="card-date">${formatDate(p.date)}</span>
+          </div>
+          <p class="card-desc">${p.description || ''}</p>
+          <div class="card-footer">
+            <div class="tags">${tags}</div>
+            ${sourceLink}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    let allProjects = [];
+
+    document.getElementById('search').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      const filtered = allProjects.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        (p.description || '').toLowerCase().includes(q) ||
+        (p.tags || []).some(t => t.toLowerCase().includes(q))
+      );
+      renderCards(filtered);
+    });
+
+    loadProjects()
+      .then(data => {
+        allProjects = data;
+        renderCards(allProjects);
+      })
+      .catch(() => {
+        document.getElementById('empty').style.display = 'block';
+        document.getElementById('empty').textContent = 'Failed to load projects. Please try again later.';
+      });
+  </script>
+</body>
+</html>
