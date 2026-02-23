@@ -11,13 +11,11 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write   # needed to push to gh-pages / write docs/
-  pages: write
-  id-token: write
+  contents: write   # needed to push to gh-pages branch
 
 jobs:
-  build:
-    name: Build projects
+  build-deploy:
+    name: Build & deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,20 +43,11 @@ jobs:
             fi
           done
 
-      # ── Upload the docs/ folder as the Pages artifact ────────────────────
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      # ── Push the docs/ folder to the gh-pages branch ─────────────────────
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: docs
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          # keep_files: true preserves the preview/ subtree added by preview.yml
+          keep_files: true

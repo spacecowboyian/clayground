@@ -13,6 +13,34 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.5.0] – 2026-02-23
+
+### feat(somethings-happening)
+- Replace plain YouTube `<iframe>` with the YouTube IFrame Player API so that native
+  YouTube controls receive touch events on iPhone / mobile Chrome
+- Remove the `mobileTapLayer` overlay when the active moment is a YouTube video,
+  allowing the YouTube player to handle taps directly
+- Add real-time playback progress and duration tracking for YouTube items via
+  `YT.Player` event listeners and a 200 ms poll; eliminates the incorrect 10-second
+  text timer that was used as a placeholder
+- Add `progress` and `duration` props to `MomentCard`; active cards now render a
+  thin blue progress bar (matching the design accent colour) that fills as the
+  moment plays back
+
+### feat(ci)
+- Switch production deployment from `actions/deploy-pages` to
+  `peaceiris/actions-gh-pages` pushing to the `gh-pages` branch (both `deploy.yml`
+  and `storybook.yml`)
+- Add `preview.yml` — builds every non-`main` branch with correct per-preview base
+  URLs and deploys to `gh-pages/preview/<branch-slug>/`; posts/updates a preview
+  URL comment on any open PR
+- Add `cleanup.yml` — removes the preview folder from `gh-pages` when a branch is
+  deleted (i.e. after a PR is merged)
+- Document one-time repository setup steps in `CONTRIBUTING.md`
+
+---
+
+
 ## [0.4.1] – 2026-02-23
 
 ### docs(somethings-happening)
