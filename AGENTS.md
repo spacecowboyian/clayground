@@ -204,6 +204,35 @@ src/
 
 ---
 
+## Browser verification — always check your own work
+
+Any change that could affect **page loading, layout, rendering, or styles** must be visually verified in a browser before declaring the work done.
+
+### When to open the browser
+
+Open `npm run dev` and check in a browser whenever you change:
+
+- Any CSS, Tailwind classes, or design token values
+- Component markup, layout, or visual structure
+- Routing, base paths, or `vite.config.ts`
+- `docs/index.html` or `docs/projects.json`
+- Any file that feeds data directly into a rendered page
+
+### What to check
+
+1. **Page loads without errors** — zero red errors in the browser console.
+2. **Styles applied correctly** — no unstyled elements, no broken layout.
+3. **Dark background respected** — all content legible on `#222222`.
+4. **Interactive states** — hover, focus, active, disabled all look correct.
+5. **Responsive layout** — resize to mobile width; nothing overflows.
+6. **No a11y console warnings** — React Aria / axe warnings count as failures.
+
+### Self-verification rule
+
+> If you cannot open a browser, explicitly tell the user what to check and **do not mark the task complete** until they confirm the visual result. Take a screenshot (or describe the verified state) and include it in your progress report.
+
+---
+
 ## Pre-commit checklist
 
 - [ ] `CHANGELOG.md` has a versioned entry for this work
@@ -212,5 +241,6 @@ src/
 - [ ] Every new Gearhead component has a Storybook story
 - [ ] `npm run build` passes in every changed project
 - [ ] No secrets or `.env` files staged
+- [ ] Browser verified: page loads, styles applied, no console errors
 - [ ] Commit message follows Conventional Commits format
 - [ ] User has approved the commit

@@ -224,7 +224,38 @@ src/
 
 ---
 
-## 12. Pre-commit checklist
+## 12. Browser verification — always check your own work
+
+Any change that could affect **page loading, layout, rendering, or styles** must be visually verified in a browser before declaring the work done. Do not rely on the build passing alone.
+
+### When to open the browser
+
+Open the dev server (`npm run dev`) and inspect the result in a browser whenever you change:
+
+- Any CSS, Tailwind classes, or design token values
+- Component markup, layout, or visual structure
+- Routing, base paths, or `vite.config.ts` / `next.config.js`
+- `docs/index.html` or `docs/projects.json` (homepage)
+- Any file that feeds data directly into a rendered page
+
+### What to check
+
+1. **Page loads without errors** — open the browser console; zero red errors.
+2. **Styles are applied correctly** — no unstyled elements, no broken layout, no visible tokens (e.g. `var(--color)` strings showing as text).
+3. **Dark background is respected** — all text and components are legible on `#222222`.
+4. **Interactive states work** — hover, focus, active, disabled all look correct.
+5. **Responsive layout holds** — resize to mobile width; nothing overflows or breaks.
+6. **No console warnings about a11y** — React Aria / axe warnings count as failures.
+
+### Self-verification rule
+
+> If you cannot open a browser (e.g. headless CI context), explicitly tell the user what to check and why, and do **not** mark the task as complete until the user confirms the visual result.
+
+Take a screenshot (or describe the verified state in detail) and include it in your progress report or PR comment so the user can see the outcome.
+
+---
+
+## 13. Pre-commit checklist
 
 Before proposing a commit to the user, verify:
 
@@ -234,4 +265,5 @@ Before proposing a commit to the user, verify:
 - [ ] `npm run build` passes locally in every changed project
 - [ ] No secrets or `.env` files staged
 - [ ] All new Gearhead components have a Storybook story
+- [ ] Browser verified: page loads, styles applied, no console errors (rule 12)
 - [ ] Commit message follows Conventional Commits format

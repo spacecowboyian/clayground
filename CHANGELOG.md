@@ -13,6 +13,14 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.3.2] – 2026-02-23
+
+### docs
+- Add "Browser verification" section to `.github/copilot-instructions.md` and `AGENTS.md`: when to open the dev server, a 6-point visual checklist, and a self-verification rule requiring agents to tell the user what to verify when they cannot open a browser themselves
+- Promote "Pre-commit checklist" to section 13 in copilot-instructions.md; add browser-verified gate to both checklists
+
+---
+
 ## [0.3.1] – 2026-02-23
 
 ### docs
