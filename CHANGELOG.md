@@ -13,6 +13,18 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.6.2] – 2026-02-23
+
+### fix(kc-live-timing)
+- Move the YOU bar **above** the latest-runs strip — order is now: YOU bar → latest runs → tab bar → class results
+- Replace simple time + position display in YOU bar with **run-by-run chips** (autocross) or **total time** (rallycross)
+- Autocross: best run chip is placed first and uses `position: sticky; left: 0` so it never scrolls out of view; other runs scroll horizontally to the right
+- Rallycross: YOU bar shows a single large "Total" time instead of run chips
+- Extract YOU bar into dedicated `MeBar` component (`src/components/MeBar.tsx`)
+- Fix sticky z-index stacking: added `--header-h` / `--me-bar-h` CSS variables; `.app--has-me .tab-bar` stacks below both header and me-bar
+
+---
+
 ## [0.6.1] – 2026-02-23
 
 ### fix(kc-live-timing)

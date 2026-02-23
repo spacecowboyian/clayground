@@ -6,8 +6,8 @@ import { LatestRuns } from './components/LatestRuns';
 import { ClassResults } from './components/ClassResults';
 import { CompetitionPage } from './components/CompetitionPage';
 import { DriverDetail } from './components/DriverDetail';
+import { MeBar } from './components/MeBar';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { formatTime } from './utils/timeUtils';
 
 type Tab = 'results' | 'competition';
 
@@ -72,7 +72,7 @@ export function App() {
   }, [myDriverKey, timingData]);
 
   return (
-    <div className="app">
+    <div className={`app${meDetail ? ' app--has-me' : ''}`}>
       <header className="app-header">
         <div className="app-header__inner">
           <h1 className="app-header__title">
@@ -102,37 +102,20 @@ export function App() {
         </main>
       ) : (
         <>
+          {/* Global sticky "YOU" bar — above latest runs */}
+          {meDetail && (
+            <MeBar
+              driver={meDetail.driver}
+              cls={meDetail.cls}
+              driverKey={myDriverKey}
+              onDriverClick={handleDriverClick}
+            />
+          )}
+
           {/* Latest runs strip */}
           <div className="latest-runs-wrapper">
             <LatestRuns runs={timingData.latestRuns} />
           </div>
-
-          {/* Global sticky "YOU" bar — always visible when "me" is set */}
-          {meDetail && (
-            <div
-              className="global-me-bar"
-              role="status"
-              aria-label={`Your result: ${meDetail.driver.name}`}
-            >
-              <span className="global-me-bar__label">You</span>
-              <button
-                className="global-me-bar__name"
-                onClick={() => handleDriverClick(myDriverKey)}
-                aria-label={`View your details: ${meDetail.driver.name}`}
-              >
-                {meDetail.driver.name}
-              </button>
-              <span className="global-me-bar__class">{meDetail.cls.code}</span>
-              <span className="global-me-bar__time">
-                {meDetail.driver.bestTime !== null
-                  ? formatTime(meDetail.driver.bestTime)
-                  : '—'}
-              </span>
-              <span className="global-me-bar__pos">
-                {meDetail.driver.bestTime !== null ? `P${meDetail.driver.position}` : '—'}
-              </span>
-            </div>
-          )}
 
           {/* Tab bar */}
           <nav className="tab-bar" role="tablist" aria-label="Timing views">
