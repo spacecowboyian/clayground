@@ -160,6 +160,36 @@
     }
     .card-source:hover { color: var(--accent2); }
 
+    /* ── PR preview links ── */
+    .card-previews {
+      border-top: 1px solid var(--border);
+      padding-top: .6rem;
+      display: flex;
+      flex-direction: column;
+      gap: .25rem;
+    }
+    .card-previews-label {
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: .1rem;
+    }
+    .pr-preview-link {
+      font-size: .78rem;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      transition: color .2s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pr-preview-link:hover { color: var(--accent2); text-decoration: underline; }
+
     /* ── Empty state ── */
     #empty {
       max-width: 900px;
@@ -225,13 +255,41 @@
       return res.json();
     }
 
+    async function loadPrBuilds() {
+      try {
+        const res = await fetch('pr-builds.json');
+        if (!res.ok) return {};
+        return res.json();
+      } catch {
+        return {};
+      }
+    }
+
     function formatDate(iso) {
       if (!iso) return '';
       const d = new Date(iso);
       return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     }
 
-    function renderCards(projects) {
+    function buildPrPreviewsHtml(projectId, prBuilds) {
+      const links = [];
+      for (const [prNum, prInfo] of Object.entries(prBuilds)) {
+        const url = prInfo.builds && prInfo.builds[projectId];
+        if (!url) continue;
+        const label = prInfo.title ? `PR #${prNum}: ${prInfo.title}` : `PR #${prNum}`;
+        links.push(
+          `<a class="pr-preview-link" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">` +
+          `🔍 ${label}</a>`
+        );
+      }
+      if (links.length === 0) return '';
+      return `<div class="card-previews">` +
+        `<span class="card-previews-label">PR Previews</span>` +
+        links.join('') +
+        `</div>`;
+    }
+
+    function renderCards(projects, prBuilds) {
       const grid = document.getElementById('grid');
       const empty = document.getElementById('empty');
       const count = document.getElementById('count');
@@ -256,6 +314,7 @@
         const sourceLink = p.source
           ? `<a class="card-source" href="${p.source}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Source ↗</a>`
           : '';
+        const prPreviews = buildPrPreviewsHtml(p.id, prBuilds);
 
         card.innerHTML = `
           <div class="card-header">
@@ -267,12 +326,14 @@
             <div class="tags">${tags}</div>
             ${sourceLink}
           </div>
+          ${prPreviews}
         `;
         grid.appendChild(card);
       });
     }
 
     let allProjects = [];
+    let prBuilds = {};
 
     document.getElementById('search').addEventListener('input', e => {
       const q = e.target.value.toLowerCase();
@@ -281,13 +342,14 @@
         (p.description || '').toLowerCase().includes(q) ||
         (p.tags || []).some(t => t.toLowerCase().includes(q))
       );
-      renderCards(filtered);
+      renderCards(filtered, prBuilds);
     });
 
-    loadProjects()
-      .then(data => {
+    Promise.all([loadProjects(), loadPrBuilds()])
+      .then(([data, builds]) => {
         allProjects = data;
-        renderCards(allProjects);
+        prBuilds = builds;
+        renderCards(allProjects, prBuilds);
       })
       .catch(() => {
         document.getElementById('empty').style.display = 'block';
