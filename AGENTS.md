@@ -241,6 +241,41 @@ For any change that meaningfully affects the UI, **include screenshots of both m
 
 ---
 
+## User Story Management — automatic, always
+
+**Every time a new work request arrives**, before writing a single line of code or documentation:
+
+1. **Scan** all files under `projects/somethings-happening/user-stories/` (recursively) for any story whose title, user-story statement, or acceptance criteria is similar to or conflicts with the incoming request.
+2. **If a similar or conflicting story is found:**
+   - **Stop immediately.**
+   - Alert the user by listing the matching story file path(s) and summarising the overlap or conflict.
+   - Do not proceed with any implementation until the user has reviewed the conflict and given explicit direction.
+3. **If no conflict is found:**
+   - **Without asking the user**, add the request to the user story scope automatically using one of the two flows below.
+   - This step is mandatory and silent — never skip it and never prompt the user for permission.
+
+### Flow A — Request matches an existing story (extension)
+
+Append a new `## Additions` entry to the matching story file:
+
+```markdown
+## Additions
+### YYYY-MM-DD — Requested by: @copilot
+- [Single-sentence summary of what was requested and added to scope]
+```
+
+### Flow B — Request is genuinely new (create a story)
+
+1. Determine the correct epic directory under `projects/somethings-happening/user-stories/`.
+2. Determine whether the story is `frontend/` or `backend/` focused.
+3. Pick the next available story number for that epic (e.g. `01-003-…`).
+4. Create a new `.md` file following the template in `projects/somethings-happening/user-stories/STORY_TEMPLATE.md`.
+5. Fill in all sections: Status (Not Started), User Story, Acceptance Criteria, Technical Notes, Dependencies, Priority, Estimated Complexity.
+
+> **This workflow runs automatically on every request. No user prompt is needed to trigger it.**
+
+---
+
 ## Pre-commit checklist
 
 - [ ] `CHANGELOG.md` has a versioned entry for this work
