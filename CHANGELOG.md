@@ -13,6 +13,14 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.4.3] – 2026-02-23
+
+### docs(ci)
+- Port "User Story Update Requirement" from `spacecowboyian/something-s-happening` into both `.github/copilot-instructions.md` and `AGENTS.md`
+- Copilot must now also update the relevant user story file (under `## Additions`) whenever a commit includes design changes, recording what shifted and building a historical record of design evolution
+
+---
+
 ## [0.4.2] – 2026-02-23
 
 ### docs(ci)

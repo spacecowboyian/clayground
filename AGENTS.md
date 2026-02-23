@@ -274,6 +274,14 @@ Append a new `## Additions` entry to the matching story file:
 
 > **This workflow runs automatically on every request. No user prompt is needed to trigger it.**
 
+### Updating stories during implementation
+
+Whenever a commit includes **design changes**, update the relevant user story file with a concise entry describing how the design shifted:
+
+- Describe **what** changed, not why.
+- Keep each entry brief — the goal is a clear historical record of design evolution.
+- Append the entry under an `## Additions` heading in the story file (same format as Flow A above).
+
 ---
 
 ## Pre-commit checklist
