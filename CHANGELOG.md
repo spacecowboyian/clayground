@@ -13,6 +13,14 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.3.1] – 2026-02-23
+
+### docs
+- Add `.github/copilot-instructions.md` — comprehensive AI coding agent rules covering: ask-before-commit workflow, Conventional Commits, CHANGELOG maintenance, Gearhead-first component strategy, React Aria foundation, design token rules, MVP/vibe-coding mindset, TypeScript/React standards, security, and accessibility
+- Add `AGENTS.md` at repo root — mirrors copilot-instructions for Cursor, Claude Code, and other AI tools
+
+---
+
 ## [0.3.0] – 2026-02-22
 
 ### feat(gearhead)
