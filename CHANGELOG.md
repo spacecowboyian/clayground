@@ -13,6 +13,18 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.6.1] – 2026-02-23
+
+### fix(kc-live-timing)
+- Replace ☆/★ "Mark as me" and 🟢/🔴 "Watch" row buttons with a single 📌 **pin** icon per driver row — dimmed when unpinned, full opacity when pinned
+- Remove inline "Mark as me" button from table rows and Competition page; "This is me" now lives exclusively on the driver detail screen
+- Tapping a driver's name now opens a **Driver Detail view** showing all their individual runs, best time, class position, cone-penalty breakdown, and a prominent "📌 This is me" / "✓ This is me — tap to remove" button
+- "This is me" selection persists in `localStorage` — survives page reloads and browser restarts
+- Replace per-class sticky bottom banner with a **global sticky "YOU" bar** pinned between the Latest Runs strip and the tab bar — always visible as you scroll through any class, showing name, class code, best time, and position; tapping it opens the driver detail view
+- Chris Taylor ★ indicator appears inline in the driver's name cell in the results table
+
+---
+
 ## [0.6.0] – 2026-02-23
 
 ### feat(kc-live-timing)

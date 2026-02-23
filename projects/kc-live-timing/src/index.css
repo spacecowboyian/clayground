@@ -216,6 +216,73 @@ html, body, #root {
 }
 .latest-runs__time--dnf { color: var(--red); }
 
+/* ─── Global "YOU" sticky bar ────────────────────────────────────────────────*/
+.global-me-bar {
+  position: sticky;
+  top: 56px;       /* sits just below the app-header */
+  z-index: 18;
+  background: color-mix(in srgb, var(--accent) 18%, var(--bg2));
+  border-bottom: 2px solid var(--accent);
+  padding: 0.4rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.global-me-bar__label {
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 0.1em 0.45em;
+}
+
+.global-me-bar__name {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text);
+  padding: 0;
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--text) 40%, transparent);
+}
+.global-me-bar__name:hover { color: var(--accent2); }
+
+.global-me-bar__class {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--text2);
+}
+
+.global-me-bar__time {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--green);
+  font-size: 0.88rem;
+}
+
+.global-me-bar__pos {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--text2);
+}
+
 /* ─── Tab bar ───────────────────────────────────────────────────────────────── */
 .tab-bar {
   display: flex;
@@ -225,8 +292,8 @@ html, body, #root {
   padding: 0 0.5rem;
   gap: 0;
   position: sticky;
-  top: 56px;   /* below the app header */
-  z-index: 19;
+  top: 56px;   /* below the app header (adjusted dynamically via global-me-bar) */
+  z-index: 17;
 }
 
 .tab-btn {
@@ -365,6 +432,25 @@ html, body, #root {
   background: color-mix(in srgb, var(--accent) 4%, transparent);
 }
 
+/* ─── Driver Name Button ────────────────────────────────────────────────────── */
+.driver-name-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--text) 30%, transparent);
+  transition: color 0.15s;
+}
+.driver-name-btn:hover { color: var(--accent2); }
+
+.me-indicator { color: var(--accent); }
+
 /* ─── Driver Row ────────────────────────────────────────────────────────────── */
 .driver-row--me td {
   background: color-mix(in srgb, var(--accent) 10%, var(--surface));
@@ -463,34 +549,9 @@ html, body, #root {
 .action-btn:hover { opacity: 1; background: var(--surface2); }
 .action-btn--active { opacity: 1; }
 
-/* ─── Sticky "me" banner inside a class ──────────────────────────────────────*/
-.sticky-me {
-  position: sticky;
-  bottom: 0;
-  background: color-mix(in srgb, var(--accent) 20%, var(--bg2));
-  border-top: 2px solid var(--accent);
-  padding: 0.5rem 0.85rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  z-index: 5;
-}
-
-.sticky-me__label {
-  font-size: 0.6rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  background: var(--bg);
-  border-radius: 4px;
-  padding: 0.1em 0.4em;
-}
-
-.sticky-me__name { font-weight: 700; flex: 1; }
-.sticky-me__time { font-family: var(--font-mono); font-weight: 700; color: var(--green); }
-.sticky-me__pos { font-size: 0.75rem; color: var(--text2); }
+/* Pin button – dim when not pinned, full opacity when pinned */
+.pin-btn { font-size: 1rem; }
+.pin-btn:not(.action-btn--active) { filter: grayscale(0.4); }
 
 /* ─── Competition Page ──────────────────────────────────────────────────────── */
 .competition-empty {
@@ -538,7 +599,189 @@ html, body, #root {
 }
 .sticky-banner__pos { font-size: 0.75rem; color: var(--text2); }
 
-.me-badge { color: var(--yellow); }
+/* ─── Driver Detail View ─────────────────────────────────────────────────────*/
+.driver-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 520px;
+}
+
+.driver-detail__topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text2);
+  font-size: 0.82rem;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.back-btn:hover { color: var(--text); border-color: var(--text2); }
+
+.driver-detail__identity {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+}
+
+.driver-detail__name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.driver-detail__meta {
+  font-size: 0.8rem;
+  color: var(--text2);
+  margin-top: 0.2rem;
+}
+
+.driver-detail__standing {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.driver-detail__pos {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.driver-detail__best {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.driver-detail__type-label {
+  font-size: 0.7rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.driver-detail__runs {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.driver-detail__section-title {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text3);
+  padding: 0.6rem 1rem;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+.driver-detail__no-runs {
+  padding: 1rem;
+  color: var(--text2);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.run-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  font-size: 0.85rem;
+}
+.run-row:last-child { border-bottom: none; }
+
+.run-row__label {
+  width: 3.5rem;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--text3);
+  font-weight: 600;
+}
+
+.run-row__raw {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.run-row__cones {
+  font-size: 0.72rem;
+  color: var(--yellow);
+  background: color-mix(in srgb, var(--yellow) 10%, var(--surface2));
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+}
+
+.run-row__adj {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text2);
+}
+
+.run-row__best-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 15%, var(--surface2));
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+}
+
+.run-row--best .run-row__raw {
+  color: var(--green);
+  font-weight: 700;
+}
+.run-row--dnf .run-row__raw { color: var(--red); }
+.run-row--dns .run-row__raw { color: var(--text3); }
+
+.driver-detail__footer {
+  padding-bottom: 1rem;
+}
+
+.this-is-me-btn {
+  width: 100%;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text2);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.85rem 1.25rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  text-align: center;
+}
+.this-is-me-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface2));
+}
+.this-is-me-btn--active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface2));
+}
 
 /* ─── Scrollbar styling ─────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -559,4 +802,5 @@ html, body, #root {
   .driver-row__runs { display: none; } /* hide run chips on small screens */
   .driver-row__car { display: none; }
   .tab-btn { padding: 0.6rem 0.65rem; font-size: 0.78rem; }
+  .global-me-bar { font-size: 0.78rem; padding: 0.35rem 0.75rem; }
 }

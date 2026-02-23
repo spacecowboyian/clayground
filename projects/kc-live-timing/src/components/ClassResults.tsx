@@ -7,8 +7,8 @@ interface DriverRowProps {
   inCompetition: boolean;
   leaderTime: number | null;
   isRallycross: boolean;
-  onSetMe: (key: string) => void;
   onToggleCompetition: (key: string) => void;
+  onDriverClick: (key: string) => void;
   driverKey: string;
 }
 
@@ -18,8 +18,8 @@ function DriverRow({
   inCompetition,
   leaderTime,
   isRallycross,
-  onSetMe,
   onToggleCompetition,
+  onDriverClick,
   driverKey,
 }: DriverRowProps) {
   const diff =
@@ -34,7 +34,14 @@ function DriverRow({
       <td className="driver-row__pos">{driver.bestTime !== null ? driver.position : '—'}</td>
       <td className="driver-row__num">#{driver.carNumber}</td>
       <td className="driver-row__name">
-        {driver.name}
+        <button
+          className="driver-name-btn"
+          onClick={() => onDriverClick(driverKey)}
+          aria-label={`View details for ${driver.name}`}
+        >
+          {driver.name}
+          {isMe && <span className="me-indicator" aria-label="(you)"> ★</span>}
+        </button>
         {driver.car ? <span className="driver-row__car"> {driver.car}</span> : null}
       </td>
       <td className="driver-row__runs">
@@ -62,20 +69,12 @@ function DriverRow({
       </td>
       <td className="driver-row__actions">
         <button
-          className={`action-btn${isMe ? ' action-btn--active' : ''}`}
-          aria-label={isMe ? 'Unmark as me' : 'Mark as me'}
-          title={isMe ? 'Unmark as me' : "That's me!"}
-          onClick={() => onSetMe(isMe ? '' : driverKey)}
-        >
-          {isMe ? '★' : '☆'}
-        </button>
-        <button
-          className={`action-btn${inCompetition ? ' action-btn--active' : ''}`}
-          aria-label={inCompetition ? 'Remove from competition' : 'Add to competition'}
-          title={inCompetition ? 'Remove from competition' : 'Watch in competition'}
+          className={`action-btn pin-btn${inCompetition ? ' action-btn--active' : ''}`}
+          aria-label={inCompetition ? 'Unpin from competition' : 'Pin to competition'}
+          title={inCompetition ? 'Unpin from competition' : 'Pin to competition'}
           onClick={() => onToggleCompetition(driverKey)}
         >
-          {inCompetition ? '🔴' : '🟢'}
+          📌
         </button>
       </td>
     </tr>
@@ -86,23 +85,22 @@ interface ClassResultsProps {
   cls: TimingClass;
   myDriverKey: string;
   competitionKeys: Set<string>;
-  onSetMe: (key: string) => void;
   onToggleCompetition: (key: string) => void;
+  onDriverClick: (key: string) => void;
 }
 
 export function ClassResults({
   cls,
   myDriverKey,
   competitionKeys,
-  onSetMe,
   onToggleCompetition,
+  onDriverClick,
 }: ClassResultsProps) {
   const leaderTime = cls.drivers.find(d => d.bestTime !== null)?.bestTime ?? null;
 
-  // Sort drivers: "me" always first, then by position
+  // Put "me" first, then rest by position
   const meDriver = cls.drivers.find(d => `${cls.code}-${d.carNumber}` === myDriverKey);
   const others = cls.drivers.filter(d => `${cls.code}-${d.carNumber}` !== myDriverKey);
-
   const orderedDrivers: Driver[] = meDriver ? [meDriver, ...others] : others;
 
   return (
@@ -138,8 +136,8 @@ export function ClassResults({
                   inCompetition={competitionKeys.has(driverKey)}
                   leaderTime={leaderTime}
                   isRallycross={cls.isRallycross}
-                  onSetMe={onSetMe}
                   onToggleCompetition={onToggleCompetition}
+                  onDriverClick={onDriverClick}
                   driverKey={driverKey}
                 />
               );
@@ -147,17 +145,6 @@ export function ClassResults({
           </tbody>
         </table>
       </div>
-      {/* Sticky row for "me" – only shown when the normal row has scrolled out */}
-      {meDriver && (
-        <div className="sticky-me" aria-live="polite" aria-label={`Your result: ${meDriver.name}`}>
-          <span className="sticky-me__label">You</span>
-          <span className="sticky-me__name">{meDriver.name}</span>
-          <span className="sticky-me__time">
-            {meDriver.bestTime !== null ? formatTime(meDriver.bestTime) : '—'}
-          </span>
-          <span className="sticky-me__pos">P{meDriver.position}</span>
-        </div>
-      )}
     </section>
   );
 }

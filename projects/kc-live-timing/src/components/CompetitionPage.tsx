@@ -6,7 +6,7 @@ interface CompetitionPageProps {
   competitionKeys: Set<string>;
   myDriverKey: string;
   onToggleCompetition: (key: string) => void;
-  onSetMe: (key: string) => void;
+  onDriverClick: (key: string) => void;
 }
 
 export function CompetitionPage({
@@ -14,7 +14,7 @@ export function CompetitionPage({
   competitionKeys,
   myDriverKey,
   onToggleCompetition,
-  onSetMe,
+  onDriverClick,
 }: CompetitionPageProps) {
   // Gather all competition drivers across all classes
   const entries: { driver: Driver; cls: TimingClass; key: string }[] = [];
@@ -32,7 +32,7 @@ export function CompetitionPage({
     return (
       <div className="competition-empty">
         <p>No drivers in your competition list yet.</p>
-        <p>Use the <span aria-hidden="true">🟢</span> button on the Results tab to add drivers.</p>
+        <p>Tap the <span aria-hidden="true">📌</span> pin on any driver to add them.</p>
       </div>
     );
   }
@@ -87,8 +87,14 @@ export function CompetitionPage({
               >
                 <td className="driver-row__pos">{rank + 1}</td>
                 <td className="driver-row__name">
-                  {driver.name}
-                  {isMe && <span className="me-badge"> ★</span>}
+                  <button
+                    className="driver-name-btn"
+                    onClick={() => onDriverClick(key)}
+                    aria-label={`View details for ${driver.name}`}
+                  >
+                    {driver.name}
+                    {isMe && <span className="me-indicator" aria-label="(you)"> ★</span>}
+                  </button>
                 </td>
                 <td className="driver-row__class">{cls.code} #{driver.carNumber}</td>
                 <td className="driver-row__best">
@@ -99,19 +105,12 @@ export function CompetitionPage({
                 </td>
                 <td className="driver-row__actions">
                   <button
-                    className="action-btn action-btn--active"
-                    aria-label="Remove from competition"
-                    title="Remove from competition"
+                    className="action-btn pin-btn action-btn--active"
+                    aria-label="Unpin from competition"
+                    title="Unpin from competition"
                     onClick={() => onToggleCompetition(key)}
                   >
-                    🔴
-                  </button>
-                  <button
-                    className={`action-btn${isMe ? ' action-btn--active' : ''}`}
-                    aria-label={isMe ? 'Unmark as me' : 'Mark as me'}
-                    onClick={() => onSetMe(isMe ? '' : key)}
-                  >
-                    {isMe ? '★' : '☆'}
+                    📌
                   </button>
                 </td>
               </tr>
