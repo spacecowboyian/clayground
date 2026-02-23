@@ -9,15 +9,6 @@
     "date": "2026-02-22"
   },
   {
-    "id": "template",
-    "title": "Vite Template",
-    "description": "A minimal Vite + React + TypeScript starter wired up for GitHub Pages static export. Copy this to begin a new project.",
-    "tags": ["vite", "react", "typescript", "template"],
-    "url": "template/index.html",
-    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/template",
-    "date": "2026-02-22"
-  },
-  {
     "id": "somethings-happening",
     "title": "Something's Happening",
     "description": "A real-time event timeline experience. Relive the Super Bowl LX 2026 streaker incident through fan footage, tweets, and media moments — playable like a social Shorts feed.",
