@@ -227,9 +227,17 @@ Open `npm run dev` and check in a browser whenever you change:
 5. **Responsive layout** — resize to mobile width; nothing overflows.
 6. **No a11y console warnings** — React Aria / axe warnings count as failures.
 
+### Screenshot requirement
+
+For any change that meaningfully affects the UI, **include screenshots of both mobile and desktop views** in your reply, progress report, or PR comment — even when a browser is available.
+
+- **Desktop:** full-width viewport (≥ 1280 px).
+- **Mobile:** narrow viewport (≤ 390 px), simulating a phone screen.
+- Annotate or caption each screenshot so it is clear which view is which.
+
 ### Self-verification rule
 
-> If you cannot open a browser, explicitly tell the user what to check and **do not mark the task complete** until they confirm the visual result. Take a screenshot (or describe the verified state) and include it in your progress report.
+> If you cannot open a browser, explicitly tell the user what to check and **do not mark the task complete** until they confirm the visual result. Take screenshots of both mobile and desktop views (or describe the verified state if a browser is unavailable) and include them in your progress report.
 
 ---
 
@@ -241,6 +249,7 @@ Open `npm run dev` and check in a browser whenever you change:
 - [ ] Every new Gearhead component has a Storybook story
 - [ ] `npm run build` passes in every changed project
 - [ ] No secrets or `.env` files staged
+- [ ] Screenshots of **both mobile (≤ 390 px) and desktop (≥ 1280 px) views** included in reply / PR comment for any meaningful UI change
 - [ ] Browser verified: page loads, styles applied, no console errors
 - [ ] Commit message follows Conventional Commits format
 - [ ] User has approved the commit

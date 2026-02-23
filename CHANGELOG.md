@@ -13,6 +13,13 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.3.3] – 2026-02-23
+
+### docs
+- Add mobile & desktop screenshot requirement to `.github/copilot-instructions.md` and `AGENTS.md`: agents must include screenshots of both mobile (≤ 390 px) and desktop (≥ 1280 px) views in replies, progress reports, or PR comments for any meaningful UI change; update pre-commit checklists in both files accordingly
+
+---
+
 ## [0.3.2] – 2026-02-23
 
 ### docs
