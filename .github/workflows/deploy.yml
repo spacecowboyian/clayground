@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Also re-deploy after a PR preview is committed to main.
+  # workflow_run fires in the default-branch context so Pages
+  # deployment is allowed (unlike pull_request-triggered jobs).
+  workflow_run:
+    workflows: ["PR Preview \u2014 Build & Deploy"]
+    types: [completed]
 
 # Allow one concurrent deployment
 concurrency:
@@ -19,12 +25,17 @@ jobs:
   build:
     name: Build projects
     runs-on: ubuntu-latest
+    # Don't bother if the pr-preview run that triggered us failed.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       # ── Build every project that has a package.json ──────────────────────
+      # Skip on workflow_run: the PR preview already pushed built assets to
+      # main, so we only need to re-upload docs/ — no rebuild required.
       - name: Set up Node
+        if: github.event_name != 'workflow_run'
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -33,6 +44,7 @@ jobs:
           cache-dependency-path: projects/**/package-lock.json
 
       - name: Build all projects
+        if: github.event_name != 'workflow_run'
         env:
           # Expose Supabase keys if they are added as repo secrets
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
