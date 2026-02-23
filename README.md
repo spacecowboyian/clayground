@@ -45,7 +45,7 @@ See [`projects/README.md`](projects/README.md) for full details, including how t
 
 | Layer | Choice |
 |-------|--------|
-| Frontend framework | [Next.js 14](https://nextjs.org/) (static export) |
+| Frontend framework | [Next.js 15](https://nextjs.org/) (static export) |
 | Hosting | [GitHub Pages](https://pages.github.com/) |
 | CI/CD | GitHub Actions |
 | Database (optional) | [Supabase](https://supabase.com) — free tier, REST + Realtime |
