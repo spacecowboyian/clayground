@@ -16,5 +16,14 @@
     "url": "template/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/template",
     "date": "2026-02-22"
+  },
+  {
+    "id": "somethings-happening",
+    "title": "Something's Happening",
+    "description": "A real-time event timeline experience. Relive the Super Bowl LX 2026 streaker incident through fan footage, tweets, and media moments — playable like a social Shorts feed.",
+    "tags": ["timeline", "react-aria", "sports", "media"],
+    "url": "somethings-happening/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/somethings-happening",
+    "date": "2026-02-22"
   }
 ]

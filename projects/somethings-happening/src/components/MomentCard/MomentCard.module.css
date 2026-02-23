@@ -1,0 +1,363 @@
+/**
+ * MomentCard Component Styles
+ * Uses CSS custom properties for theme support
+ */
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  position: relative;
+  scroll-margin-top: calc(var(--sticky-offset, 0px) + var(--spacing-md));
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+  
+  /* Override button defaults */
+  background-color: transparent;
+  border: none;
+  padding: 0 0 var(--spacing-md) 0;
+  text-align: left;
+}
+
+.card:not(.active):hover .content {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.timeRail {
+  width: 72px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+}
+
+.railTimestamp {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-sm);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-mono);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 24px;
+  align-self: stretch;
+  position: relative;
+}
+
+.timeline::before,
+.timeline::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  width: 2px;
+  background-color: var(--color-border);
+}
+
+.timeline::before {
+  top: 0;
+  bottom: calc(100% - 22px);
+}
+
+.timeline::after {
+  top: 22px;
+  bottom: calc(-1 * var(--spacing-md));
+}
+
+.timelineDot {
+  width: 20px;
+  height: 20px;
+  padding: 2px;
+  box-sizing: border-box;
+  margin-top: 12px;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timelineDotButton {
+  width: 20px;
+  height: 20px;
+  padding: 2px;
+  box-sizing: border-box;
+  margin-top: 12px;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-full);
+  border: none;
+  flex-shrink: 0;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.timelineDotButton[data-focus-visible] {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+.timelineIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.timelineLine {
+  display: none;
+}
+
+.timelineNoTop::before {
+  display: none;
+}
+
+.timelineNoBottom::after {
+  display: none;
+}
+
+.timelineExtendTop::before {
+  top: calc(-100vh);
+}
+
+.timelineExtendBottom::after {
+  bottom: calc(-100vh);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.active .timelineDot {
+  background-color: var(--color-cinematic-cyan);
+  color: var(--color-cinematic-black);
+}
+
+.active .timelineDotButton {
+  background-color: var(--color-cinematic-cyan);
+  color: var(--color-cinematic-black);
+}
+
+.startMoment .timelineDot {
+  background-color: var(--color-success-500);
+  color: var(--color-background);
+}
+
+.startMoment .timelineDotButton {
+  background-color: var(--color-success-500);
+  color: var(--color-background);
+}
+
+.endMoment .timelineDot {
+  background-color: var(--color-error-500);
+  color: var(--color-background);
+}
+
+.endMoment .timelineDotButton {
+  background-color: var(--color-error-500);
+  color: var(--color-background);
+}
+
+.active .content {
+  background-color: color-mix(in srgb, var(--color-cinematic-cyan) 25%, transparent);
+}
+
+.active:hover .content {
+  background-color: color-mix(in srgb, var(--color-cinematic-cyan) 25%, transparent);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.source {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-sm);
+  color: var(--color-primary-700);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.source:hover {
+  color: var(--color-primary-800);
+  text-decoration: none;
+}
+
+.mediaContainer {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.media {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.youtubePreview {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: 0;
+}
+
+.youtubeThumbWrap {
+  width: 160px;
+  max-width: 160px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: transparent;
+}
+
+.youtubeThumb {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.youtubeMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.youtubeTitle {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-lg);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.youtubeTitleIcon {
+  color: var(--color-cinematic-cyan);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.youtubeDate {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-sm);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-mono);
+}
+
+.audioContainer,
+.audio {
+  display: none;
+}
+
+.audioIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-text-secondary);
+}
+
+.audioIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: var(--color-cinematic-cyan);
+}
+
+.audioLabel {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.text {
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-lg);
+  color: var(--color-text-primary);
+  margin: 0;
+  word-wrap: break-word;
+}
+
+@media (max-width: 768px) {
+  .card {
+    gap: var(--spacing-sm);
+  }
+
+  .timeRail {
+    width: 62px;
+  }
+
+  .timeline {
+    width: 20px;
+  }
+
+  .timeline::before,
+  .timeline::after {
+    left: 9px;
+  }
+
+  .timeline::after {
+    bottom: calc(-1 * var(--spacing-sm));
+  }
+
+  .timelineDot {
+    width: 18px;
+    height: 18px;
+  }
+
+  .timelineDotButton {
+    width: 18px;
+    height: 18px;
+  }
+
+  .timelineIcon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .youtubePreview {
+    flex-direction: column;
+  }
+
+  .youtubeThumbWrap {
+    width: 100%;
+    max-width: none;
+  }
+}

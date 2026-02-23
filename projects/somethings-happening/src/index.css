@@ -1,0 +1,408 @@
+/**
+ * Design Tokens - CSS Custom Properties
+ * 
+ * This file defines all design tokens for the application.
+ * Future components should reference these variables for consistency.
+ */
+
+/* ============================================
+   COLOR PALETTE - Light Theme
+   ============================================ */
+:root {
+  /* Gray Scale */
+  --color-gray-50: #f8f9fa;
+  --color-gray-100: #e9ecef;
+  --color-gray-200: #dee2e6;
+  --color-gray-300: #ced4da;
+  --color-gray-400: #adb5bd;
+  --color-gray-500: #6c757d;
+  --color-gray-600: #495057;
+  --color-gray-700: #343a40;
+  --color-gray-800: #212529;
+  --color-gray-900: #0d1117;
+
+  /* Muted Pastel - Primary (Blue) */
+  --color-primary-50: #e8f0fe;
+  --color-primary-100: #c4dafe;
+  --color-primary-200: #9ec4fc;
+  --color-primary-300: #78aefa;
+  --color-primary-400: #5b9df8;
+  --color-primary-500: #3f8cf6;
+  --color-primary-600: #3a7ee0;
+  --color-primary-700: #2f69c3;
+  --color-primary-800: #2554a7;
+  --color-primary-900: #163376;
+
+  /* Muted Pastel - Secondary (Purple) */
+  --color-secondary-50: #f3ebfd;
+  --color-secondary-100: #decdf9;
+  --color-secondary-200: #c9aef6;
+  --color-secondary-300: #b48ef2;
+  --color-secondary-400: #a376ef;
+  --color-secondary-500: #925eec;
+  --color-secondary-600: #8656d6;
+  --color-secondary-700: #7147b8;
+  --color-secondary-800: #5c389a;
+  --color-secondary-900: #3b2068;
+
+  /* Muted Pastel - Accent (Mint) */
+  --color-accent-50: #e6f9f5;
+  --color-accent-100: #b9f0e3;
+  --color-accent-200: #8ce7d1;
+  --color-accent-300: #5fddbe;
+  --color-accent-400: #3dd5b0;
+  --color-accent-500: #1bcda1;
+  --color-accent-600: #18ba92;
+  --color-accent-700: #149c7b;
+  --color-accent-800: #107e64;
+  --color-accent-900: #0a5242;
+
+  /* Muted Pastel - Success (Green) */
+  --color-success-50: #ebf8ef;
+  --color-success-100: #c8edd3;
+  --color-success-200: #a5e1b7;
+  --color-success-300: #82d69b;
+  --color-success-400: #68cd87;
+  --color-success-500: #4ec473;
+  --color-success-600: #47b369;
+  --color-success-700: #3c965a;
+  --color-success-800: #31794b;
+  --color-success-900: #1f4e30;
+
+  /* Muted Pastel - Warning (Peach) */
+  --color-warning-50: #fef3eb;
+  --color-warning-100: #fce0c8;
+  --color-warning-200: #facda5;
+  --color-warning-300: #f8ba82;
+  --color-warning-400: #f6ac68;
+  --color-warning-500: #f49e4e;
+  --color-warning-600: #e29147;
+  --color-warning-700: #c67b3c;
+  --color-warning-800: #aa6531;
+  --color-warning-900: #7a421f;
+
+  /* Muted Pastel - Error (Rose) */
+  --color-error-50: #fdecea;
+  --color-error-100: #facbc6;
+  --color-error-200: #f7a9a2;
+  --color-error-300: #f4877d;
+  --color-error-400: #f16d61;
+  --color-error-500: #ef5345;
+  --color-error-600: #db4c3e;
+  --color-error-700: #bd4035;
+  --color-error-800: #9f342c;
+  --color-error-900: #711f1c;
+
+  /* Semantic Colors - Light Theme */
+  --color-background: var(--color-gray-50);
+  --color-surface: #ffffff;
+  --color-surface-variant: var(--color-gray-100);
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-600);
+  --color-text-disabled: var(--color-gray-400);
+  --color-text-inverse: #ffffff;
+  --color-border: var(--color-gray-300);
+  --color-border-focus: var(--color-primary-500);
+  --color-divider: var(--color-gray-200);
+  
+  /* Interactive States - Light Theme */
+  --color-hover: var(--color-gray-100);
+  --color-active: var(--color-gray-200);
+  --color-focus-ring: var(--color-primary-500);
+  --color-disabled-background: var(--color-gray-200);
+  --color-disabled-text: var(--color-gray-400);
+
+  /* Cinematic UI Colors (non-inverted by theme) */
+  --color-cinematic-black: #000000;
+  --color-cinematic-stage: #05070b;
+  --color-cinematic-border: #1a1f2a;
+  --color-cinematic-muted: #aab3c2;
+  --color-cinematic-live-bg: #252a33;
+  --color-cinematic-live-text: #f4f7fc;
+  --color-cinematic-grad-start: #132241;
+  --color-cinematic-grad-mid: #321a57;
+  --color-cinematic-grad-end: #123a45;
+  --color-cinematic-cyan: #41d8f5;
+  --color-cinematic-cyan-bright: #8cefff;
+  --color-cinematic-control-disabled: #586171;
+}
+
+/* ============================================
+   COLOR PALETTE - Dark Theme
+   ============================================ */
+:root.dark,
+.dark {
+  /* Gray Scale - Dark Theme (inverted values) */
+  --color-gray-50: #0d1117;
+  --color-gray-100: #161b22;
+  --color-gray-200: #21262d;
+  --color-gray-300: #30363d;
+  --color-gray-400: #484f58;
+  --color-gray-500: #6e7681;
+  --color-gray-600: #8b949e;
+  --color-gray-700: #b1bac4;
+  --color-gray-800: #c9d1d9;
+  --color-gray-900: #f0f6fc;
+
+  /* Muted Pastel - Primary (Blue) - Dark adjusted */
+  --color-primary-50: #0d1929;
+  --color-primary-100: #1a2f47;
+  --color-primary-200: #2a4a6f;
+  --color-primary-300: #3d6899;
+  --color-primary-400: #5489c4;
+  --color-primary-500: #6fa8e8;
+  --color-primary-600: #89baef;
+  --color-primary-700: #a5ccf4;
+  --color-primary-800: #c2ddf8;
+  --color-primary-900: #e0eefc;
+
+  /* Muted Pastel - Secondary (Purple) - Dark adjusted */
+  --color-secondary-50: #1a0f2e;
+  --color-secondary-100: #2d1a4d;
+  --color-secondary-200: #452a73;
+  --color-secondary-300: #603e9c;
+  --color-secondary-400: #7f58c4;
+  --color-secondary-500: #9d75e5;
+  --color-secondary-600: #b390ee;
+  --color-secondary-700: #c9adf5;
+  --color-secondary-800: #ddc9f9;
+  --color-secondary-900: #f0e6fc;
+
+  /* Muted Pastel - Accent (Mint) - Dark adjusted */
+  --color-accent-50: #0a211c;
+  --color-accent-100: #123930;
+  --color-accent-200: #1d5849;
+  --color-accent-300: #2a7b66;
+  --color-accent-400: #3ba187;
+  --color-accent-500: #51c5a7;
+  --color-accent-600: #73d3ba;
+  --color-accent-700: #96dfcd;
+  --color-accent-800: #b9eadf;
+  --color-accent-900: #dcf5f0;
+
+  /* Muted Pastel - Success (Green) - Dark adjusted */
+  --color-success-50: #0f1f14;
+  --color-success-100: #1b3624;
+  --color-success-200: #2a5338;
+  --color-success-300: #3d7550;
+  --color-success-400: #539b6c;
+  --color-success-500: #6fbe8a;
+  --color-success-600: #8cce9f;
+  --color-success-700: #aadbb8;
+  --color-success-800: #c8e7d1;
+  --color-success-900: #e5f3e9;
+
+  /* Muted Pastel - Warning (Peach) - Dark adjusted */
+  --color-warning-50: #261508;
+  --color-warning-100: #3f240f;
+  --color-warning-200: #5f3a19;
+  --color-warning-300: #845428;
+  --color-warning-400: #ab723b;
+  --color-warning-500: #d09453;
+  --color-warning-600: #deaa73;
+  --color-warning-700: #e9c094;
+  --color-warning-800: #f2d5b5;
+  --color-warning-900: #f9ead6;
+
+  /* Muted Pastel - Error (Rose) - Dark adjusted */
+  --color-error-50: #2b0e0d;
+  --color-error-100: #481a17;
+  --color-error-200: #6b2924;
+  --color-error-300: #943c35;
+  --color-error-400: #c05449;
+  --color-error-500: #e87162;
+  --color-error-600: #ef9186;
+  --color-error-700: #f5b0a8;
+  --color-error-800: #f9cfc9;
+  --color-error-900: #fdeae8;
+
+  /* Semantic Colors - Dark Theme */
+  --color-background: var(--color-gray-50);
+  --color-surface: var(--color-gray-100);
+  --color-surface-variant: var(--color-gray-200);
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-700);
+  --color-text-disabled: var(--color-gray-500);
+  --color-text-inverse: var(--color-gray-900);
+  --color-border: var(--color-gray-300);
+  --color-border-focus: var(--color-primary-500);
+  --color-divider: var(--color-gray-300);
+  
+  /* Interactive States - Dark Theme */
+  --color-hover: var(--color-gray-200);
+  --color-active: var(--color-gray-300);
+  --color-focus-ring: var(--color-primary-500);
+  --color-disabled-background: var(--color-gray-300);
+  --color-disabled-text: var(--color-gray-500);
+  
+  color-scheme: dark;
+}
+
+/* ============================================
+   SPACING SCALE (4px base, t-shirt sizing)
+   ============================================ */
+:root {
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  --spacing-4xl: 96px;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+:root {
+  /* Font Family */
+  --font-family-primary: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+                         Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-family-mono: 'Monaco', 'Courier New', monospace;
+  
+  /* Font Sizes (t-shirt sizing) */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 32px;
+  --font-size-3xl: 40px;
+  --font-size-4xl: 48px;
+  
+  /* Line Heights */
+  --line-height-xs: 16px;
+  --line-height-sm: 20px;
+  --line-height-md: 24px;
+  --line-height-lg: 28px;
+  --line-height-xl: 32px;
+  --line-height-2xl: 40px;
+  --line-height-3xl: 48px;
+  --line-height-4xl: 56px;
+  
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 600;
+  --font-weight-bold: 700;
+}
+
+/* ============================================
+   BORDER RADIUS (t-shirt sizing)
+   ============================================ */
+:root {
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+}
+
+/* ============================================
+   SHADOWS
+   ============================================ */
+:root {
+  --shadow-xs: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0px 4px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0px 8px 16px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0px 16px 32px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark,
+.dark {
+  --shadow-xs: 0px 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0px 4px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0px 8px 16px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0px 16px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================================
+   TRANSITIONS
+   ============================================ */
+:root {
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+}
+
+/* ============================================
+   Z-INDEX SCALE
+   ============================================ */
+:root {
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1100;
+  --z-index-fixed: 1200;
+  --z-index-modal-backdrop: 1300;
+  --z-index-modal: 1400;
+  --z-index-popover: 1500;
+  --z-index-tooltip: 1600;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-md);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   FOCUS STYLES
+   ============================================ */
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Remove default focus styles */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   COMPONENT STYLING INSTRUCTIONS
+   
+   Future components should follow these patterns:
+   
+   1. Create a separate CSS module file (ComponentName.module.css)
+   2. Use CSS custom properties defined above for all values
+   3. Never use hardcoded colors, sizes, or spacing
+   4. Support both light and dark themes automatically
+   5. Use semantic color tokens (e.g., --color-text-primary)
+   6. Follow React Aria best practices for accessible components
+   7. Use px units only (no rem or em)
+   
+   Example structure:
+   
+   .button {
+     padding: var(--spacing-md) var(--spacing-lg);
+     font-size: var(--font-size-md);
+     background-color: var(--color-primary-500);
+     color: var(--color-text-inverse);
+     border-radius: var(--radius-md);
+     transition: all var(--transition-normal);
+   }
+   
+   .button:hover {
+     background-color: var(--color-primary-600);
+   }
+   ============================================ */
