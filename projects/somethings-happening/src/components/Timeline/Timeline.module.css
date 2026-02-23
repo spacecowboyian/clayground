@@ -1,0 +1,17 @@
+/**
+ * Timeline Component Styles
+ */
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-xl);
+  background-color: var(--color-background);
+  gap: 0;
+}
+
+@media (max-width: 768px) {
+  .timeline {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+}

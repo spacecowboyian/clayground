@@ -13,6 +13,19 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.4.0] – 2026-02-22
+
+### feat(somethings-happening)
+- Add new Vite + React project ported from `something-s-happening` Next.js repo
+- Homepage is the Super Bowl LX 2026 streaker incident — 13 timeline items (videos, images, tweets, Bluesky posts) rendered directly with `PlayableTimeline`
+- Converted all components from Next.js App Router to plain React: removed `'use client'` directives, replaced `next/image` with `<img>`, removed `next/link` and `next/navigation` dependencies
+- Removed Prisma/SQLite, server-only API routes, and all database code — static Vite SPA
+- Set up `@/` path alias via `vite.config.ts`, `tsconfig.json` `paths`
+- Output builds to `docs/somethings-happening/` for GitHub Pages
+- Registered in `docs/projects.json`
+
+
+
 ## [0.3.2] – 2026-02-23
 
 ### docs
