@@ -65,6 +65,21 @@ _Changes not yet pushed to `main` go here._
 - Tab bar with Results / Competition views and a watched-driver badge count
 - Dark-first mobile design (`#111` background, orange accent); responsive at ≤ 480 px (run chips hidden, layout tightened)
 - Registered in `docs/projects.json`
+## [0.6.0] – 2026-02-23
+
+### feat(gearhead)
+- Add 5 new supporting components to Gearhead:
+  - **PageHeader** — title, description, breadcrumbs nav, and actions slot
+  - **FilterSidebar** — collapsible filter groups with React Aria checkboxes, counts, clear-all, and color theming; collapses/expands each group independently
+  - **ViewToggle** — list/grid view mode switcher built on React Aria `ToggleButton` pair with accessible `aria-label` and `role="group"`
+  - **StatCard** — metric card with value, trend direction/value, icon, and per-color icon background
+  - **EmptyState** — zero-data state with optional icon, title, description, and action slot
+- Add 3 page structure patterns under `components/patterns/`:
+  - **ListPage** — left-side FilterSidebar + SearchField + ViewToggle toolbar + full-width content slot; sidebar hidden on mobile (`md:` breakpoint)
+  - **DetailsPage** — PageHeader with badge + structured detail sections rendered as `<dl>/<dt>/<dd>` grid + optional right sidebar; sidebar hidden on mobile
+  - **DashboardPage** — PageHeader + responsive StatCard row (1 → 2 → 4 cols) + primary/secondary content panels; secondary panel hidden on mobile
+- Add Storybook stories for all 8 new additions (Components and Patterns title groups)
+- Export all new components and patterns from `src/index.ts`
 
 ---
 

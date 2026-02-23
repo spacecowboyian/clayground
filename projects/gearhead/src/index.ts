@@ -28,5 +28,20 @@ export { Link } from './components/Link/Link';
 export { Tooltip } from './components/Tooltip/Tooltip';
 export { GridList, GridListItem } from './components/GridList/GridList';
 
+// ─── Composite Components ─────────────────────────────────────────────────────
+export { PageHeader } from './components/PageHeader/PageHeader';
+export { FilterSidebar } from './components/FilterSidebar/FilterSidebar';
+export type { FilterGroup, FilterOption } from './components/FilterSidebar/FilterSidebar';
+export { ViewToggle } from './components/ViewToggle/ViewToggle';
+export type { ViewMode } from './components/ViewToggle/ViewToggle';
+export { StatCard } from './components/StatCard/StatCard';
+export { EmptyState } from './components/EmptyState/EmptyState';
+
+// ─── Patterns ────────────────────────────────────────────────────────────────
+export { ListPage } from './components/patterns/ListPage/ListPage';
+export { DetailsPage } from './components/patterns/DetailsPage/DetailsPage';
+export type { DetailField, DetailSection } from './components/patterns/DetailsPage/DetailsPage';
+export { DashboardPage } from './components/patterns/DashboardPage/DashboardPage';
+
 // ─── Utilities ───────────────────────────────────────────────────────────────
 export { cn } from './utils/cn';
