@@ -1,11 +1,20 @@
 [
   {
-    "id": "template-nextjs",
-    "title": "Next.js Template",
-    "description": "A minimal Next.js starter wired up for GitHub Pages static export. Copy this to begin a new project.",
-    "tags": ["nextjs", "template"],
-    "url": "template-nextjs/index.html",
-    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/template-nextjs",
-    "date": "2026-02-23"
+    "id": "gearhead",
+    "title": "Gearhead",
+    "description": "The clayground design system — React Aria Components + Tailwind CSS. Interactive Storybook with all shared UI primitives.",
+    "tags": ["design-system", "storybook", "react-aria", "tailwind"],
+    "url": "gearhead/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/gearhead",
+    "date": "2026-02-22"
+  },
+  {
+    "id": "template",
+    "title": "Vite Template",
+    "description": "A minimal Vite + React + TypeScript starter wired up for GitHub Pages static export. Copy this to begin a new project.",
+    "tags": ["vite", "react", "typescript", "template"],
+    "url": "template/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/template",
+    "date": "2026-02-22"
   }
 ]

@@ -32,11 +32,11 @@ jobs:
           # Cache key covers all package-lock files under projects/
           cache-dependency-path: projects/**/package-lock.json
 
-      - name: Build Next.js projects
+      - name: Build all projects
         env:
           # Expose Supabase keys if they are added as repo secrets
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
           for dir in projects/*/; do
             if [ -f "${dir}package.json" ]; then
