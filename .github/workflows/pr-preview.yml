@@ -95,8 +95,7 @@ jobs:
               url: process.env.PR_URL,
               builds,
             };
-            fs.writeFileSync(file, JSON.stringify(data, null, 2) + '
-');
+            fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
           "
 
       # ── Commit built files + pr-builds.json back to main ─────────────────
@@ -142,8 +141,7 @@ jobs:
               ...lines,
               '',
               `*Updated: ${new Date().toUTCString()}*`,
-            ].join('
-');
+            ].join('\n');
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
