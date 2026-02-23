@@ -13,6 +13,25 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.6.0] – 2026-02-23
+
+### feat(kc-live-timing)
+- Add new `projects/kc-live-timing` — KC Live Timing, a mobile-friendly React SPA for KCRSCCA autocross and rallycross events
+- File drop/upload interface for axware `results_live.htm` files; parses HTML into structured JSON using a DOM-based parser
+- Scrollable "Latest 10 Runs" strip across the top of the page — most recent runs first, auto-scrolls on update
+- Class results tables sorted by fastest time: autocross uses best single run, rallycross uses cumulative total
+- Run chips show individual times with cone penalties (e.g. `54.321+2`), colour-coded best run highlight, DNF/DNS labels
+- Time-diff column shows gap to class leader (`+N.NNN`)
+- "Mark as me" (☆/★) feature: selected driver is pinned to the very top of their class table using CSS sticky positioning with an orange banner
+- "Watch" (🟢/🔴) feature: add any driver to a Competition watchlist
+- Dedicated **Competition** tab: cross-class comparison of all watched drivers sorted by best time, with sticky "You" banner at top
+- Persistent selections via `localStorage` — survives page reloads
+- Tab bar with Results / Competition views and a watched-driver badge count
+- Dark-first mobile design (`#111` background, orange accent); responsive at ≤ 480 px (run chips hidden, layout tightened)
+- Registered in `docs/projects.json`
+
+---
+
 ## [0.5.0] – 2026-02-23
 
 ### feat(bpsds)
