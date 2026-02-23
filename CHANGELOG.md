@@ -13,6 +13,16 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.4.1] – 2026-02-23
+
+### docs(somethings-happening)
+- Add `user-stories/` directory ported from `spacecowboyian/something-s-happening` repository
+- Includes 11 epic subdirectories (user entry, event resolution, event creation, media aggregation, timeline presentation, event discovery, moderation, privacy, system administration, MVP infrastructure, user feed/personalization)
+- Each epic contains a `README.md`, individual story `.md` files, and `frontend/` or `backend/` sub-subdirectories
+- Root-level `README.md`, `QUICK_START.md`, and `STORY_TEMPLATE.md` included
+
+---
+
 ## [0.4.0] – 2026-02-22
 
 ### feat(somethings-happening)
