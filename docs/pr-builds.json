@@ -1,6 +1,6 @@
 {
   "15": {
-    "title": "ci: build production artifacts to /main subpath + auto-deploy Pages on PR events",
+    "title": "ci: fix PR preview pipeline for Storybook projects + add /main subpath for production builds",
     "url": "https://github.com/spacecowboyian/clayground/pull/15",
     "builds": {
       "bpsds": "https://spacecowboyian.github.io/clayground/bpsds/pr-15/",
