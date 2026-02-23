@@ -13,6 +13,22 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.4.3] – 2026-02-23
+
+### docs(ci)
+- Port "User Story Update Requirement" from `spacecowboyian/something-s-happening` into both `.github/copilot-instructions.md` and `AGENTS.md`
+- Copilot must now also update the relevant user story file (under `## Additions`) whenever a commit includes design changes, recording what shifted and building a historical record of design evolution
+
+---
+
+## [0.4.2] – 2026-02-23
+
+### docs(ci)
+- Add "User Story Management" section (§13) to `.github/copilot-instructions.md` and `AGENTS.md`
+- On every incoming work request Copilot now automatically scans `projects/somethings-happening/user-stories/` for similar or conflicting stories before doing any work; alerts the user if a conflict is found; otherwise silently adds the request to the user story scope (Flow A: extends an existing story, Flow B: creates a new story file from `STORY_TEMPLATE.md`)
+
+---
+
 ## [0.4.1] – 2026-02-23
 
 ### docs(somethings-happening)
