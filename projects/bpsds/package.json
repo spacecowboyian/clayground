@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "storybook dev --port 6007",
-    "build": "storybook build --output-dir ../../docs/bpsds",
-    "build-storybook": "storybook build --output-dir ../../docs/bpsds",
+    "build": "storybook build --output-dir ../../docs/bpsds/main",
+    "build-storybook": "storybook build --output-dir ../../docs/bpsds/main",
     "storybook": "storybook dev --port 6007",
     "preview": "vite preview"
   },

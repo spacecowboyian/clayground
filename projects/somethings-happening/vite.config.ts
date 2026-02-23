@@ -5,14 +5,14 @@ import { resolve } from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/clayground/somethings-happening/',
+  base: '/clayground/somethings-happening/main/',
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
     },
   },
   build: {
-    outDir: '../../docs/somethings-happening',
+    outDir: '../../docs/somethings-happening/main',
     emptyOutDir: true,
   },
 })
