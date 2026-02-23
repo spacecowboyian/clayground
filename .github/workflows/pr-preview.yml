@@ -1,0 +1,166 @@
+name: PR Preview — Build & Deploy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# One run per PR at a time; cancel in-progress when a new commit is pushed.
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write       # push preview builds back to main
+  pull-requests: write  # post preview-link comment on the PR
+
+jobs:
+  build-and-deploy:
+    name: Build & deploy PR preview
+    runs-on: ubuntu-latest
+    steps:
+      # ── Checkout the PR code ─────────────────────────────────────────────
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: pr-branch
+
+      # ── Checkout main so we can write into docs/ ─────────────────────────
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-branch
+
+      # ── Node setup ───────────────────────────────────────────────────────
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: pr-branch/projects/**/package-lock.json
+
+      # ── Build every project with PR-specific base/outDir ─────────────────
+      - name: Build all projects for PR preview
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          for dir in pr-branch/projects/*/; do
+            project=$(basename "$dir")
+            if [ ! -f "${dir}package.json" ]; then
+              continue
+            fi
+
+            echo "▶ Building ${project} for PR #${PR_NUMBER}"
+            OUT_DIR="$(pwd)/main-branch/docs/${project}/pr-${PR_NUMBER}"
+            mkdir -p "$OUT_DIR"
+
+            if grep -q '"storybook build"' "${dir}package.json"; then
+              # Storybook project — only the output dir changes; storybook
+              # uses relative asset paths so no base override is needed.
+              (cd "${dir}" && npm ci && npx storybook build --output-dir "$OUT_DIR")
+            else
+              # Vite project — override base and outDir via CLI flags.
+              (cd "${dir}" && npm ci && npx vite build \
+                --base="/clayground/${project}/pr-${PR_NUMBER}/" \
+                --outDir "$OUT_DIR")
+            fi
+          done
+
+      # ── Record the preview URLs in pr-builds.json ────────────────────────
+      - name: Update pr-builds.json
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          cd main-branch
+          node -e "
+            const fs = require('fs');
+            const file = 'docs/pr-builds.json';
+            let data = {};
+            try { data = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
+
+            const pr = process.env.PR_NUMBER;
+            const builds = {};
+            // List projects from the PR branch (what was actually built).
+            for (const d of fs.readdirSync('../pr-branch/projects')) {
+              if (fs.existsSync('../pr-branch/projects/' + d + '/package.json')) {
+                builds[d] = 'https://spacecowboyian.github.io/clayground/' + d + '/pr-' + pr + '/';
+              }
+            }
+            data[pr] = {
+              title: process.env.PR_TITLE,
+              url: process.env.PR_URL,
+              builds,
+            };
+            fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
+          "
+
+      # ── Commit built files + pr-builds.json back to main ─────────────────
+      - name: Commit and push preview to main
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          cd main-branch
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          git diff --staged --quiet && echo "Nothing to commit" && exit 0
+          git commit -m "chore(ci): add PR #${PR_NUMBER} preview builds"
+          # Retry up to 3 times to handle concurrent pushes.
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && break || sleep 10
+          done
+
+      # ── Post (or update) a comment on the PR with all preview links ───────
+      - name: Post preview links as PR comment
+        uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        with:
+          script: |
+            const fs = require('fs');
+            const pr = process.env.PR_NUMBER;
+            const lines = [];
+            for (const d of fs.readdirSync('pr-branch/projects')) {
+              if (fs.existsSync(`pr-branch/projects/${d}/package.json`)) {
+                lines.push(
+                  `- **${d}**: https://spacecowboyian.github.io/clayground/${d}/pr-${pr}/`
+                );
+              }
+            }
+            const body = [
+              '## 🔍 PR Preview Builds',
+              '',
+              `Preview builds deployed for PR #${pr}:`,
+              '',
+              ...lines,
+              '',
+              `*Updated: ${new Date().toUTCString()}*`,
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(pr),
+            });
+            const existing = comments.find(
+              c => c.user.type === 'Bot' && c.body.includes('PR Preview Builds')
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: Number(pr),
+                body,
+              });
+            }
