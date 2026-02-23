@@ -24,6 +24,7 @@ _Changes not yet pushed to `main` go here._
 - Output builds to `docs/somethings-happening/` for GitHub Pages
 - Registered in `docs/projects.json`
 
+---
 
 ## [0.3.3] – 2026-02-23
 
