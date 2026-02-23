@@ -6,6 +6,8 @@ on:
 
 permissions:
   contents: write  # push cleanup back to main
+  pages: write     # deploy updated docs to GitHub Pages
+  id-token: write  # required by actions/deploy-pages
 
 jobs:
   cleanup:
@@ -60,3 +62,29 @@ jobs:
           for i in 1 2 3; do
             git pull --rebase origin main && git push && break || sleep 10
           done
+
+  # ── Deploy updated docs/ (pr-builds.json entry removed) to GitHub Pages ─
+  deploy-pages:
+    name: Deploy updated index to GitHub Pages
+    needs: cleanup
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

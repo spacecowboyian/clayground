@@ -12,6 +12,8 @@ concurrency:
 permissions:
   contents: write       # push preview builds back to main
   pull-requests: write  # post preview-link comment on the PR
+  pages: write          # deploy updated docs to GitHub Pages
+  id-token: write       # required by actions/deploy-pages
 
 jobs:
   build-and-deploy:
@@ -164,3 +166,29 @@ jobs:
                 body,
               });
             }
+
+  # ── Deploy updated docs/ (including pr-builds.json) to GitHub Pages ─────
+  deploy-pages:
+    name: Deploy updated index to GitHub Pages
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
