@@ -528,6 +528,14 @@ html, body, #root {
   background: color-mix(in srgb, var(--accent) 4%, transparent);
 }
 
+/* Expanded row highlight */
+.driver-row--expanded td {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+.driver-row--me.driver-row--expanded td {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+}
+
 /* ─── Driver Name Button ────────────────────────────────────────────────────── */
 .driver-name-btn {
   background: none;
@@ -548,6 +556,10 @@ html, body, #root {
 .me-indicator { color: var(--accent); }
 
 /* ─── Driver Row ────────────────────────────────────────────────────────────── */
+.driver-row {
+  cursor: pointer;
+}
+
 .driver-row--me td {
   background: color-mix(in srgb, var(--accent) 10%, var(--surface));
 }
@@ -583,10 +595,6 @@ html, body, #root {
   font-weight: 400;
 }
 
-.driver-row__runs {
-  white-space: nowrap;
-}
-
 .run-chip {
   display: inline-block;
   font-family: var(--font-mono);
@@ -605,6 +613,31 @@ html, body, #root {
 }
 .run-chip--dnf { color: var(--red); }
 .run-chip--dns { color: var(--text3); }
+
+.run-chip__label {
+  font-size: 0.62rem;
+  color: var(--text3);
+  margin-right: 0.2rem;
+  font-weight: 600;
+}
+
+/* ─── Expansion row ─────────────────────────────────────────────────────────── */
+.expansion-row__cell {
+  padding: 0.5rem 0.75rem 0.65rem;
+  background: color-mix(in srgb, var(--surface2) 60%, var(--surface));
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+}
+
+.expansion-row__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.expansion-row__no-runs {
+  font-size: 0.75rem;
+  color: var(--text3);
+}
 
 .driver-row__best {
   font-family: var(--font-mono);
@@ -631,23 +664,40 @@ html, body, #root {
   text-align: right;
 }
 
-.action-btn {
+/* Pin column header: no visual content */
+.th-pin { width: 2rem; padding: 0; }
+
+/* Pin button — gray by default, red when pinned */
+.pin-btn {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
-  padding: 0.2rem 0.3rem;
+  padding: 0.25rem 0.3rem;
   border-radius: var(--radius-sm);
-  opacity: 0.5;
-  transition: opacity 0.15s, background 0.15s;
+  color: var(--text3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s;
   line-height: 1;
 }
-.action-btn:hover { opacity: 1; background: var(--surface2); }
-.action-btn--active { opacity: 1; }
+.pin-btn:hover {
+  background: var(--surface2);
+  color: var(--text2);
+}
+.pin-btn--active {
+  color: var(--red);
+}
+.pin-btn--active:hover {
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 10%, var(--surface2));
+}
 
-/* Pin button – dim when not pinned, full opacity when pinned */
-.pin-btn { font-size: 1rem; }
-.pin-btn:not(.action-btn--active) { filter: grayscale(0.4); }
+.pin-icon {
+  display: block;
+  width: 15px;
+  height: 15px;
+}
 
 /* ─── Competition Page ──────────────────────────────────────────────────────── */
 .competition-empty {
@@ -895,8 +945,7 @@ html, body, #root {
 @media (max-width: 480px) {
   .app-header__title { font-size: 1rem; }
   .results-table { font-size: 0.75rem; }
-  .driver-row__runs { display: none; } /* hide run chips on small screens */
   .driver-row__car { display: none; }
   .tab-btn { padding: 0.6rem 0.65rem; font-size: 0.78rem; }
-  .global-me-bar { font-size: 0.78rem; padding: 0.35rem 0.75rem; }
+  .me-bar { font-size: 0.78rem; }
 }

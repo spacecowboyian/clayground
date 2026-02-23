@@ -13,6 +13,18 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.6.3] – 2026-02-23
+
+### fix(kc-live-timing)
+- **Merge latest main** — rebased onto current `main` (no divergence in this grafted/shallow clone)
+- **Remove "Runs" column** from the results table; default row now shows only `Pos | # | Driver | Best/Total | Pin` — keeps the mobile view uncluttered with just the single relevant time
+- **Row-click expansion** — tapping/clicking anywhere on a driver row (except the name button or pin) inserts an inline expansion row beneath it showing all run chips labelled `R1`, `R2`, `R3` …; the best run chip is highlighted green; clicking the row again collapses it
+- **SVG pin icon replaces 📌 emoji** — uses `fill="currentColor"` so CSS color works; **gray** (`--text3`) by default → **red** (`--red`) when pinned; also updated `CompetitionPage.tsx` to match
+- **Pin column header removed** — `<th>` now has no visible text (`aria-label="Pin"` for screen readers only, zero width)
+- **Mobile CSS** — removed stale `driver-row__runs: display:none` rule (column no longer exists) and stale `global-me-bar` mobile override; `me-bar` font-size now scaled at ≤ 480 px
+
+---
+
 ## [0.6.2] – 2026-02-23
 
 ### fix(kc-live-timing)

@@ -105,12 +105,14 @@ export function CompetitionPage({
                 </td>
                 <td className="driver-row__actions">
                   <button
-                    className="action-btn pin-btn action-btn--active"
+                    className="pin-btn pin-btn--active"
                     aria-label="Unpin from competition"
                     title="Unpin from competition"
                     onClick={() => onToggleCompetition(key)}
                   >
-                    📌
+                    <svg className="pin-icon" viewBox="0 0 24 24" fill="currentColor" width="15" height="15" aria-hidden="true">
+                      <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
+                    </svg>
                   </button>
                 </td>
               </tr>
