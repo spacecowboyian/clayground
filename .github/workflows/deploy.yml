@@ -4,11 +4,14 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  # Also re-deploy after a PR preview is committed to main.
-  # workflow_run fires in the default-branch context so Pages
-  # deployment is allowed (unlike pull_request-triggered jobs).
+  # Also re-deploy after a PR preview is committed to main, or after
+  # a PR cleanup removes preview dirs. workflow_run fires in the
+  # default-branch context so Pages deployment is allowed
+  # (unlike pull_request-triggered jobs).
   workflow_run:
-    workflows: ["PR Preview \u2014 Build & Deploy"]
+    workflows:
+      - "PR Preview \u2014 Build & Deploy"
+      - "PR Cleanup \u2014 Remove Preview Builds"
     types: [completed]
 
 # Allow one concurrent deployment
@@ -25,15 +28,15 @@ jobs:
   build:
     name: Build projects
     runs-on: ubuntu-latest
-    # Don't bother if the pr-preview run that triggered us failed.
+    # Don't bother if the workflow that triggered us failed.
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       # ── Build every project that has a package.json ──────────────────────
-      # Skip on workflow_run: the PR preview already pushed built assets to
-      # main, so we only need to re-upload docs/ — no rebuild required.
+      # Skip on workflow_run: the PR preview/cleanup already committed the
+      # right assets to main, so we only need to re-upload docs/.
       - name: Set up Node
         if: github.event_name != 'workflow_run'
         uses: actions/setup-node@v4
