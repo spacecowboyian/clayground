@@ -4,7 +4,7 @@
     "title": "KC Live Timing",
     "description": "A mobile-friendly live timing viewer for KCRSCCA autocross and rallycross events. Drop in the axware results_live.htm file to instantly parse all class results, stream the 10 latest runs, sort drivers by fastest time, and build a personal competition watchlist with sticky 'my car' positioning.",
     "tags": ["motorsport", "timing", "react", "mobile", "scca"],
-    "url": "kc-live-timing/index.html",
+    "url": "kc-live-timing/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/kc-live-timing",
     "date": "2026-02-23"
   },
