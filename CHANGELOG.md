@@ -13,6 +13,58 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.6.3] – 2026-02-23
+
+### fix(kc-live-timing)
+- **Merge latest main** — rebased onto current `main` (no divergence in this grafted/shallow clone)
+- **Remove "Runs" column** from the results table; default row now shows only `Pos | # | Driver | Best/Total | Pin` — keeps the mobile view uncluttered with just the single relevant time
+- **Row-click expansion** — tapping/clicking anywhere on a driver row (except the name button or pin) inserts an inline expansion row beneath it showing all run chips labelled `R1`, `R2`, `R3` …; the best run chip is highlighted green; clicking the row again collapses it
+- **SVG pin icon replaces 📌 emoji** — uses `fill="currentColor"` so CSS color works; **gray** (`--text3`) by default → **red** (`--red`) when pinned; also updated `CompetitionPage.tsx` to match
+- **Pin column header removed** — `<th>` now has no visible text (`aria-label="Pin"` for screen readers only, zero width)
+- **Mobile CSS** — removed stale `driver-row__runs: display:none` rule (column no longer exists) and stale `global-me-bar` mobile override; `me-bar` font-size now scaled at ≤ 480 px
+
+---
+
+## [0.6.2] – 2026-02-23
+
+### fix(kc-live-timing)
+- Move the YOU bar **above** the latest-runs strip — order is now: YOU bar → latest runs → tab bar → class results
+- Replace simple time + position display in YOU bar with **run-by-run chips** (autocross) or **total time** (rallycross)
+- Autocross: best run chip is placed first and uses `position: sticky; left: 0` so it never scrolls out of view; other runs scroll horizontally to the right
+- Rallycross: YOU bar shows a single large "Total" time instead of run chips
+- Extract YOU bar into dedicated `MeBar` component (`src/components/MeBar.tsx`)
+- Fix sticky z-index stacking: added `--header-h` / `--me-bar-h` CSS variables; `.app--has-me .tab-bar` stacks below both header and me-bar
+
+---
+
+## [0.6.1] – 2026-02-23
+
+### fix(kc-live-timing)
+- Replace ☆/★ "Mark as me" and 🟢/🔴 "Watch" row buttons with a single 📌 **pin** icon per driver row — dimmed when unpinned, full opacity when pinned
+- Remove inline "Mark as me" button from table rows and Competition page; "This is me" now lives exclusively on the driver detail screen
+- Tapping a driver's name now opens a **Driver Detail view** showing all their individual runs, best time, class position, cone-penalty breakdown, and a prominent "📌 This is me" / "✓ This is me — tap to remove" button
+- "This is me" selection persists in `localStorage` — survives page reloads and browser restarts
+- Replace per-class sticky bottom banner with a **global sticky "YOU" bar** pinned between the Latest Runs strip and the tab bar — always visible as you scroll through any class, showing name, class code, best time, and position; tapping it opens the driver detail view
+- Chris Taylor ★ indicator appears inline in the driver's name cell in the results table
+
+---
+
+## [0.6.0] – 2026-02-23
+
+### feat(kc-live-timing)
+- Add new `projects/kc-live-timing` — KC Live Timing, a mobile-friendly React SPA for KCRSCCA autocross and rallycross events
+- File drop/upload interface for axware `results_live.htm` files; parses HTML into structured JSON using a DOM-based parser
+- Scrollable "Latest 10 Runs" strip across the top of the page — most recent runs first, auto-scrolls on update
+- Class results tables sorted by fastest time: autocross uses best single run, rallycross uses cumulative total
+- Run chips show individual times with cone penalties (e.g. `54.321+2`), colour-coded best run highlight, DNF/DNS labels
+- Time-diff column shows gap to class leader (`+N.NNN`)
+- "Mark as me" (☆/★) feature: selected driver is pinned to the very top of their class table using CSS sticky positioning with an orange banner
+- "Watch" (🟢/🔴) feature: add any driver to a Competition watchlist
+- Dedicated **Competition** tab: cross-class comparison of all watched drivers sorted by best time, with sticky "You" banner at top
+- Persistent selections via `localStorage` — survives page reloads
+- Tab bar with Results / Competition views and a watched-driver badge count
+- Dark-first mobile design (`#111` background, orange accent); responsive at ≤ 480 px (run chips hidden, layout tightened)
+- Registered in `docs/projects.json`
 ## [0.6.0] – 2026-02-23
 
 ### feat(gearhead)
