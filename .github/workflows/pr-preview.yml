@@ -56,7 +56,7 @@ jobs:
             OUT_DIR="$(pwd)/main-branch/docs/${project}/pr-${PR_NUMBER}"
             mkdir -p "$OUT_DIR"
 
-            if grep -q '"storybook build"' "${dir}package.json"; then
+            if grep -q 'storybook build' "${dir}package.json"; then
               # Storybook project — only the output dir changes; storybook
               # uses relative asset paths so no base override is needed.
               (cd "${dir}" && npm ci && npx storybook build --output-dir "$OUT_DIR")
@@ -99,6 +99,8 @@ jobs:
           "
 
       # ── Commit built files + pr-builds.json back to main ─────────────────
+      # NOTE: GITHUB_TOKEN pushes do not re-trigger push-based workflows.
+      # deploy.yml picks this up via its workflow_run trigger instead.
       - name: Commit and push preview to main
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}

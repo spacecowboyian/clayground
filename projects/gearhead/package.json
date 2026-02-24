@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "storybook dev --port 6006",
-    "build": "storybook build --output-dir ../../docs/gearhead",
-    "build-storybook": "storybook build --output-dir ../../docs/gearhead",
+    "build": "storybook build --output-dir ../../docs/gearhead/main",
+    "build-storybook": "storybook build --output-dir ../../docs/gearhead/main",
     "storybook": "storybook dev --port 6006",
     "preview": "vite preview"
   },
