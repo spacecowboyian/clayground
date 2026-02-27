@@ -20,6 +20,62 @@ import { MomentCard } from '@/components/MomentCard';
 import { getYouTubeVideoId, getYouTubeThumbnail } from '@/lib/youtube-client';
 import styles from './PlayableTimeline.module.css';
 
+// ── YouTube IFrame Player API types ──────────────────────────────────────────
+interface YTPlayer {
+  playVideo(): void;
+  pauseVideo(): void;
+  seekTo(seconds: number, allowSeekAhead: boolean): void;
+  mute(): void;
+  unMute(): void;
+  getDuration(): number;
+  getCurrentTime(): number;
+  destroy(): void;
+}
+
+declare global {
+  interface Window {
+    YT?: {
+      Player: new (
+        container: HTMLElement | string,
+        config: {
+          videoId?: string;
+          playerVars?: Record<string, number | string>;
+          events?: {
+            onReady?: (e: { target: YTPlayer }) => void;
+            onStateChange?: (e: { data: number; target: YTPlayer }) => void;
+          };
+        },
+      ) => YTPlayer;
+      PlayerState: {
+        UNSTARTED: -1;
+        ENDED: 0;
+        PLAYING: 1;
+        PAUSED: 2;
+        BUFFERING: 3;
+        CUED: 5;
+      };
+    };
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
+let _ytApiPromise: Promise<void> | null = null;
+function loadYouTubeAPI(): Promise<void> {
+  if (window.YT?.Player) return Promise.resolve();
+  if (_ytApiPromise) return _ytApiPromise;
+  _ytApiPromise = new Promise<void>((resolve) => {
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      prev?.();
+      resolve();
+    };
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  });
+  return _ytApiPromise;
+}
+
 export interface TimelineItem {
   id: string;
   timestamp: Date;
@@ -172,6 +228,27 @@ function PlayerMedia({
   const youTubeId = item?.mediaType === 'video' ? getYouTubeVideoId(item.mediaUrl) : null;
   const isYouTube = Boolean(youTubeId);
 
+  // YouTube IFrame API refs
+  const ytContainerRef = useRef<HTMLDivElement | null>(null);
+  const ytPlayerRef = useRef<YTPlayer | null>(null);
+  const ytProgressPollRef = useRef<number | null>(null);
+
+  // Keep latest prop values accessible in async YouTube callbacks
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+  const isMutedRef = useRef(isMuted);
+  isMutedRef.current = isMuted;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+  const onPlayStateChangeRef = useRef(onPlayStateChange);
+  onPlayStateChangeRef.current = onPlayStateChange;
+  const onProgressChangeRef = useRef(onProgressChange);
+  onProgressChangeRef.current = onProgressChange;
+  const onYouTubeReadyStateChangeRef = useRef(onYouTubeReadyStateChange);
+  onYouTubeReadyStateChangeRef.current = onYouTubeReadyStateChange;
+  const onSeekHandledRef = useRef(onSeekHandled);
+  onSeekHandledRef.current = onSeekHandled;
+
   // Text caption chunk logic
   const textChunks = useMemo(() => {
     if (!item || item.mediaType !== 'text') return [];
@@ -218,9 +295,11 @@ function PlayerMedia({
   }, [isYouTube, onYouTubeReadyStateChange]);
 
   useEffect(() => {
-    if (!item || (item.mediaType !== 'text' && !isYouTube)) {
-      onProgressChange(0, 0);
-      textPlaybackStartRef.current = null;
+    if (!item || item.mediaType !== 'text') {
+      if (!isYouTube) {
+        onProgressChange(0, 0);
+        textPlaybackStartRef.current = null;
+      }
       return;
     }
 
@@ -232,7 +311,7 @@ function PlayerMedia({
   }, [item, isPlaying, onProgressChange, isYouTube]);
 
   useEffect(() => {
-    if (!item || (item.mediaType !== 'text' && !isYouTube) || !isPlaying) {
+    if (!item || item.mediaType !== 'text' || !isPlaying) {
       return;
     }
 
@@ -255,10 +334,10 @@ function PlayerMedia({
       window.clearInterval(progressTimer);
       window.clearTimeout(timer);
     };
-  }, [item, isPlaying, onComplete, onPlayStateChange, onProgressChange, isYouTube]);
+  }, [item, isPlaying, onComplete, onPlayStateChange, onProgressChange]);
 
   useEffect(() => {
-    if (!item || (item.mediaType !== 'text' && !isYouTube) || seekTo === null) {
+    if (!item || item.mediaType !== 'text' || seekTo === null) {
       return;
     }
 
@@ -270,7 +349,105 @@ function PlayerMedia({
     }
 
     onSeekHandled();
-  }, [item, isPlaying, seekTo, onProgressChange, onSeekHandled, isYouTube]);
+  }, [item, isPlaying, seekTo, onProgressChange, onSeekHandled]);
+
+  // ── YouTube IFrame Player API ───────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!isYouTube || !youTubeId) return;
+
+    let cancelled = false;
+
+    const stopPoll = () => {
+      if (ytProgressPollRef.current !== null) {
+        window.clearInterval(ytProgressPollRef.current);
+        ytProgressPollRef.current = null;
+      }
+    };
+
+    const startPoll = (player: YTPlayer) => {
+      stopPoll();
+      ytProgressPollRef.current = window.setInterval(() => {
+        onProgressChangeRef.current(player.getCurrentTime(), player.getDuration());
+      }, 200);
+    };
+
+    loadYouTubeAPI().then(() => {
+      if (cancelled || !ytContainerRef.current) return;
+
+      const player = new window.YT!.Player(ytContainerRef.current, {
+        videoId: youTubeId,
+        playerVars: { autoplay: 1, playsinline: 1, rel: 0 },
+        events: {
+          onReady: ({ target }) => {
+            if (cancelled) {
+              target.destroy();
+              return;
+            }
+            ytPlayerRef.current = target;
+            onYouTubeReadyStateChangeRef.current?.(true);
+            onProgressChangeRef.current(0, target.getDuration());
+            if (isMutedRef.current) target.mute(); else target.unMute();
+            if (isPlayingRef.current) {
+              target.playVideo();
+              startPoll(target);
+            } else {
+              target.pauseVideo();
+            }
+          },
+          onStateChange: ({ data, target }) => {
+            if (data === 1 /* PLAYING */) {
+              onPlayStateChangeRef.current?.(true);
+              startPoll(target);
+            } else if (data === 2 /* PAUSED */) {
+              onPlayStateChangeRef.current?.(false);
+              stopPoll();
+            } else if (data === 0 /* ENDED */) {
+              stopPoll();
+              onCompleteRef.current();
+            }
+          },
+        },
+      });
+
+      ytPlayerRef.current = player;
+    }).catch((err: unknown) => {
+      console.error('[PlayableTimeline] Failed to load YouTube IFrame API:', err);
+    });
+
+    return () => {
+      cancelled = true;
+      stopPoll();
+      if (ytPlayerRef.current) {
+        try { ytPlayerRef.current.destroy(); } catch { /* noop */ }
+        ytPlayerRef.current = null;
+      }
+    };
+  // Only recreate the player when the video ID changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [youTubeId]);
+
+  // Sync external isPlaying → YouTube player
+  useEffect(() => {
+    const player = ytPlayerRef.current;
+    if (!isYouTube || !player) return;
+    if (isPlaying) player.playVideo(); else player.pauseVideo();
+  }, [isYouTube, isPlaying]);
+
+  // Sync external isMuted → YouTube player
+  useEffect(() => {
+    const player = ytPlayerRef.current;
+    if (!isYouTube || !player) return;
+    if (isMuted) player.mute(); else player.unMute();
+  }, [isYouTube, isMuted]);
+
+  // Sync external seekTo → YouTube player
+  useEffect(() => {
+    const player = ytPlayerRef.current;
+    if (!isYouTube || !player || seekTo === null) return;
+    player.seekTo(Math.max(0, seekTo), true);
+    onSeekHandledRef.current();
+  }, [isYouTube, seekTo]);
 
   useEffect(() => {
     const videoElement = videoRef.current;
@@ -404,13 +581,7 @@ function PlayerMedia({
 
   if (item.mediaType === 'video' && youTubeId) {
     return (
-      <iframe
-        className={styles.youtubePlayer}
-        src={`https://www.youtube.com/embed/${youTubeId}?autoplay=1&mute=${isMuted ? 1 : 0}&playsinline=1`}
-        title="YouTube video"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-      />
+      <div ref={ytContainerRef} className={styles.youtubePlayer} />
     );
   }
 
@@ -928,11 +1099,13 @@ export function PlayableTimeline({
                     <FontAwesomeIcon icon={faArrowRotateLeft} />
                   </div>
                 )}
-                <div
-                  className={styles.mobileTapLayer}
-                  onClick={handlePlayerTap}
-                  aria-hidden="true"
-                />
+                {!currentIsYouTube && (
+                  <div
+                    className={styles.mobileTapLayer}
+                    onClick={handlePlayerTap}
+                    aria-hidden="true"
+                  />
+                )}
                 <div className={styles.playerInfoOverlay}>
                   <div className={styles.overlayEventInfo}>
                     <span className={`${styles.overlayStatusBadge} ${styles[status]}`}>
@@ -1100,6 +1273,8 @@ export function PlayableTimeline({
                 mediaType={item.mediaType}
                 mediaUrl={item.mediaUrl}
                 isActive={index === currentIndex}
+                progress={index === currentIndex ? playbackProgress : undefined}
+                duration={index === currentIndex ? playbackDuration : undefined}
                 isStartMoment={item.id === chronologicalFirstId}
                 isEndMoment={status === 'completed' && item.id === chronologicalLastId}
                 showTopConnector={showTopConnector}

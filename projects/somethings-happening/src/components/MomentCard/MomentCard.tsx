@@ -26,6 +26,8 @@ export interface MomentCardProps {
   showBottomConnector?: boolean;
   extendTopConnector?: boolean;
   extendBottomConnector?: boolean;
+  progress?: number;
+  duration?: number;
   onPress?: () => void;
 }
 
@@ -58,6 +60,8 @@ function MomentCardImpl(
     showBottomConnector = true,
     extendTopConnector = false,
     extendBottomConnector = false,
+    progress,
+    duration,
     onPress,
   }: MomentCardProps,
   ref: ForwardedRef<HTMLButtonElement>,
@@ -197,6 +201,15 @@ function MomentCardImpl(
 
         {!(youtubeThumbnail && mediaType === 'video') && (
           <p className={styles.text}>{content}</p>
+        )}
+
+        {isActive && duration !== undefined && duration > 0 && (
+          <div className={styles.progressTrack} aria-hidden="true">
+            <div
+              className={styles.progressFill}
+              style={{ width: `${Math.min(100, ((progress ?? 0) / duration) * 100)}%` }}
+            />
+          </div>
         )}
       </div>
     </AriaButton>
