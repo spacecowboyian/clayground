@@ -4,6 +4,15 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Also re-deploy after a PR preview is committed to main, or after
+  # a PR cleanup removes preview dirs. workflow_run fires in the
+  # default-branch context so Pages deployment is allowed
+  # (unlike pull_request-triggered jobs).
+  workflow_run:
+    workflows:
+      - "PR Preview \u2014 Build & Deploy"
+      - "PR Cleanup \u2014 Remove Preview Builds"
+    types: [completed]
 
 # Allow one concurrent deployment
 concurrency:
@@ -11,18 +20,25 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write   # needed to push to gh-pages branch
+  contents: write   # needed to push to gh-pages / write docs/
+  pages: write
+  id-token: write
 
 jobs:
-  build-deploy:
-    name: Build & deploy
+  build:
+    name: Build projects
     runs-on: ubuntu-latest
+    # Don't bother if the workflow that triggered us failed.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       # ── Build every project that has a package.json ──────────────────────
+      # Skip on workflow_run: the PR preview/cleanup already committed the
+      # right assets to main, so we only need to re-upload docs/.
       - name: Set up Node
+        if: github.event_name != 'workflow_run'
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -31,6 +47,7 @@ jobs:
           cache-dependency-path: projects/**/package-lock.json
 
       - name: Build all projects
+        if: github.event_name != 'workflow_run'
         env:
           # Expose Supabase keys if they are added as repo secrets
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
@@ -43,11 +60,20 @@ jobs:
             fi
           done
 
-      # ── Push the docs/ folder to the gh-pages branch ─────────────────────
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      # ── Upload the docs/ folder as the Pages artifact ────────────────────
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          # keep_files: true preserves the preview/ subtree added by preview.yml
-          keep_files: true
+          path: docs
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

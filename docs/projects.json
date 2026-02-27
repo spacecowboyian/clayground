@@ -1,10 +1,28 @@
 [
   {
+    "id": "kc-live-timing",
+    "title": "KC Live Timing",
+    "description": "A mobile-friendly live timing viewer for KCRSCCA autocross and rallycross events. Drop in the axware results_live.htm file to instantly parse all class results, stream the 10 latest runs, sort drivers by fastest time, and build a personal competition watchlist with sticky 'my car' positioning.",
+    "tags": ["motorsport", "timing", "react", "mobile", "scca"],
+    "url": "kc-live-timing/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/kc-live-timing",
+    "date": "2026-02-23"
+  },
+  {
+    "id": "bpsds",
+    "title": "BPS Design System",
+    "description": "A Bass Pro Shops-inspired component library — React Aria Components themed with BPS forest-green, gold, and outdoor palette. Storybook with 18 components covering product cards, navigation, filters, and more.",
+    "tags": ["design-system", "storybook", "react-aria", "tailwind", "ecommerce"],
+    "url": "bpsds/main/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/bpsds",
+    "date": "2026-02-23"
+  },
+  {
     "id": "gearhead",
     "title": "Gearhead",
     "description": "The clayground design system — React Aria Components + Tailwind CSS. Interactive Storybook with all shared UI primitives.",
     "tags": ["design-system", "storybook", "react-aria", "tailwind"],
-    "url": "gearhead/index.html",
+    "url": "gearhead/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/gearhead",
     "date": "2026-02-22"
   },
@@ -13,7 +31,7 @@
     "title": "Something's Happening",
     "description": "A real-time event timeline experience. Relive the Super Bowl LX 2026 streaker incident through fan footage, tweets, and media moments — playable like a social Shorts feed.",
     "tags": ["timeline", "react-aria", "sports", "media"],
-    "url": "somethings-happening/index.html",
+    "url": "somethings-happening/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/somethings-happening",
     "date": "2026-02-22"
   }

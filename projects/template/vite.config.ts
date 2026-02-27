@@ -7,11 +7,11 @@ export default defineConfig({
 
   // Base path for GitHub Pages:
   // https://spacecowboyian.github.io/clayground/template/
-  base: '/clayground/template/',
+  base: '/clayground/template/main/',
 
   build: {
     // Write the static output directly into the docs/ folder at the repo root
-    outDir: '../../docs/template',
+    outDir: '../../docs/template/main',
     emptyOutDir: true,
   },
 })

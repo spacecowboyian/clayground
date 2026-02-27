@@ -1,0 +1,64 @@
+name: PR Cleanup — Remove Preview Builds
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write  # push cleanup back to main
+
+jobs:
+  cleanup:
+    name: Remove PR preview builds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      # ── Delete preview dirs for this PR ──────────────────────────────────
+      - name: Remove PR preview directories
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          removed=0
+          for dir in docs/*/; do
+            pr_dir="${dir}pr-${PR_NUMBER}"
+            if [ -d "$pr_dir" ]; then
+              rm -rf "$pr_dir"
+              echo "Removed $pr_dir"
+              removed=$((removed + 1))
+            fi
+          done
+          echo "removed=$removed" >> "$GITHUB_ENV"
+
+      # ── Remove this PR's entry from pr-builds.json ───────────────────────
+      - name: Update pr-builds.json
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            const file = 'docs/pr-builds.json';
+            let data = {};
+            try { data = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
+            delete data[process.env.PR_NUMBER];
+            fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
+          "
+
+      # ── Commit cleanup back to main ───────────────────────────────────────
+      # NOTE: GITHUB_TOKEN pushes do not re-trigger push-based workflows.
+      # deploy.yml picks this up via its workflow_run trigger instead.
+      - name: Commit and push cleanup to main
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A docs/
+          git diff --staged --quiet && echo "Nothing to commit" && exit 0
+          git commit -m "chore(ci): remove PR #${PR_NUMBER} preview builds"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && break || sleep 10
+          done

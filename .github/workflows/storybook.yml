@@ -8,13 +8,15 @@ on:
   workflow_dispatch:
 
 # Shares the same concurrency group as deploy.yml so the two never fight over
-# the gh-pages branch. cancel-in-progress means the faster job wins.
+# the github-pages environment. cancel-in-progress means the faster job wins.
 concurrency:
   group: pages
   cancel-in-progress: true
 
 permissions:
-  contents: write   # needed to push to gh-pages branch
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build-storybook:
@@ -43,10 +45,19 @@ jobs:
       #   • Pre-committed files: index.html, projects.json
       #   • Freshly built:       docs/gearhead/ (just created above)
       #   • Any previously committed project outputs
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          # keep_files: true preserves the preview/ subtree added by preview.yml
-          keep_files: true
+          path: docs
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build-storybook
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
