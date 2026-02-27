@@ -13,6 +13,13 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.6.4] – 2026-02-27
+
+### chore(bpsds)
+- Remove Bass Pro Shops Design System project (`projects/bpsds/`, `docs/bpsds/`) and its entry from `docs/projects.json`
+
+---
+
 ## [0.6.3] – 2026-02-23
 
 ### fix(kc-live-timing)
