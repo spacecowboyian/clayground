@@ -1,30 +1,20 @@
 import { useState, useCallback, useMemo } from 'react';
-import type { TimingData } from './types/timing';
-import { parseAxwareHtml } from './utils/parseAxware';
-import { FileDropZone } from './components/FileDropZone';
 import { LatestRuns } from './components/LatestRuns';
 import { ClassResults } from './components/ClassResults';
 import { CompetitionPage } from './components/CompetitionPage';
 import { DriverDetail } from './components/DriverDetail';
 import { MeBar } from './components/MeBar';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import { useLiveTiming } from './hooks/useLiveTiming';
 
 type Tab = 'results' | 'competition';
 
 export function App() {
-  const [timingData, setTimingData] = useState<TimingData | null>(null);
-  const [fileName, setFileName] = useState('');
+  const { data: timingData, loading, error, lastUpdated, refresh } = useLiveTiming();
   const [activeTab, setActiveTab] = useState<Tab>('results');
   const [myDriverKey, setMyDriverKey] = useLocalStorage<string>('kc-timing-me', '');
   const [competitionKeys, setCompetitionKeys] = useLocalStorage<string[]>('kc-timing-competition', []);
   const [selectedDriverKey, setSelectedDriverKey] = useState<string | null>(null);
-
-  const handleFile = useCallback((html: string, name: string) => {
-    const data = parseAxwareHtml(html);
-    setTimingData(data);
-    setFileName(name);
-    setSelectedDriverKey(null);
-  }, []);
 
   const handleSetMe = useCallback((key: string) => {
     setMyDriverKey(key);
@@ -71,6 +61,10 @@ export function App() {
     return null;
   }, [myDriverKey, timingData]);
 
+  const lastUpdatedStr = lastUpdated
+    ? lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : null;
+
   return (
     <div className={`app${meDetail ? ' app--has-me' : ''}`}>
       <header className="app-header">
@@ -89,18 +83,37 @@ export function App() {
               </span>
             </div>
           )}
+          <div className="app-header__status">
+            {loading && <span className="status-dot status-dot--loading" aria-label="Fetching…" />}
+            {lastUpdatedStr && !loading && (
+              <span className="status-updated">Updated {lastUpdatedStr}</span>
+            )}
+            <button
+              className="status-refresh-btn"
+              aria-label="Refresh now"
+              title="Refresh now"
+              onClick={refresh}
+            >
+              ↻
+            </button>
+          </div>
         </div>
       </header>
 
-      {!timingData ? (
+      {error && (
+        <div className="fetch-error" role="alert">
+          <span>⚠️ Could not load results — {error}</span>
+          <button className="fetch-error__retry" onClick={refresh}>Retry</button>
+        </div>
+      )}
+
+      {loading && !timingData && (
         <main className="app-main app-main--empty">
-          <FileDropZone onFile={handleFile} />
-          <p className="hint">
-            Download <code>results_live.htm</code> from your axware server and drop it here.
-            The page auto-refreshes every ~30 s — re-drop the file to update.
-          </p>
+          <p className="loading-msg">Loading live results…</p>
         </main>
-      ) : (
+      )}
+
+      {timingData && (
         <>
           {/* Global sticky "YOU" bar — above latest runs */}
           {meDetail && (
@@ -138,14 +151,6 @@ export function App() {
                 <span className="tab-btn__badge">{competitionKeys.length}</span>
               )}
             </button>
-            <button
-              className="tab-btn tab-btn--reload"
-              title="Load a new file"
-              aria-label="Load a new file"
-              onClick={() => { setTimingData(null); setFileName(''); setSelectedDriverKey(null); }}
-            >
-              📂 {fileName || 'Load file'}
-            </button>
           </nav>
 
           <main className="app-main" role="tabpanel">
@@ -162,7 +167,7 @@ export function App() {
             ) : activeTab === 'results' ? (
               <div className="classes-list">
                 {timingData.classes.length === 0 ? (
-                  <p className="no-data">No class data found in this file.</p>
+                  <p className="no-data">No class data found.</p>
                 ) : (
                   timingData.classes.map(cls => (
                     <ClassResults
