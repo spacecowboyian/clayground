@@ -14,4 +14,15 @@ export default defineConfig({
     outDir: '../../docs/kc-live-timing/main',
     emptyOutDir: true,
   },
+
+  server: {
+    proxy: {
+      // Proxy the live results URL to avoid CORS in development
+      '/kcrscca-proxy': {
+        target: 'https://www.kcrscca.org',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/kcrscca-proxy/, ''),
+      },
+    },
+  },
 })
