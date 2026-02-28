@@ -26,6 +26,10 @@ _Changes not yet pushed to `main` go here._
 - Add `progress` and `duration` props to `MomentCard`; active cards now render a
   thin blue progress bar (matching the design accent colour) that fills as the
   moment plays back
+## [0.6.4] – 2026-02-27
+
+### chore(bpsds)
+- Remove Bass Pro Shops Design System project (`projects/bpsds/`, `docs/bpsds/`) and its entry from `docs/projects.json`
 
 ---
 

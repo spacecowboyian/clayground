@@ -1,6 +1,0 @@
-@import 'tailwindcss' source(none);
-@source '../components/**/*.{js,ts,jsx,tsx}';
-@source '../stories/**/*.{js,ts,jsx,tsx}';
-@source '../../.storybook/**/*.{js,ts,jsx,tsx}';
-
-@import 'tw-animate-css';
