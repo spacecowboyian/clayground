@@ -13,6 +13,19 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.7.0] – 2026-02-27
+
+### feat(somethings-happening)
+- Replace plain YouTube `<iframe>` with the YouTube IFrame Player API so that native
+  YouTube controls receive touch events on iPhone / mobile Chrome
+- Remove the `mobileTapLayer` overlay when the active moment is a YouTube video,
+  allowing the YouTube player to handle taps directly
+- Add real-time playback progress and duration tracking for YouTube items via
+  `YT.Player` event listeners and a 200 ms poll; eliminates the incorrect 10-second
+  text timer that was used as a placeholder
+- Add `progress` and `duration` props to `MomentCard`; active cards now render a
+  thin blue progress bar (matching the design accent colour) that fills as the
+  moment plays back
 ## [0.6.4] – 2026-02-27
 
 ### chore(bpsds)
