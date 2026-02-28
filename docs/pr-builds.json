@@ -1,9 +1,8 @@
 {
   "17": {
-    "title": "[WIP] Extract changes from PR-10 for main branch",
+    "title": "feat(somethings-happening): YouTube IFrame API, mobile tap fix, MomentCard progress bar",
     "url": "https://github.com/spacecowboyian/clayground/pull/17",
     "builds": {
-      "bpsds": "https://spacecowboyian.github.io/clayground/bpsds/pr-17/",
       "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-17/",
       "kc-live-timing": "https://spacecowboyian.github.io/clayground/kc-live-timing/pr-17/",
       "somethings-happening": "https://spacecowboyian.github.io/clayground/somethings-happening/pr-17/",
