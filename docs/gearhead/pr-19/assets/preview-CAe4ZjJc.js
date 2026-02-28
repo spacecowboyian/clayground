@@ -1,0 +1,1 @@
+const a={parameters:{backgrounds:{default:"dark",values:[{name:"dark",value:"#222222"},{name:"card",value:"#2a2a2a"},{name:"light",value:"#f5f5f5"}]},layout:"centered",docs:{theme:void 0}}};export{a as default};

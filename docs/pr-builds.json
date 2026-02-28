@@ -1,1 +1,12 @@
-{}
+{
+  "19": {
+    "title": "[WIP] Update KC live timing site to poll results every minute",
+    "url": "https://github.com/spacecowboyian/clayground/pull/19",
+    "builds": {
+      "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-19/",
+      "kc-live-timing": "https://spacecowboyian.github.io/clayground/kc-live-timing/pr-19/",
+      "somethings-happening": "https://spacecowboyian.github.io/clayground/somethings-happening/pr-19/",
+      "template": "https://spacecowboyian.github.io/clayground/template/pr-19/"
+    }
+  }
+}
