@@ -20,9 +20,10 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write   # needed to push to gh-pages / write docs/
+  contents: write        # needed to push to gh-pages / write docs/
   pages: write
   id-token: write
+  pull-requests: read    # needed to list open PRs for stale-preview sweep
 
 jobs:
   build:
@@ -59,6 +60,44 @@ jobs:
               (cd "${dir}" && npm ci && npm run build)
             fi
           done
+
+      # ── Sweep preview dirs for PRs that are no longer open ───────────────
+      # This runs on every push to main (i.e. after a PR merge) so that any
+      # pr-{N}/ subdirs for already-closed PRs are removed before Pages is
+      # redeployed, even if pr-cleanup.yml hasn't committed yet.
+      - name: Remove stale PR preview builds
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          open_prs=$(gh pr list --state open --json number --jq '.[].number' | tr '\n' ' ')
+          echo "Open PRs: ${open_prs:-none}"
+
+          for dir in docs/*/; do
+            [ -d "$dir" ] || continue
+            for pr_dir in "${dir}"pr-*/; do
+              [ -d "$pr_dir" ] || continue
+              trimmed="${pr_dir%/}"
+              pr_num="${trimmed##*-}"
+              if ! echo " $open_prs " | grep -q " ${pr_num} "; then
+                rm -rf "$pr_dir"
+                echo "Removed stale preview: $pr_dir"
+              fi
+            done
+          done
+
+          OPEN_PRS="$open_prs" node -e "
+            const fs = require('fs');
+            const open = new Set((process.env.OPEN_PRS || '').split(/\s+/).filter(Boolean));
+            const f = 'docs/pr-builds.json';
+            let d = {};
+            try { d = JSON.parse(fs.readFileSync(f, 'utf8')); } catch {}
+            let changed = false;
+            for (const k of Object.keys(d)) {
+              if (!open.has(k)) { delete d[k]; changed = true; console.log('Pruned PR #' + k + ' from pr-builds.json'); }
+            }
+            if (changed) fs.writeFileSync(f, JSON.stringify(d, null, 2) + '\n');
+          "
 
       # ── Upload the docs/ folder as the Pages artifact ────────────────────
       - name: Upload Pages artifact
