@@ -5,10 +5,5 @@
     "builds": {
       "kc-live-timing": "https://spacecowboyian.github.io/clayground/kc-live-timing/pr-19/"
     }
-  },
-  "21": {
-    "title": "[WIP] Update PR previews to link only to relevant projects",
-    "url": "https://github.com/spacecowboyian/clayground/pull/21",
-    "builds": {}
   }
 }
