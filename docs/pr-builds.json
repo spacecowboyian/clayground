@@ -8,5 +8,15 @@
       "somethings-happening": "https://spacecowboyian.github.io/clayground/somethings-happening/pr-19/",
       "template": "https://spacecowboyian.github.io/clayground/template/pr-19/"
     }
+  },
+  "20": {
+    "title": "[WIP] Fix issue with lingering preview releases after PR merge",
+    "url": "https://github.com/spacecowboyian/clayground/pull/20",
+    "builds": {
+      "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-20/",
+      "kc-live-timing": "https://spacecowboyian.github.io/clayground/kc-live-timing/pr-20/",
+      "somethings-happening": "https://spacecowboyian.github.io/clayground/somethings-happening/pr-20/",
+      "template": "https://spacecowboyian.github.io/clayground/template/pr-20/"
+    }
   }
 }
