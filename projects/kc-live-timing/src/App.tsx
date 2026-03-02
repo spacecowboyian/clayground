@@ -10,7 +10,7 @@ import { useLiveTiming } from './hooks/useLiveTiming';
 type Tab = 'results' | 'competition';
 
 export function App() {
-  const { data: timingData, loading, error, lastUpdated, refresh } = useLiveTiming();
+  const { data: timingData, loading, error, lastUpdated, refresh, usingSample } = useLiveTiming();
   const [activeTab, setActiveTab] = useState<Tab>('results');
   const [myDriverKey, setMyDriverKey] = useLocalStorage<string>('kc-timing-me', '');
   const [competitionKeys, setCompetitionKeys] = useLocalStorage<string[]>('kc-timing-competition', []);
@@ -104,6 +104,12 @@ export function App() {
         <div className="fetch-error" role="alert">
           <span>⚠️ Could not load results — {error}</span>
           <button className="fetch-error__retry" onClick={refresh}>Retry</button>
+        </div>
+      )}
+
+      {usingSample && !error && (
+        <div className="fetch-sample-notice" role="status">
+          📋 Live data unavailable — showing sample results
         </div>
       )}
 
