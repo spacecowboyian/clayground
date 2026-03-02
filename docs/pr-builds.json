@@ -8,5 +8,10 @@
       "somethings-happening": "https://spacecowboyian.github.io/clayground/somethings-happening/pr-19/",
       "template": "https://spacecowboyian.github.io/clayground/template/pr-19/"
     }
+  },
+  "21": {
+    "title": "[WIP] Update PR previews to link only to relevant projects",
+    "url": "https://github.com/spacecowboyian/clayground/pull/21",
+    "builds": {}
   }
 }
