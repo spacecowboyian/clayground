@@ -39,16 +39,44 @@ jobs:
           cache: npm
           cache-dependency-path: pr-branch/projects/**/package-lock.json
 
-      # ── Build every project with PR-specific base/outDir ─────────────────
-      - name: Build all projects for PR preview
+      # ── Detect which projects have changed files in this PR ──────────────
+      - name: Detect changed projects
+        id: changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            const projects = [
+              ...new Set(
+                files
+                  .map(f => f.filename.match(/^projects\/([^/]+)\//)?.[1])
+                  .filter(Boolean)
+              )
+            ];
+            core.info(`Changed projects: ${projects.join(', ') || '(none)'}`);
+            core.setOutput('projects', JSON.stringify(projects));
+
+      # ── Build only changed projects with PR-specific base/outDir ─────────
+      - name: Build changed projects for PR preview
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          CHANGED_PROJECTS: ${{ steps.changed.outputs.projects }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
           for dir in pr-branch/projects/*/; do
             project=$(basename "$dir")
             if [ ! -f "${dir}package.json" ]; then
+              continue
+            fi
+
+            # Only build projects that have changes in this PR.
+            if ! echo "$CHANGED_PROJECTS" | grep -q "\"${project}\""; then
+              echo "⏭ Skipping ${project} (no changes in PR)"
               continue
             fi
 
@@ -84,9 +112,12 @@ jobs:
 
             const pr = process.env.PR_NUMBER;
             const builds = {};
-            // List projects from the PR branch (what was actually built).
+            // Only record projects that were actually built (have a pr-N dir).
             for (const d of fs.readdirSync('../pr-branch/projects')) {
-              if (fs.existsSync('../pr-branch/projects/' + d + '/package.json')) {
+              if (
+                fs.existsSync('../pr-branch/projects/' + d + '/package.json') &&
+                fs.existsSync('docs/' + d + '/pr-' + pr)
+              ) {
                 builds[d] = 'https://spacecowboyian.github.io/clayground/' + d + '/pr-' + pr + '/';
               }
             }
@@ -126,8 +157,12 @@ jobs:
             const fs = require('fs');
             const pr = process.env.PR_NUMBER;
             const lines = [];
+            // Paths are relative to the workspace root (no cd was done before this step).
             for (const d of fs.readdirSync('pr-branch/projects')) {
-              if (fs.existsSync(`pr-branch/projects/${d}/package.json`)) {
+              if (
+                fs.existsSync(`pr-branch/projects/${d}/package.json`) &&
+                fs.existsSync(`main-branch/docs/${d}/pr-${pr}`)
+              ) {
                 lines.push(
                   `- **${d}**: https://spacecowboyian.github.io/clayground/${d}/pr-${pr}/`
                 );
