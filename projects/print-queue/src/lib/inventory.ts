@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase'
-import type { PrintModel, PrintModelInput, Filament, FilamentInput } from '../types/Inventory'
+import type { PrintModel, PrintModelInput, Filament, FilamentInput, FilamentStats } from '../types/Inventory'
+import type { WorkOrder } from '../types/WorkOrder'
 
 // ── Seed data ──────────────────────────────────────────────────────────────────
 const KAREN_URL_HEART =
@@ -19,15 +20,15 @@ const MODEL_SEEDS: ModelSeed[] = [
 ]
 
 const FILAMENT_SEEDS: FilamentSeed[] = [
-  { brand: 'Generic', material: 'PLA', color: 'Pink',       color_hex: '#f472b6', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
-  { brand: 'Generic', material: 'PLA', color: 'Purple',     color_hex: '#a855f7', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
-  { brand: 'Generic', material: 'PLA', color: 'Light Blue', color_hex: '#7dd3fc', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
-  { brand: 'Generic', material: 'PLA', color: 'Yellow',     color_hex: '#fde047', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
-  { brand: 'Generic', material: 'PLA', color: 'Dark Blue',  color_hex: '#1e40af', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
-  { brand: 'Generic', material: 'PLA', color: 'White',      color_hex: '#f5f5f5', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
-  { brand: 'Generic', material: 'PLA', color: 'Black',      color_hex: '#1a1a1a', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
-  { brand: 'Generic', material: 'PLA', color: 'Red',        color_hex: '#ef4444', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
-  { brand: 'Generic', material: 'PLA', color: 'Green',      color_hex: '#22c55e', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
+  { brand: 'Generic', material: 'PLA', color: 'Pink',       color_hex: '#f472b6', in_stock: true,  roll_cost: 20, roll_size_g: 1000, current_quantity_g: 1000, purchase_url: '' },
+  { brand: 'Generic', material: 'PLA', color: 'Purple',     color_hex: '#a855f7', in_stock: true,  roll_cost: 20, roll_size_g: 1000, current_quantity_g: 1000, purchase_url: '' },
+  { brand: 'Generic', material: 'PLA', color: 'Light Blue', color_hex: '#7dd3fc', in_stock: true,  roll_cost: 20, roll_size_g: 1000, current_quantity_g: 1000, purchase_url: '' },
+  { brand: 'Generic', material: 'PLA', color: 'Yellow',     color_hex: '#fde047', in_stock: true,  roll_cost: 20, roll_size_g: 1000, current_quantity_g: 1000, purchase_url: '' },
+  { brand: 'Generic', material: 'PLA', color: 'Dark Blue',  color_hex: '#1e40af', in_stock: true,  roll_cost: 20, roll_size_g: 1000, current_quantity_g: 1000, purchase_url: '' },
+  { brand: 'Generic', material: 'PLA', color: 'White',      color_hex: '#f5f5f5', in_stock: true,  roll_cost: 20, roll_size_g: 1000, current_quantity_g: 1000, purchase_url: '' },
+  { brand: 'Generic', material: 'PLA', color: 'Black',      color_hex: '#1a1a1a', in_stock: true,  roll_cost: 20, roll_size_g: 1000, current_quantity_g: 1000, purchase_url: '' },
+  { brand: 'Generic', material: 'PLA', color: 'Red',        color_hex: '#ef4444', in_stock: true,  roll_cost: 20, roll_size_g: 1000, current_quantity_g: 1000, purchase_url: '' },
+  { brand: 'Generic', material: 'PLA', color: 'Green',      color_hex: '#22c55e', in_stock: true,  roll_cost: 20, roll_size_g: 1000, current_quantity_g: 1000, purchase_url: '' },
 ]
 
 const LS_MODELS_KEY    = 'print_queue_models'
@@ -194,4 +195,51 @@ export async function deleteFilament(id: string): Promise<void> {
     return
   }
   lsSaveFilaments(lsLoadFilaments().filter(f => f.id !== id))
+}
+
+// ── Filament stats ─────────────────────────────────────────────────────────────
+
+const ACTIVE_STATUSES   = new Set<string>(['Queue', 'Printing'])
+const COMPLETE_STATUSES = new Set<string>(['Complete'])
+
+/**
+ * Compute per-filament inventory stats (consumed, reserved, remaining) based
+ * on the current list of work orders and models.
+ *
+ * Filament is matched to orders by color name (case-insensitive).
+ * Orders with no model_id, or whose model cannot be found, contribute 0 g.
+ */
+export function computeFilamentStats(
+  filaments: Filament[],
+  orders: WorkOrder[],
+  models: PrintModel[],
+): FilamentStats[] {
+  const modelMap = new Map(models.map(m => [m.id, m]))
+
+  return filaments.map(f => {
+    const matchingOrders = orders.filter(
+      o => o.color.toLowerCase() === f.color.toLowerCase()
+    )
+
+    const consumed_g = matchingOrders
+      .filter(o => COMPLETE_STATUSES.has(o.status))
+      .reduce((sum, o) => {
+        const usage = o.model_id ? (modelMap.get(o.model_id)?.filament_usage_g ?? 0) : 0
+        return sum + usage
+      }, 0)
+
+    const reserved_g = matchingOrders
+      .filter(o => ACTIVE_STATUSES.has(o.status))
+      .reduce((sum, o) => {
+        const usage = o.model_id ? (modelMap.get(o.model_id)?.filament_usage_g ?? 0) : 0
+        return sum + usage
+      }, 0)
+
+    return {
+      filament_id: f.id,
+      consumed_g,
+      reserved_g,
+      remaining_g: f.current_quantity_g - reserved_g,
+    }
+  })
 }
