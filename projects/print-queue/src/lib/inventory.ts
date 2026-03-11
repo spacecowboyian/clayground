@@ -13,9 +13,33 @@ type ModelSeed = Omit<PrintModel, 'id' | 'created_at' | 'updated_at'>
 type FilamentSeed = Omit<Filament, 'id' | 'created_at' | 'updated_at'>
 
 const MODEL_SEEDS: ModelSeed[] = [
-  { name: 'Heart curio shelf',  description: 'Small heart-shaped trinket shelf',  model_url: KAREN_URL_HEART,     image_url: '', filament_usage_g: 20, post_processing_mins: 5  },
-  { name: 'Hot Wheels shelf',   description: 'Wall shelf for 10 Hot Wheels cars', model_url: KAREN_URL_HOTWHEELS, image_url: '', filament_usage_g: 80, post_processing_mins: 10 },
-  { name: 'Uno card holder',    description: 'Simple customizable card box',       model_url: KAREN_URL_UNO,       image_url: '', filament_usage_g: 30, post_processing_mins: 5  },
+  {
+    name: 'Heart curio shelf',
+    description: 'Small heart-shaped trinket shelf',
+    model_url: KAREN_URL_HEART,
+    image_url: '',
+    self_created: false,
+    filament_requirements: [{ filament_id: null, quantity_g: 20 }],
+    post_processing_mins: 5,
+  },
+  {
+    name: 'Hot Wheels shelf',
+    description: 'Wall shelf for 10 Hot Wheels cars',
+    model_url: KAREN_URL_HOTWHEELS,
+    image_url: '',
+    self_created: false,
+    filament_requirements: [{ filament_id: null, quantity_g: 80 }],
+    post_processing_mins: 10,
+  },
+  {
+    name: 'Uno card holder',
+    description: 'Simple customizable card box',
+    model_url: KAREN_URL_UNO,
+    image_url: '',
+    self_created: false,
+    filament_requirements: [{ filament_id: null, quantity_g: 30 }],
+    post_processing_mins: 5,
+  },
 ]
 
 const FILAMENT_SEEDS: FilamentSeed[] = [
@@ -38,10 +62,31 @@ function now(): string {
 }
 
 // ── LocalStorage helpers ───────────────────────────────────────────────────────
+
+/**
+ * Migrate a raw model record from localStorage that may predate the
+ * filament_requirements field.  Older records have `filament_usage_g` (a plain
+ * number) but no `filament_requirements` array.  We convert them on the fly so
+ * the rest of the app can always assume the new shape.
+ */
+function migrateModel(raw: Record<string, unknown>): PrintModel {
+  if (!Array.isArray(raw.filament_requirements)) {
+    const legacyG = typeof raw.filament_usage_g === 'number' ? raw.filament_usage_g : 0
+    raw.filament_requirements = [{ filament_id: null, quantity_g: legacyG }]
+  }
+  if (typeof raw.self_created !== 'boolean') {
+    raw.self_created = false
+  }
+  return raw as unknown as PrintModel
+}
+
 function lsLoadModels(): PrintModel[] {
   try {
     const raw = localStorage.getItem(LS_MODELS_KEY)
-    if (raw) return JSON.parse(raw) as PrintModel[]
+    if (raw) {
+      const parsed = JSON.parse(raw) as Record<string, unknown>[]
+      return parsed.map(migrateModel)
+    }
   } catch {
     // ignore
   }

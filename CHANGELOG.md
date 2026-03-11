@@ -13,6 +13,19 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.1.0] – 2026-03-11
+
+### feat(print-queue)
+- **Multi-filament model support** — `PrintModel` now stores `filament_requirements[]` (up to 4 entries), each with a `filament_id` and `quantity_g`, replacing the single `filament_usage_g` field
+- **Self-created model flag** — models gain a `self_created: boolean` field; when enabled, the form labels the URL field "Source URL (optional)" and shows a helper note; model cards display a "Self-created" badge
+- **Model image** — `image_url` was already supported; now surfaced more clearly as an optional field in the form alongside the self-created context
+- **Filament selector in ModelForm** — each filament requirement row includes a dropdown over all catalogued filaments (any stock status) plus a "Not assigned" option
+- **Costing update** — `calculateItemCost` now accepts the full filaments array and sums material cost across all assigned filament requirements; the `WorkOrderForm` cost display reflects this
+- **Backward-compatible data migration** — existing localStorage records that have `filament_usage_g` but no `filament_requirements` are silently migrated on first load to a single unassigned requirement
+- **InventoryPage model cards** — now display total filament usage, per-requirement breakdown with color chips (or "Unassigned" label), and the self-created badge
+
+---
+
 ## [1.0.0] – 2026-03-11
 
 ### feat(print-queue)

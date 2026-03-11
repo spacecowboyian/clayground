@@ -73,12 +73,15 @@ export function WorkOrderForm({ initial, models, filaments, onSave, onCancel, on
     { id: CUSTOM_COLOR_ID, label: '✦ Custom / Special Color (+$5)' },
   ]
 
-  // Auto-calculated cost
+  // Auto-calculated cost — uses model's filament requirements, not the order's chosen color
   const calculatedCost = useMemo(() => {
-    if (!selectedModel || !selectedFilament) return null
+    if (!selectedModel) return null
+    // Only calculate if at least one requirement has an assigned filament
+    const hasAssigned = selectedModel.filament_requirements?.some(r => r.filament_id !== null)
+    if (!hasAssigned) return null
     const settings = loadSettings()
-    return calculateItemCost(selectedModel, selectedFilament, settings.labor_rate_per_hour)
-  }, [selectedModel, selectedFilament])
+    return calculateItemCost(selectedModel, filaments, settings.labor_rate_per_hour)
+  }, [selectedModel, filaments])
 
   // When the calculated cost changes and no override, sync the cost field
   useEffect(() => {
