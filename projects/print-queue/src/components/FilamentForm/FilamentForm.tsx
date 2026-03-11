@@ -29,14 +29,16 @@ interface FilamentFormProps {
 
 export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
   const initialMaterial                     = resolveMaterialKey(initial?.material)
-  const [brand, setBrand]                   = useState(initial?.brand      ?? '')
+  const [brand, setBrand]                   = useState(initial?.brand             ?? '')
   const [materialKey, setMaterialKey]       = useState(initialMaterial.key)
   const [customMaterial, setCustomMaterial] = useState(initialMaterial.custom)
-  const [color, setColor]                   = useState(initial?.color      ?? '')
-  const [colorHex, setColorHex]             = useState(initial?.color_hex  ?? '')
-  const [inStock, setInStock]               = useState(initial?.in_stock   ?? true)
-  const [rollCost, setRollCost]             = useState(initial?.roll_cost  ?? 20)
-  const [rollSize, setRollSize]             = useState(initial?.roll_size_g ?? 1000)
+  const [color, setColor]                   = useState(initial?.color             ?? '')
+  const [colorHex, setColorHex]             = useState(initial?.color_hex         ?? '')
+  const [inStock, setInStock]               = useState(initial?.in_stock          ?? true)
+  const [rollCost, setRollCost]             = useState(initial?.roll_cost         ?? 20)
+  const [rollSize, setRollSize]             = useState(initial?.roll_size_g       ?? 1000)
+  const [currentQty, setCurrentQty]         = useState(initial?.current_quantity_g ?? 1000)
+  const [purchaseUrl, setPurchaseUrl]       = useState(initial?.purchase_url      ?? '')
   const [saving, setSaving]                 = useState(false)
   const [error, setError]                   = useState<string | null>(null)
 
@@ -68,6 +70,8 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
         in_stock: inStock,
         roll_cost: rollCost,
         roll_size_g: rollSize,
+        current_quantity_g: currentQty,
+        purchase_url: purchaseUrl.trim(),
       })
     } catch {
       setError('Failed to save. Please try again.')
@@ -151,6 +155,24 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
       <p className="text-xs text-[var(--muted-foreground)]">
         Roll cost and size are used to calculate the material cost per print.
       </p>
+
+      <NumberField
+        label="Current Quantity on Hand (g)"
+        value={currentQty}
+        onChange={setCurrentQty}
+        minValue={0}
+        formatOptions={{ maximumFractionDigits: 0 }}
+      />
+      <p className="text-xs text-[var(--muted-foreground)]">
+        How many grams of this filament you currently have. Used to track reservations and warn about low stock.
+      </p>
+
+      <TextField
+        label="Purchase Link (optional)"
+        value={purchaseUrl}
+        onChange={setPurchaseUrl}
+        placeholder="https://store.example.com/filament"
+      />
 
       <div className="flex items-center gap-3">
         <Switch isSelected={inStock} onChange={setInStock} color="green">
