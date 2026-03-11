@@ -5,12 +5,5 @@
     "builds": {
       "kc-live-timing": "https://spacecowboyian.github.io/clayground/kc-live-timing/pr-19/"
     }
-  },
-  "22": {
-    "title": "[WIP] Add work order tracking system for 3-D prints",
-    "url": "https://github.com/spacecowboyian/clayground/pull/22",
-    "builds": {
-      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-22/"
-    }
   }
 }
