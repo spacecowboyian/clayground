@@ -13,21 +13,21 @@ type ModelSeed = Omit<PrintModel, 'id' | 'created_at' | 'updated_at'>
 type FilamentSeed = Omit<Filament, 'id' | 'created_at' | 'updated_at'>
 
 const MODEL_SEEDS: ModelSeed[] = [
-  { name: 'Heart curio shelf',  description: 'Small heart-shaped trinket shelf', model_url: KAREN_URL_HEART,     image_url: '' },
-  { name: 'Hot Wheels shelf',   description: 'Wall shelf for 10 Hot Wheels cars', model_url: KAREN_URL_HOTWHEELS, image_url: '' },
-  { name: 'Uno card holder',    description: 'Simple customizable card box',       model_url: KAREN_URL_UNO,       image_url: '' },
+  { name: 'Heart curio shelf',  description: 'Small heart-shaped trinket shelf',  model_url: KAREN_URL_HEART,     image_url: '', filament_usage_g: 20, post_processing_mins: 5  },
+  { name: 'Hot Wheels shelf',   description: 'Wall shelf for 10 Hot Wheels cars', model_url: KAREN_URL_HOTWHEELS, image_url: '', filament_usage_g: 80, post_processing_mins: 10 },
+  { name: 'Uno card holder',    description: 'Simple customizable card box',       model_url: KAREN_URL_UNO,       image_url: '', filament_usage_g: 30, post_processing_mins: 5  },
 ]
 
 const FILAMENT_SEEDS: FilamentSeed[] = [
-  { brand: 'Generic', material: 'PLA', color: 'Pink',       color_hex: '#f472b6', in_stock: true },
-  { brand: 'Generic', material: 'PLA', color: 'Purple',     color_hex: '#a855f7', in_stock: true },
-  { brand: 'Generic', material: 'PLA', color: 'Light Blue', color_hex: '#7dd3fc', in_stock: true },
-  { brand: 'Generic', material: 'PLA', color: 'Yellow',     color_hex: '#fde047', in_stock: true },
-  { brand: 'Generic', material: 'PLA', color: 'Dark Blue',  color_hex: '#1e40af', in_stock: true },
-  { brand: 'Generic', material: 'PLA', color: 'White',      color_hex: '#f5f5f5', in_stock: true },
-  { brand: 'Generic', material: 'PLA', color: 'Black',      color_hex: '#1a1a1a', in_stock: true },
-  { brand: 'Generic', material: 'PLA', color: 'Red',        color_hex: '#ef4444', in_stock: true },
-  { brand: 'Generic', material: 'PLA', color: 'Green',      color_hex: '#22c55e', in_stock: true },
+  { brand: 'Generic', material: 'PLA', color: 'Pink',       color_hex: '#f472b6', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
+  { brand: 'Generic', material: 'PLA', color: 'Purple',     color_hex: '#a855f7', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
+  { brand: 'Generic', material: 'PLA', color: 'Light Blue', color_hex: '#7dd3fc', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
+  { brand: 'Generic', material: 'PLA', color: 'Yellow',     color_hex: '#fde047', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
+  { brand: 'Generic', material: 'PLA', color: 'Dark Blue',  color_hex: '#1e40af', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
+  { brand: 'Generic', material: 'PLA', color: 'White',      color_hex: '#f5f5f5', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
+  { brand: 'Generic', material: 'PLA', color: 'Black',      color_hex: '#1a1a1a', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
+  { brand: 'Generic', material: 'PLA', color: 'Red',        color_hex: '#ef4444', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
+  { brand: 'Generic', material: 'PLA', color: 'Green',      color_hex: '#22c55e', in_stock: true,  roll_cost: 20, roll_size_g: 1000 },
 ]
 
 const LS_MODELS_KEY    = 'print_queue_models'

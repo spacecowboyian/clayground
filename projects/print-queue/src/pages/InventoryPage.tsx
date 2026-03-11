@@ -149,11 +149,27 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                     return (
                       <div key={model.id} className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3">
                         {model.image_url && (
-                          <img
-                            src={model.image_url}
-                            alt={model.name}
-                            className="w-full h-32 object-cover rounded-lg border border-[var(--border)]"
-                          />
+                          model.model_url ? (
+                            <a
+                              href={model.model_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block"
+                              title="Open model"
+                            >
+                              <img
+                                src={model.image_url}
+                                alt={model.name}
+                                className="w-full h-32 object-cover rounded-lg border border-[var(--border)] hover:opacity-80 transition-opacity"
+                              />
+                            </a>
+                          ) : (
+                            <img
+                              src={model.image_url}
+                              alt={model.name}
+                              className="w-full h-32 object-cover rounded-lg border border-[var(--border)]"
+                            />
+                          )
                         )}
                         <div>
                           <p className="font-medium text-[var(--foreground)]">{model.name}</p>

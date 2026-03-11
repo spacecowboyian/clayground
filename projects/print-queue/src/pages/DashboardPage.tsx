@@ -249,6 +249,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory }: DashboardP
               <WorkOrderForm
                 onSave={handleCreate}
                 onCancel={() => setAddOpen(false)}
+                onGoToInventory={() => { setAddOpen(false); onInventory() }}
                 models={models}
                 filaments={filaments}
               />
@@ -502,6 +503,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory }: DashboardP
             initial={editOrder}
             onSave={handleEdit}
             onCancel={() => setEditOrder(null)}
+            onGoToInventory={() => { setEditOrder(null); onInventory() }}
             models={models}
             filaments={filaments}
           />

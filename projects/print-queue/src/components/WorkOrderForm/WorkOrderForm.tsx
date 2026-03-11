@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button, TextField, Select, Switch, TextArea, NumberField } from '@gearhead/ui'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../../types/WorkOrder'
 import type { PrintModel, Filament } from '../../types/Inventory'
+import { loadSettings } from '../../lib/settings'
+import { calculateItemCost } from '../../lib/costing'
 
 const STATUS_OPTIONS = [
   { id: 'Queue',     label: 'Queue' },
@@ -20,9 +22,11 @@ interface WorkOrderFormProps {
   filaments: Filament[]
   onSave: (input: WorkOrderInput) => Promise<void>
   onCancel: () => void
+  /** Called when the user wants to leave this form and go add inventory items. */
+  onGoToInventory?: () => void
 }
 
-export function WorkOrderForm({ initial, models, filaments, onSave, onCancel }: WorkOrderFormProps) {
+export function WorkOrderForm({ initial, models, filaments, onSave, onCancel, onGoToInventory }: WorkOrderFormProps) {
   // Resolve initial model id: either stored model_id or find by matching item name
   const initialModelId = initial?.model_id
     ?? models.find(m => m.name === initial?.item)?.id
@@ -46,6 +50,7 @@ export function WorkOrderForm({ initial, models, filaments, onSave, onCancel }: 
   const [notes, setNotes]                 = useState(initial?.notes     ?? '')
   const [price, setPrice]                 = useState(initial?.price     ?? 5)
   const [cost, setCost]                   = useState(initial?.cost      ?? 2)
+  const [costOverride, setCostOverride]   = useState(false)
   const [saving, setSaving]               = useState(false)
   const [error, setError]                 = useState<string | null>(null)
 
@@ -67,6 +72,20 @@ export function WorkOrderForm({ initial, models, filaments, onSave, onCancel }: 
     })),
     { id: CUSTOM_COLOR_ID, label: '✦ Custom / Special Color (+$5)' },
   ]
+
+  // Auto-calculated cost
+  const calculatedCost = useMemo(() => {
+    if (!selectedModel || !selectedFilament) return null
+    const settings = loadSettings()
+    return calculateItemCost(selectedModel, selectedFilament, settings.labor_rate_per_hour)
+  }, [selectedModel, selectedFilament])
+
+  // When the calculated cost changes and no override, sync the cost field
+  useEffect(() => {
+    if (!costOverride && calculatedCost !== null) {
+      setCost(calculatedCost.total_cost)
+    }
+  }, [calculatedCost, costOverride])
 
   function handleFilamentChange(key: string) {
     const prev = filamentId
@@ -137,13 +156,24 @@ export function WorkOrderForm({ initial, models, filaments, onSave, onCancel }: 
         placeholder="e.g. Karen coworker"
       />
 
-      <Select
-        label="Model"
-        options={modelOptions}
-        selectedKey={modelId}
-        onSelectionChange={key => { if (key != null) setModelId(key as string) }}
-        placeholder="Select a model…"
-      />
+      <div className="space-y-1">
+        <Select
+          label="Model"
+          options={modelOptions}
+          selectedKey={modelId}
+          onSelectionChange={key => { if (key != null) setModelId(key as string) }}
+          placeholder="Select a model…"
+        />
+        {onGoToInventory && (
+          <button
+            type="button"
+            onClick={onGoToInventory}
+            className="text-xs text-[var(--accent-orange)] hover:underline flex items-center gap-1 pl-0.5"
+          >
+            <span>＋</span> Add a new model
+          </button>
+        )}
+      </div>
 
       <div className="space-y-2">
         <Select
@@ -153,6 +183,15 @@ export function WorkOrderForm({ initial, models, filaments, onSave, onCancel }: 
           onSelectionChange={key => { if (key != null) handleFilamentChange(key as string) }}
           placeholder="Select a color…"
         />
+        {onGoToInventory && (
+          <button
+            type="button"
+            onClick={onGoToInventory}
+            className="text-xs text-[var(--accent-orange)] hover:underline flex items-center gap-1 pl-0.5"
+          >
+            <span>＋</span> Add a new filament
+          </button>
+        )}
         {isCustomColor && (
           <div className="space-y-2 pl-1 border-l-2 border-[var(--accent-orange)] ml-1">
             <TextField
@@ -189,13 +228,32 @@ export function WorkOrderForm({ initial, models, filaments, onSave, onCancel }: 
           minValue={0}
           formatOptions={{ style: 'currency', currency: 'USD' }}
         />
-        <NumberField
-          label="Cost ($)"
-          value={cost}
-          onChange={setCost}
-          minValue={0}
-          formatOptions={{ style: 'currency', currency: 'USD' }}
-        />
+        <div className="space-y-1">
+          <NumberField
+            label="Cost ($)"
+            value={cost}
+            onChange={v => { setCost(v); setCostOverride(true) }}
+            minValue={0}
+            formatOptions={{ style: 'currency', currency: 'USD' }}
+          />
+          {calculatedCost !== null && (
+            <div className="text-xs space-y-0.5 text-[var(--muted-foreground)]">
+              <p className="font-medium text-[var(--foreground)]">
+                Calculated: ${calculatedCost.total_cost.toFixed(2)}
+              </p>
+              <p>Material: ${calculatedCost.material_cost.toFixed(2)} · Labor: ${calculatedCost.labor_cost.toFixed(2)}</p>
+              {costOverride && (
+                <button
+                  type="button"
+                  onClick={() => { setCost(calculatedCost.total_cost); setCostOverride(false) }}
+                  className="text-[var(--accent-orange)] hover:underline"
+                >
+                  ↺ Reset to calculated
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <TextArea
