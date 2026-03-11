@@ -13,12 +13,5 @@
       "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-23/",
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-23/"
     }
-  },
-  "27": {
-    "title": "feat(print-queue): expand model input — multi-filament requirements, self-created flag, image support",
-    "url": "https://github.com/spacecowboyian/clayground/pull/27",
-    "builds": {
-      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-27/"
-    }
   }
 }
