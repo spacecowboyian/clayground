@@ -13,13 +13,5 @@
       "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-23/",
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-23/"
     }
-  },
-  "25": {
-    "title": "feat(print-queue): filament material type, roll costing fields, inventory shortcuts, model image links",
-    "url": "https://github.com/spacecowboyian/clayground/pull/25",
-    "builds": {
-      "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-25/",
-      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-25/"
-    }
   }
 }
