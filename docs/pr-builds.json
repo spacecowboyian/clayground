@@ -13,13 +13,5 @@
       "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-23/",
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-23/"
     }
-  },
-  "28": {
-    "title": "[WIP] Refine order actions and detail experience in print-queue app",
-    "url": "https://github.com/spacecowboyian/clayground/pull/28",
-    "builds": {
-      "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-28/",
-      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-28/"
-    }
   }
 }
