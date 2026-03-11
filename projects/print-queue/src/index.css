@@ -1,0 +1,12 @@
+/* Import gearhead theme tokens (CSS custom properties) */
+@import '../node_modules/@gearhead/ui/src/styles/theme.css';
+@import '../node_modules/@gearhead/ui/src/styles/fonts.css';
+
+/* Tailwind v4 — source both gearhead components and our own */
+@import 'tailwindcss' source(none);
+@source '../node_modules/@gearhead/ui/src/components/**/*.{ts,tsx}';
+@source './components/**/*.{ts,tsx}';
+@source './pages/**/*.{ts,tsx}';
+@source './App.tsx';
+
+@import 'tw-animate-css';

@@ -1,5 +1,14 @@
 [
   {
+    "id": "print-queue",
+    "title": "Tiny Prints — Print Queue",
+    "description": "A 3-D print work-order tracker for Tiny Prints. Password-protected management dashboard with full CRUD, shareable public per-order links (no login needed), inline status updates, paid toggles, and Supabase or localStorage backend.",
+    "tags": ["3d-printing", "work-orders", "supabase", "react", "tailwind"],
+    "url": "print-queue/main/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/print-queue",
+    "date": "2026-03-11"
+  },
+  {
     "id": "kc-live-timing",
     "title": "KC Live Timing",
     "description": "A mobile-friendly live timing viewer for KCRSCCA autocross and rallycross events. Drop in the axware results_live.htm file to instantly parse all class results, stream the 10 latest runs, sort drivers by fastest time, and build a personal competition watchlist with sticky 'my car' positioning.",
