@@ -257,6 +257,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
                 onGoToInventory={() => { setAddOpen(false); onInventory() }}
                 models={models}
                 filaments={filaments}
+                orders={orders}
               />
             </Dialog>
           </div>
@@ -511,6 +512,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
             onGoToInventory={() => { setEditOrder(null); onInventory() }}
             models={models}
             filaments={filaments}
+            orders={orders}
           />
         </Dialog>
       )}

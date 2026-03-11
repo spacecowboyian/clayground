@@ -23,6 +23,15 @@ _Changes not yet pushed to `main` go here._
 - **Costing update** — `calculateItemCost` now accepts the full filaments array and sums material cost across all assigned filament requirements; the `WorkOrderForm` cost display reflects this
 - **Backward-compatible data migration** — existing localStorage records that have `filament_usage_g` but no `filament_requirements` are silently migrated on first load to a single unassigned requirement
 - **InventoryPage model cards** — now display total filament usage, per-requirement breakdown with color chips (or "Unassigned" label), and the self-created badge
+- **Filament quantity tracking** — `Filament` gains `current_quantity_g` (grams currently on hand); replaces the static roll-size display with a live quantity that reflects actual inventory
+- **Filament purchase link** — `Filament` gains `purchase_url` (optional); a 🛒 shopping-cart button appears in the filament table when a URL is set, opening the link in a new tab
+- **Reserved vs consumed filament** — new `computeFilamentStats(filaments, orders, models)` utility in `src/lib/inventory.ts` calculates per-filament `consumed_g` (completed orders), `reserved_g` (queued/printing orders), and `remaining_g` (on-hand minus reserved)
+- **Inventory table — live stats columns** — filament table now shows On Hand / Reserved / Consumed / Remaining for every filament; color-coded: green = healthy, orange = low (< 100 g remaining), red = overcommitted (negative remaining)
+- **Low stock and overcommitted indicators** — ↓ icon on filament color chip when stock is low; ⚠ icon when overcommitted; "low" / "overcommitted" label on the Remaining cell
+- **Order form filament warning** — when selecting a model + filament, the form computes whether enough filament remains after existing reservations; if not, an orange warning banner is shown (order is still creatable)
+- `FilamentForm` updated: new "Current Quantity on Hand (g)" and "Purchase Link (optional)" fields
+- `WorkOrderForm` gains `orders` prop for filament availability checking
+- Seed data updated: all default filaments seeded with `current_quantity_g: 1000` and `purchase_url: ''`
 
 ---
 

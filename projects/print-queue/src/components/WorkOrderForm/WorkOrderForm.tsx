@@ -4,6 +4,7 @@ import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../../types/Wor
 import type { PrintModel, Filament } from '../../types/Inventory'
 import { loadSettings } from '../../lib/settings'
 import { calculateItemCost } from '../../lib/costing'
+import { computeFilamentStats } from '../../lib/inventory'
 
 const STATUS_OPTIONS = [
   { id: 'Queue',     label: 'Queue' },
@@ -20,13 +21,14 @@ interface WorkOrderFormProps {
   initial?: WorkOrder
   models: PrintModel[]
   filaments: Filament[]
+  orders: WorkOrder[]
   onSave: (input: WorkOrderInput) => Promise<void>
   onCancel: () => void
   /** Called when the user wants to leave this form and go add inventory items. */
   onGoToInventory?: () => void
 }
 
-export function WorkOrderForm({ initial, models, filaments, onSave, onCancel, onGoToInventory }: WorkOrderFormProps) {
+export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCancel, onGoToInventory }: WorkOrderFormProps) {
   // Resolve initial model id: either stored model_id or find by matching item name
   const initialModelId = initial?.model_id
     ?? models.find(m => m.name === initial?.item)?.id
@@ -82,6 +84,22 @@ export function WorkOrderForm({ initial, models, filaments, onSave, onCancel, on
     const settings = loadSettings()
     return calculateItemCost(selectedModel, filaments, settings.labor_rate_per_hour)
   }, [selectedModel, filaments])
+
+  // Filament availability check — exclude the order being edited from reservations
+  const filamentWarning = useMemo(() => {
+    if (!selectedModel || !selectedFilament || isCustomColor) return null
+    // Compute stats against all orders except the one being edited (to avoid double-counting)
+    const ordersForCheck = initial ? orders.filter(o => o.id !== initial.id) : orders
+    const allStats = computeFilamentStats(filaments, ordersForCheck, models)
+    const stat = allStats.find(s => s.filament_id === selectedFilament.id)
+    if (!stat) return null
+    const available = stat.remaining_g
+    const needed = selectedModel.filament_usage_g
+    if (available < needed) {
+      return `Insufficient filament: only ${available}g of ${selectedFilament.color} will remain after active reservations, but this order requires ${needed}g. You can still create the order, but you may need to restock before printing.`
+    }
+    return null
+  }, [selectedModel, selectedFilament, isCustomColor, filaments, orders, models, initial])
 
   // When the calculated cost changes and no override, sync the cost field
   useEffect(() => {
@@ -271,6 +289,13 @@ export function WorkOrderForm({ initial, models, filaments, onSave, onCancel, on
           Paid
         </Switch>
       </div>
+
+      {filamentWarning && (
+        <div className="rounded-lg border border-[var(--accent-orange)] bg-[var(--accent-orange-light)] px-3 py-2 text-xs text-[var(--accent-orange)] flex gap-2">
+          <span className="shrink-0">⚠</span>
+          <span>{filamentWarning}</span>
+        </div>
+      )}
 
       {error && (
         <p className="text-sm text-[var(--destructive)]">{error}</p>

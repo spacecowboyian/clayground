@@ -36,8 +36,24 @@ export interface Filament {
   roll_cost: number
   /** Weight of one full roll in grams */
   roll_size_g: number
+  /** Current quantity of filament on hand in grams */
+  current_quantity_g: number
+  /** URL to purchase this filament (optional) */
+  purchase_url: string
   created_at: string
   updated_at: string
 }
 
 export type FilamentInput = Omit<Filament, 'id' | 'created_at' | 'updated_at'>
+
+// ── Filament stats ─────────────────────────────────────────────────────────────
+
+export interface FilamentStats {
+  filament_id: string
+  /** Grams consumed by completed orders */
+  consumed_g: number
+  /** Grams reserved by active (Queue / Printing) orders */
+  reserved_g: number
+  /** Grams remaining after reservations: current_quantity_g - reserved_g */
+  remaining_g: number
+}

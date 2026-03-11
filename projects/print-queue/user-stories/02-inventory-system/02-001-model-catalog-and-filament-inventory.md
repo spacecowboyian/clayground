@@ -31,6 +31,17 @@ So that I can track what I can print, what materials I have, and ensure orders r
 - [x] Model cards in the inventory display the total filament usage and per-requirement breakdown
 - [x] Model cards show a "Self-created" badge when the flag is set
 - [x] Order costing sums material cost across all assigned filament requirements
+- [x] Filament tracks `current_quantity_g` — grams of filament currently on hand
+- [x] Filament tracks `purchase_url` — optional link to buy more filament
+- [x] Filament table shows On Hand / Reserved / Consumed / Remaining columns
+- [x] Reserved = grams committed by active (Queue / Printing) orders
+- [x] Consumed = grams used by completed orders
+- [x] Remaining = on-hand minus reserved (can be negative = overcommitted)
+- [x] Low stock (< 100 g remaining) shown with ↓ indicator and orange text
+- [x] Overcommitted (negative remaining) shown with ⚠ indicator and red text
+- [x] Purchase link button (shopping cart icon) appears in table when a URL is set
+- [x] When creating an order, a warning appears if filament may not be sufficient
+- [x] Order can still be created despite the filament warning
 
 ## Technical Notes
 - Project: `projects/print-queue`
@@ -43,6 +54,8 @@ So that I can track what I can print, what materials I have, and ensure orders r
 - Updated: `DashboardPage` loads inventory data and passes it to form; adds "Inventory" header button
 - Updated: `App.tsx` adds `#/inventory` route
 - New SQL: `models` and `filaments` tables; `ALTER TABLE work_orders` adds new columns
+- `computeFilamentStats(filaments, orders, models)` pure utility exported from `inventory.ts`
+- `FilamentStats` interface added to `src/types/Inventory.ts`
 
 ## Additions
 ### 2026-03-11 — Requested by: @copilot
@@ -61,3 +74,12 @@ So that I can track what I can print, what materials I have, and ensure orders r
 - [ ] Medium (3-5 days)
 - [x] Large (1-2 weeks)
 - [ ] X-Large (2+ weeks)
+
+## Additions
+
+### 2026-03-11 — Requested by: @copilot
+- Added `current_quantity_g` field to track actual grams on hand per filament
+- Added `purchase_url` field with a shopping-cart link button in the filament table
+- Added `computeFilamentStats` utility that calculates consumed_g, reserved_g, and remaining_g per filament from order history
+- Updated filament inventory table to show On Hand / Reserved / Consumed / Remaining columns with low-stock and overcommitted visual indicators
+- Added filament availability warning in the order creation form when filament may be insufficient for the selected model + color combination

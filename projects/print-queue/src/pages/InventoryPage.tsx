@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Dialog, Accordion, Card } from '@gearhead/ui'
-import { Pencil, Plus, Trash2, ExternalLink } from 'lucide-react'
+import { Pencil, Plus, ShoppingCart, Trash2, ExternalLink } from 'lucide-react'
 import {
   listModels, createModel, updateModel, deleteModel,
   listFilaments, createFilament, updateFilament, deleteFilament,
+  computeFilamentStats,
 } from '../lib/inventory'
 import { listOrders } from '../lib/storage'
 import { totalFilamentUsageG } from '../lib/costing'
 import { ModelForm } from '../components/ModelForm/ModelForm'
 import { FilamentForm } from '../components/FilamentForm/FilamentForm'
-import type { PrintModel, PrintModelInput, Filament, FilamentInput } from '../types/Inventory'
+import type { PrintModel, PrintModelInput, Filament, FilamentInput, FilamentStats } from '../types/Inventory'
 import type { WorkOrder } from '../types/WorkOrder'
 
 interface InventoryPageProps {
@@ -291,6 +292,7 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                     </h3>
                     <FilamentTable
                       filaments={filaments.filter(f => f.in_stock)}
+                      stats={computeFilamentStats(filaments, orders, models)}
                       onEdit={setEditFilament}
                       onDelete={setDeleteFilamentTarget}
                       onToggleStock={async f => {
@@ -312,6 +314,7 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                     >
                       <FilamentTable
                         filaments={filaments.filter(f => !f.in_stock)}
+                        stats={computeFilamentStats(filaments, orders, models)}
                         onEdit={setEditFilament}
                         onDelete={setDeleteFilamentTarget}
                         onToggleStock={async f => {
@@ -440,14 +443,20 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
 
 interface FilamentTableProps {
   filaments: Filament[]
+  stats: FilamentStats[]
   onEdit: (f: Filament) => void
   onDelete: (f: Filament) => void
   onToggleStock: (f: Filament) => void
   muted?: boolean
 }
 
-function FilamentTable({ filaments, onEdit, onDelete, onToggleStock, muted }: FilamentTableProps) {
+function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, muted }: FilamentTableProps) {
   if (filaments.length === 0) return null
+
+  function getStats(id: string): FilamentStats | undefined {
+    return stats.find(s => s.filament_id === id)
+  }
+
   return (
     <div className={`bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden ${muted ? 'opacity-70' : ''}`}>
       {/* Desktop */}
@@ -456,101 +465,166 @@ function FilamentTable({ filaments, onEdit, onDelete, onToggleStock, muted }: Fi
           <thead>
             <tr className="border-b border-[var(--border)]">
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Color</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Brand</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Material</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Roll Cost</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Roll Size</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Brand / Material</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">On Hand</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Reserved</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Consumed</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Remaining</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Stock</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filaments.map(f => (
-              <tr key={f.id} className="border-b border-[var(--border)] hover:bg-[var(--secondary)] transition-colors">
-                <td className="px-4 py-3">
-                  <ColorChip color={f.color} hex={f.color_hex} />
-                </td>
-                <td className="px-4 py-3 text-[var(--foreground)]">{f.brand || '—'}</td>
-                <td className="px-4 py-3 text-[var(--foreground)]">{f.material}</td>
-                <td className="px-4 py-3 text-[var(--muted-foreground)]">
-                  {f.roll_cost != null ? `$${f.roll_cost.toFixed(2)}` : '—'}
-                </td>
-                <td className="px-4 py-3 text-[var(--muted-foreground)]">
-                  {f.roll_size_g != null ? `${f.roll_size_g}g` : '—'}
-                </td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => onToggleStock(f)}
-                    className={`text-xs px-2 py-0.5 rounded-full font-medium transition-colors ${
-                      f.in_stock
-                        ? 'bg-[var(--accent-green-light)] text-[var(--accent-green)] hover:opacity-80'
-                        : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:opacity-80'
-                    }`}
-                  >
-                    {f.in_stock ? 'In Stock' : 'Out of Stock'}
-                  </button>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
+            {filaments.map(f => {
+              const fs = getStats(f.id)
+              const remaining = fs?.remaining_g ?? f.current_quantity_g
+              const overcommitted = remaining < 0
+              const lowStock = !overcommitted && remaining < 100
+              return (
+                <tr key={f.id} className="border-b border-[var(--border)] hover:bg-[var(--secondary)] transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <ColorChip color={f.color} hex={f.color_hex} />
+                      {overcommitted && (
+                        <span className="text-xs text-[var(--destructive)]" title="Overcommitted — not enough filament for queued orders">⚠</span>
+                      )}
+                      {lowStock && (
+                        <span className="text-xs text-[var(--accent-orange)]" title="Running low">↓</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-[var(--foreground)]">
+                    {f.brand ? `${f.brand} · ` : ''}{f.material}
+                  </td>
+                  <td className="px-4 py-3 text-[var(--foreground)]">{f.current_quantity_g}g</td>
+                  <td className="px-4 py-3 text-[var(--accent-orange)]">{fs ? `${fs.reserved_g}g` : '—'}</td>
+                  <td className="px-4 py-3 text-[var(--muted-foreground)]">{fs ? `${fs.consumed_g}g` : '—'}</td>
+                  <td className={`px-4 py-3 font-medium ${overcommitted ? 'text-[var(--destructive)]' : lowStock ? 'text-[var(--accent-orange)]' : 'text-[var(--accent-green)]'}`}>
+                    {fs ? `${remaining}g` : '—'}
+                    {overcommitted && <span className="ml-1 text-xs font-normal">overcommitted</span>}
+                    {lowStock && <span className="ml-1 text-xs font-normal">low</span>}
+                  </td>
+                  <td className="px-4 py-3">
                     <button
-                      onClick={() => onEdit(f)}
-                      className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
-                      title="Edit"
+                      onClick={() => onToggleStock(f)}
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium transition-colors ${
+                        f.in_stock
+                          ? 'bg-[var(--accent-green-light)] text-[var(--accent-green)] hover:opacity-80'
+                          : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:opacity-80'
+                      }`}
                     >
-                      <Pencil className="w-4 h-4" />
+                      {f.in_stock ? 'In Stock' : 'Out of Stock'}
                     </button>
-                    <button
-                      onClick={() => onDelete(f)}
-                      className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      {f.purchase_url && (
+                        <a
+                          href={f.purchase_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
+                          title="Buy filament"
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                        </a>
+                      )}
+                      <button
+                        onClick={() => onEdit(f)}
+                        className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => onDelete(f)}
+                        className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
 
       {/* Mobile */}
       <div className="sm:hidden divide-y divide-[var(--border)]">
-        {filaments.map(f => (
-          <div key={f.id} className="p-4 flex items-center gap-3">
-            <ColorChip color={f.color} hex={f.color_hex} />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-[var(--foreground)]">{f.brand ? `${f.brand} · ` : ''}{f.material}</p>
-              <p className="text-xs text-[var(--muted-foreground)]">
-                {f.roll_cost != null ? `$${f.roll_cost.toFixed(2)}` : '—'} · {f.roll_size_g != null ? `${f.roll_size_g}g` : '—'}
-              </p>
-              <button
-                onClick={() => onToggleStock(f)}
-                className={`text-xs px-2 py-0.5 rounded-full font-medium mt-0.5 ${
-                  f.in_stock
-                    ? 'bg-[var(--accent-green-light)] text-[var(--accent-green)]'
-                    : 'bg-[var(--secondary)] text-[var(--muted-foreground)]'
-                }`}
-              >
-                {f.in_stock ? 'In Stock' : 'Out of Stock'}
-              </button>
+        {filaments.map(f => {
+          const fs = getStats(f.id)
+          const remaining = fs?.remaining_g ?? f.current_quantity_g
+          const overcommitted = remaining < 0
+          const lowStock = !overcommitted && remaining < 100
+          return (
+            <div key={f.id} className="p-4 space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-1.5">
+                  <ColorChip color={f.color} hex={f.color_hex} />
+                  {overcommitted && <span className="text-xs text-[var(--destructive)]" title="Overcommitted">⚠</span>}
+                  {lowStock && <span className="text-xs text-[var(--accent-orange)]" title="Low stock">↓</span>}
+                </div>
+                <button
+                  onClick={() => onToggleStock(f)}
+                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                    f.in_stock
+                      ? 'bg-[var(--accent-green-light)] text-[var(--accent-green)]'
+                      : 'bg-[var(--secondary)] text-[var(--muted-foreground)]'
+                  }`}
+                >
+                  {f.in_stock ? 'In Stock' : 'Out of Stock'}
+                </button>
+              </div>
+              <p className="text-xs text-[var(--muted-foreground)]">{f.brand ? `${f.brand} · ` : ''}{f.material}</p>
+              {fs && (
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <p className="text-[var(--muted-foreground)]">On hand</p>
+                    <p className="font-medium text-[var(--foreground)]">{f.current_quantity_g}g</p>
+                  </div>
+                  <div>
+                    <p className="text-[var(--muted-foreground)]">Reserved</p>
+                    <p className="font-medium text-[var(--accent-orange)]">{fs.reserved_g}g</p>
+                  </div>
+                  <div>
+                    <p className="text-[var(--muted-foreground)]">Remaining</p>
+                    <p className={`font-medium ${overcommitted ? 'text-[var(--destructive)]' : lowStock ? 'text-[var(--accent-orange)]' : 'text-[var(--accent-green)]'}`}>
+                      {remaining}g
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center gap-1 pt-1">
+                {f.purchase_url && (
+                  <a
+                    href={f.purchase_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
+                    title="Buy filament"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                  </a>
+                )}
+                <button
+                  onClick={() => onEdit(f)}
+                  className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] transition-colors"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onDelete(f)}
+                  className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => onEdit(f)}
-                className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] transition-colors"
-              >
-                <Pencil className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => onDelete(f)}
-                className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
