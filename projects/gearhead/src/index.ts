@@ -38,6 +38,7 @@ export { ViewToggle } from './components/ViewToggle/ViewToggle';
 export type { ViewMode } from './components/ViewToggle/ViewToggle';
 export { StatCard } from './components/StatCard/StatCard';
 export { EmptyState } from './components/EmptyState/EmptyState';
+export { Card } from './components/Card/Card';
 
 // ─── Patterns ────────────────────────────────────────────────────────────────
 export { ListPage } from './components/patterns/ListPage/ListPage';

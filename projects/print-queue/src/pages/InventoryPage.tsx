@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Dialog, Accordion } from '@gearhead/ui'
+import { Button, Dialog, Accordion, Card } from '@gearhead/ui'
 import { Pencil, Plus, Trash2, ExternalLink } from 'lucide-react'
 import {
   listModels, createModel, updateModel, deleteModel,
@@ -147,7 +147,38 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                   {models.map(model => {
                     const history = printHistoryForModel(model)
                     return (
-                      <div key={model.id} className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3">
+                      <Card
+                        key={model.id}
+                        footer={
+                          <div className="flex items-center gap-2">
+                            {model.model_url && (
+                              <a
+                                href={model.model_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
+                                title="Open model"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            )}
+                            <button
+                              onClick={() => setEditModel(model)}
+                              className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteModelTarget(model)}
+                              className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        }
+                      >
                         {model.image_url && (
                           model.model_url ? (
                             <a
@@ -192,35 +223,7 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                             </div>
                           )}
                         </div>
-
-                        <div className="flex items-center gap-2 pt-1 border-t border-[var(--border)]">
-                          {model.model_url && (
-                            <a
-                              href={model.model_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
-                              title="Open model"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          )}
-                          <button
-                            onClick={() => setEditModel(model)}
-                            className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
-                            title="Edit"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteModelTarget(model)}
-                            className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
+                      </Card>
                     )
                   })}
                 </div>
