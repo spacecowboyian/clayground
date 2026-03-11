@@ -13,6 +13,27 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.9.0] – 2026-03-11
+
+### feat(gearhead)
+- New `Accordion` component built on `react-aria-components` `Disclosure` — collapsible panel with animated chevron, optional badge, and `defaultExpanded` prop
+- Storybook story: `Default`, `WithBadge`, `DefaultExpanded`
+- Exported from `@gearhead/ui`
+
+### feat(print-queue)
+- **Price & cost fields** — every work order now stores `price` (default $5) and `cost` (default $2); profit = price − cost displayed per row and in a new stat card
+- **Drag-to-reorder** — active queue rows have a grip handle; drag-and-drop reorders them and persists `sort_order` to localStorage (and Supabase when configured)
+- **Completed & Cancelled accordion** — done items move to a collapsible section below the active queue (collapsed by default) powered by the new Gearhead `Accordion`
+- **Mobile paid toggle** — replaced static "Paid/Unpaid" text in mobile cards with an interactive `Switch` that saves immediately
+- **New dashboard header logo** — 3D-printer-with-heart illustration (`tinyprints-printer.svg`); login page retains the original `tinyprints-logo.svg`
+- **Price/Cost/Profit columns** added to desktop table for both active and completed sections
+- **Profit stat card** (`$X.XX`) added to the 5-card stats row — counts only paid, non-cancelled orders
+- `sort_order` field added to `WorkOrder` type; `reorderOrders(ids[])` added to `storage.ts`
+- Seed data updated with `price: 5`, `cost: 2`, `sort_order` for all 9 demo orders
+- `WorkOrderForm` gains two `NumberField` inputs (Price / Cost) with USD currency formatting
+
+---
+
 ## [0.8.0] – 2026-03-11
 
 ### feat(print-queue)

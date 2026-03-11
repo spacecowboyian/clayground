@@ -13,15 +13,15 @@ const KAREN_URL_UNO =
 type SeedTemplate = Omit<WorkOrder, 'id' | 'created_at' | 'updated_at'>
 
 const SEED_TEMPLATES: SeedTemplate[] = [
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Pink',       model_url: KAREN_URL_HEART,     status: 'Complete',  paid: false, notes: '' },
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Purple',     model_url: KAREN_URL_HEART,     status: 'Complete',  paid: false, notes: '' },
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Light Blue', model_url: KAREN_URL_HEART,     status: 'Printing',  paid: false, notes: '' },
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Light Blue', model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '' },
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Purple',     model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '' },
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Yellow',     model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '' },
-  { customer: 'Karen coworker', item: 'Hot Wheels shelf',    color: 'Dark Blue',  model_url: KAREN_URL_HOTWHEELS, status: 'Queue',     paid: false, notes: '' },
-  { customer: 'Karen coworker', item: 'Hot Wheels shelf',    color: 'Dark Blue',  model_url: KAREN_URL_HOTWHEELS, status: 'Queue',     paid: false, notes: '' },
-  { customer: 'Karen coworker', item: 'Uno card holder',     color: 'TBD',        model_url: KAREN_URL_UNO,       status: 'Queue',     paid: false, notes: '' },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Pink',       model_url: KAREN_URL_HEART,     status: 'Complete',  paid: false, notes: '', price: 5, cost: 2, sort_order: 1 },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Purple',     model_url: KAREN_URL_HEART,     status: 'Complete',  paid: false, notes: '', price: 5, cost: 2, sort_order: 2 },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Light Blue', model_url: KAREN_URL_HEART,     status: 'Printing',  paid: false, notes: '', price: 5, cost: 2, sort_order: 3 },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Light Blue', model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 4 },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Purple',     model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 5 },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Yellow',     model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 6 },
+  { customer: 'Karen coworker', item: 'Hot Wheels shelf',    color: 'Dark Blue',  model_url: KAREN_URL_HOTWHEELS, status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 7 },
+  { customer: 'Karen coworker', item: 'Hot Wheels shelf',    color: 'Dark Blue',  model_url: KAREN_URL_HOTWHEELS, status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 8 },
+  { customer: 'Karen coworker', item: 'Uno card holder',     color: 'TBD',        model_url: KAREN_URL_UNO,       status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 9 },
 ]
 
 const LS_KEY = 'print_queue_orders'
@@ -123,4 +123,37 @@ export async function deleteOrder(id: string): Promise<void> {
   }
   const orders = lsLoad().filter(o => o.id !== id)
   lsSave(orders)
+}
+
+export async function reorderOrders(orderedIds: string[]): Promise<void> {
+  if (isSupabaseConfigured && supabase) {
+    await Promise.all(
+      orderedIds.map((id, idx) =>
+        supabase!
+          .from('work_orders')
+          .update({ sort_order: idx + 1, updated_at: now() })
+          .eq('id', id)
+      )
+    )
+    return
+  }
+  const orders = lsLoad()
+  const idSet = new Set(orderedIds)
+  // Apply new sort_order values to the reordered items
+  const updated = orders.map(o => {
+    const pos = orderedIds.indexOf(o.id)
+    if (pos === -1) return o
+    return { ...o, sort_order: pos + 1, updated_at: now() }
+  })
+  // Stable re-sort: reordered items by sort_order, non-reordered items keep
+  // their original relative positions (sorted by created_at as tie-break)
+  updated.sort((a, b) => {
+    const aIn = idSet.has(a.id)
+    const bIn = idSet.has(b.id)
+    if (aIn && bIn) return a.sort_order - b.sort_order
+    if (aIn) return -1   // active items before completed
+    if (bIn) return 1
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  })
+  lsSave(updated)
 }

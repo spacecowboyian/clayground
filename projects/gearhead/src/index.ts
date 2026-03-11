@@ -28,6 +28,8 @@ export { Link } from './components/Link/Link';
 export { Tooltip } from './components/Tooltip/Tooltip';
 export { GridList, GridListItem } from './components/GridList/GridList';
 
+export { Accordion } from './components/Accordion/Accordion';
+
 // ─── Composite Components ─────────────────────────────────────────────────────
 export { PageHeader } from './components/PageHeader/PageHeader';
 export { FilterSidebar } from './components/FilterSidebar/FilterSidebar';

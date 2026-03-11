@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Button, Dialog, Switch } from '@gearhead/ui'
-import { ExternalLink, Pencil, Plus, Share2, Trash2 } from 'lucide-react'
-import { deleteOrder, listOrders, createOrder, updateOrder } from '../lib/storage'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Button, Dialog, Switch, Accordion } from '@gearhead/ui'
+import { ExternalLink, GripVertical, Pencil, Plus, Share2, Trash2 } from 'lucide-react'
+import { deleteOrder, listOrders, createOrder, updateOrder, reorderOrders } from '../lib/storage'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { logout } from '../lib/auth'
 import { StatusBadge } from '../components/StatusBadge/StatusBadge'
@@ -9,6 +9,9 @@ import { WorkOrderForm } from '../components/WorkOrderForm/WorkOrderForm'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../types/WorkOrder'
 
 const STATUS_FILTERS: Array<WorkOrderStatus | 'All'> = ['All', 'Queue', 'Printing', 'Complete', 'Cancelled']
+
+const ACTIVE_STATUSES   = new Set<WorkOrderStatus>(['Queue', 'Printing'])
+const COMPLETE_STATUSES = new Set<WorkOrderStatus>(['Complete', 'Cancelled'])
 
 interface DashboardPageProps {
   onLogout: () => void
@@ -25,6 +28,10 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
   const [deleteTarget, setDeleteTarget] = useState<WorkOrder | null>(null)
   const [copiedId, setCopiedId]     = useState<string | null>(null)
 
+  // Drag-and-drop state
+  const dragIdRef    = useRef<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
+
   const reload = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -40,7 +47,8 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
   useEffect(() => { void reload() }, [reload])
 
   async function handleCreate(input: WorkOrderInput) {
-    await createOrder(input)
+    const nextSort = orders.filter(o => ACTIVE_STATUSES.has(o.status)).length + 1
+    await createOrder({ ...input, sort_order: nextSort })
     setAddOpen(false)
     await reload()
   }
@@ -81,15 +89,82 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
     onLogout()
   }
 
-  const visible = statusFilter === 'All'
-    ? orders
-    : orders.filter(o => o.status === statusFilter)
+  // ── Drag handlers ──────────────────────────────────────────────────────────
+  function handleDragStart(id: string) {
+    dragIdRef.current = id
+  }
+
+  function handleDragOver(e: React.DragEvent, id: string) {
+    e.preventDefault()
+    if (dragIdRef.current && dragIdRef.current !== id) {
+      setDragOverId(id)
+    }
+  }
+
+  function handleDragLeave() {
+    setDragOverId(null)
+  }
+
+  async function handleDrop(targetId: string, activeOrds: WorkOrder[]) {
+    const sourceId = dragIdRef.current
+    dragIdRef.current = null
+    setDragOverId(null)
+    if (!sourceId || sourceId === targetId) return
+
+    const currentIds = activeOrds.map(o => o.id)
+    const fromIdx = currentIds.indexOf(sourceId)
+    const toIdx   = currentIds.indexOf(targetId)
+    if (fromIdx === -1 || toIdx === -1) return
+
+    const reordered = [...currentIds]
+    reordered.splice(fromIdx, 1)
+    reordered.splice(toIdx, 0, sourceId)
+
+    // Optimistic update
+    setOrders(prev => {
+      const idSet = new Set(reordered)
+      const reorderedActive = reordered.map((id, idx) => ({
+        ...prev.find(o => o.id === id)!,
+        sort_order: idx + 1,
+      }))
+      const rest = prev.filter(o => !idSet.has(o.id))
+      return [...reorderedActive, ...rest]
+    })
+    await reorderOrders(reordered)
+  }
+
+  function handleDragEnd() {
+    dragIdRef.current = null
+    setDragOverId(null)
+  }
+
+  // ── Derived data ───────────────────────────────────────────────────────────
+  const allActive   = orders
+    .filter(o => ACTIVE_STATUSES.has(o.status))
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+
+  const allComplete = orders
+    .filter(o => COMPLETE_STATUSES.has(o.status))
+    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+
+  const visibleActive = statusFilter === 'All' || ACTIVE_STATUSES.has(statusFilter as WorkOrderStatus)
+    ? (statusFilter === 'All' ? allActive : allActive.filter(o => o.status === statusFilter))
+    : []
+
+  const visibleComplete = statusFilter === 'All' || COMPLETE_STATUSES.has(statusFilter as WorkOrderStatus)
+    ? (statusFilter === 'All' ? allComplete : allComplete.filter(o => o.status === statusFilter))
+    : []
+
+  const hasAny = visibleActive.length > 0 || visibleComplete.length > 0
 
   // Stats
   const total    = orders.length
   const printing = orders.filter(o => o.status === 'Printing').length
   const queued   = orders.filter(o => o.status === 'Queue').length
   const unpaid   = orders.filter(o => !o.paid && o.status !== 'Cancelled').length
+  const profit   = orders
+    .filter(o => o.paid && o.status !== 'Cancelled')
+    .reduce((sum, o) => sum + ((o.price ?? 5) - (o.cost ?? 2)), 0)
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -97,7 +172,7 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
       <header className="border-b border-[var(--border)] bg-[var(--card)] sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src="./tinyprints-logo.svg" alt="Tiny Prints" className="w-8 h-auto" />
+            <img src="./tinyprints-printer.svg" alt="Tiny Prints" className="w-9 h-9 object-contain" />
             <span className="font-bold text-[var(--foreground)] text-lg hidden sm:block">Tiny Prints</span>
             <span className="text-[var(--muted-foreground)] text-sm hidden sm:block">/ Print Queue</span>
           </div>
@@ -116,16 +191,16 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Stats row */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard label="Total Orders" value={total} />
-          <StatCard label="Printing Now" value={printing} accent="blue" />
-          <StatCard label="In Queue" value={queued} accent="muted" />
-          <StatCard label="Awaiting Payment" value={unpaid} accent="orange" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <StatCard label="Total Orders"     value={total}    />
+          <StatCard label="Printing Now"     value={printing} accent="blue" />
+          <StatCard label="In Queue"         value={queued}   accent="muted" />
+          <StatCard label="Awaiting Payment" value={unpaid}   accent="orange" />
+          <StatCard label="Profit (paid)"    value={`$${profit.toFixed(2)}`} accent="green" />
         </div>
 
         {/* Toolbar */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Status filter tabs */}
           <div className="flex gap-1 flex-wrap">
             {STATUS_FILTERS.map(f => (
               <button
@@ -163,150 +238,220 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
 
         {/* Error */}
         {error && (
-          <div className="bg-[var(--accent-red-light)] border border-[var(--destructive)] rounded-lg p-4 text-sm text-[var(--destructive)]">
+          <div className="bg-[var(--accent-red-light)] border border-[var(--destructive)] rounded-xl p-4 text-sm text-[var(--destructive)]">
             {error}
           </div>
         )}
 
-        {/* Table */}
+        {/* Content */}
         {loading ? (
           <div className="text-center py-12 text-[var(--muted-foreground)]">Loading orders…</div>
-        ) : visible.length === 0 ? (
+        ) : !hasAny ? (
           <div className="text-center py-12 space-y-2">
             <p className="text-4xl">📋</p>
-            <p className="text-[var(--muted-foreground)]">No orders {statusFilter !== 'All' ? `with status "${statusFilter}"` : 'yet'}.</p>
+            <p className="text-[var(--muted-foreground)]">
+              No orders {statusFilter !== 'All' ? `with status "${statusFilter}"` : 'yet'}.
+            </p>
           </div>
         ) : (
-          <>
-            {/* Desktop table */}
-            <div className="hidden md:block overflow-x-auto rounded-xl border border-[var(--border)]">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--border)] bg-[var(--card)]">
-                    <Th>Customer</Th>
-                    <Th>Item</Th>
-                    <Th>Color</Th>
-                    <Th>Status</Th>
-                    <Th>Paid</Th>
-                    <Th>Notes</Th>
-                    <Th align="right">Actions</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visible.map(order => (
-                    <tr
-                      key={order.id}
-                      className="border-b border-[var(--border)] bg-[var(--card)] hover:bg-[var(--secondary)] transition-colors"
-                    >
-                      <Td>{order.customer}</Td>
-                      <Td>{order.item}</Td>
-                      <Td>
-                        <ColorDot color={order.color} />
-                      </Td>
-                      <Td>
-                        <StatusSelect order={order} onChange={handleStatusChange} />
-                      </Td>
-                      <Td>
-                        <Switch
-                          isSelected={order.paid}
-                          onChange={() => void handleTogglePaid(order)}
-                          color="green"
-                          aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
-                        />
-                      </Td>
-                      <Td>
-                        <span className="text-[var(--muted-foreground)] text-xs">{order.notes || '—'}</span>
-                      </Td>
-                      <Td align="right">
-                        <div className="flex items-center justify-end gap-1">
-                          {order.model_url && (
-                            <a
-                              href={order.model_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
-                              title="Open model"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          )}
-                          <button
-                            onClick={() => handleShare(order)}
-                            className="p-1.5 rounded hover:bg-[var(--accent-green-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-green)] transition-colors"
-                            title={copiedId === order.id ? 'Copied!' : 'Copy order link'}
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setEditOrder(order)}
-                            className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
-                            title="Edit"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteTarget(order)}
-                            className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </Td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile cards */}
-            <div className="md:hidden space-y-3">
-              {visible.map(order => (
-                <div key={order.id} className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-medium text-[var(--foreground)]">{order.item}</p>
-                      <p className="text-sm text-[var(--muted-foreground)]">{order.customer}</p>
-                    </div>
-                    <StatusBadge status={order.status} />
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <ColorDot color={order.color} />
-                    <span className={`text-xs ${order.paid ? 'text-[var(--accent-green)]' : 'text-[var(--muted-foreground)]'}`}>
-                      {order.paid ? '✓ Paid' : 'Unpaid'}
-                    </span>
-                  </div>
-                  {order.notes && (
-                    <p className="text-xs text-[var(--muted-foreground)]">{order.notes}</p>
-                  )}
-                  <div className="flex items-center gap-2 pt-1 border-t border-[var(--border)]">
-                    <Button variant="ghost" className="flex-1 justify-center text-xs py-1" onPress={() => onViewOrder(order.id)}>
-                      View
-                    </Button>
-                    <Button variant="ghost" className="flex-1 justify-center text-xs py-1" onPress={() => setEditOrder(order)}>
-                      Edit
-                    </Button>
-                    <button
-                      onClick={() => handleShare(order)}
-                      className="flex-1 py-1 rounded-lg text-xs text-[var(--muted-foreground)] hover:bg-[var(--secondary)] transition-colors"
-                    >
-                      {copiedId === order.id ? 'Copied!' : 'Share'}
-                    </button>
-                    <button
-                      onClick={() => setDeleteTarget(order)}
-                      className="px-3 py-1 rounded-lg text-xs text-[var(--destructive)] hover:bg-[var(--accent-red-light)] transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
+          <div className="space-y-4">
+            {/* ── Active orders (Queue / Printing) ─── */}
+            {visibleActive.length > 0 && (
+              <>
+                {/* Desktop table */}
+                <div className="hidden md:block overflow-x-auto rounded-xl border border-[var(--border)]">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-[var(--border)] bg-[var(--card)]">
+                        <th className="w-8 px-2 py-3" aria-label="Drag handle" />
+                        <Th>Customer</Th>
+                        <Th>Item</Th>
+                        <Th>Color</Th>
+                        <Th>Status</Th>
+                        <Th>Paid</Th>
+                        <Th>Price</Th>
+                        <Th>Cost</Th>
+                        <Th>Profit</Th>
+                        <Th>Notes</Th>
+                        <Th align="right">Actions</Th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {visibleActive.map(order => (
+                        <tr
+                          key={order.id}
+                          draggable
+                          onDragStart={() => handleDragStart(order.id)}
+                          onDragOver={e => handleDragOver(e, order.id)}
+                          onDragLeave={handleDragLeave}
+                          onDrop={() => void handleDrop(order.id, visibleActive)}
+                          onDragEnd={handleDragEnd}
+                          className={`border-b border-[var(--border)] bg-[var(--card)] hover:bg-[var(--secondary)] transition-colors ${
+                            dragOverId === order.id ? 'outline outline-2 outline-[var(--accent-orange)]' : ''
+                          }`}
+                        >
+                          <td className="px-2 py-3 cursor-grab active:cursor-grabbing text-[var(--muted-foreground)]">
+                            <GripVertical className="w-4 h-4" />
+                          </td>
+                          <Td>{order.customer}</Td>
+                          <Td>{order.item}</Td>
+                          <Td><ColorDot color={order.color} /></Td>
+                          <Td>
+                            <StatusSelect order={order} onChange={handleStatusChange} />
+                          </Td>
+                          <Td>
+                            <Switch
+                              isSelected={order.paid}
+                              onChange={() => void handleTogglePaid(order)}
+                              color="green"
+                              aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
+                            />
+                          </Td>
+                          <Td>
+                            <span className="text-[var(--accent-green)] font-medium">${(order.price ?? 5).toFixed(2)}</span>
+                          </Td>
+                          <Td>
+                            <span className="text-[var(--muted-foreground)]">${(order.cost ?? 2).toFixed(2)}</span>
+                          </Td>
+                          <Td>
+                            <ProfitBadge profit={(order.price ?? 5) - (order.cost ?? 2)} />
+                          </Td>
+                          <Td>
+                            <span className="text-[var(--muted-foreground)] text-xs">{order.notes || '—'}</span>
+                          </Td>
+                          <Td align="right">
+                            <OrderActions
+                              order={order}
+                              copiedId={copiedId}
+                              onView={() => onViewOrder(order.id)}
+                              onEdit={() => setEditOrder(order)}
+                              onShare={() => handleShare(order)}
+                              onDelete={() => setDeleteTarget(order)}
+                            />
+                          </Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              ))}
-            </div>
-          </>
+
+                {/* Mobile cards */}
+                <div className="md:hidden space-y-3">
+                  {visibleActive.map(order => (
+                    <MobileCard
+                      key={order.id}
+                      order={order}
+                      copiedId={copiedId}
+                      onView={() => onViewOrder(order.id)}
+                      onEdit={() => setEditOrder(order)}
+                      onShare={() => handleShare(order)}
+                      onDelete={() => setDeleteTarget(order)}
+                      onTogglePaid={() => void handleTogglePaid(order)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* ── Completed / Cancelled accordion ─── */}
+            {visibleComplete.length > 0 && (
+              <Accordion
+                title="Completed & Cancelled"
+                badge={
+                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--secondary)] text-[var(--muted-foreground)]">
+                    {visibleComplete.length}
+                  </span>
+                }
+              >
+                {/* Desktop table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-[var(--border)]">
+                        <Th>Customer</Th>
+                        <Th>Item</Th>
+                        <Th>Color</Th>
+                        <Th>Status</Th>
+                        <Th>Paid</Th>
+                        <Th>Price</Th>
+                        <Th>Cost</Th>
+                        <Th>Profit</Th>
+                        <Th>Notes</Th>
+                        <Th align="right">Actions</Th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {visibleComplete.map(order => (
+                        <tr
+                          key={order.id}
+                          className="border-b border-[var(--border)] bg-[var(--card)] hover:bg-[var(--secondary)] transition-colors opacity-80"
+                        >
+                          <Td>{order.customer}</Td>
+                          <Td>{order.item}</Td>
+                          <Td><ColorDot color={order.color} /></Td>
+                          <Td>
+                            <StatusSelect order={order} onChange={handleStatusChange} />
+                          </Td>
+                          <Td>
+                            <Switch
+                              isSelected={order.paid}
+                              onChange={() => void handleTogglePaid(order)}
+                              color="green"
+                              aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
+                            />
+                          </Td>
+                          <Td>
+                            <span className="text-[var(--accent-green)] font-medium">${(order.price ?? 5).toFixed(2)}</span>
+                          </Td>
+                          <Td>
+                            <span className="text-[var(--muted-foreground)]">${(order.cost ?? 2).toFixed(2)}</span>
+                          </Td>
+                          <Td>
+                            <ProfitBadge profit={(order.price ?? 5) - (order.cost ?? 2)} />
+                          </Td>
+                          <Td>
+                            <span className="text-[var(--muted-foreground)] text-xs">{order.notes || '—'}</span>
+                          </Td>
+                          <Td align="right">
+                            <OrderActions
+                              order={order}
+                              copiedId={copiedId}
+                              onView={() => onViewOrder(order.id)}
+                              onEdit={() => setEditOrder(order)}
+                              onShare={() => handleShare(order)}
+                              onDelete={() => setDeleteTarget(order)}
+                            />
+                          </Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile cards */}
+                <div className="md:hidden divide-y divide-[var(--border)]">
+                  {visibleComplete.map(order => (
+                    <div key={order.id} className="p-2">
+                      <MobileCard
+                        order={order}
+                        copiedId={copiedId}
+                        onView={() => onViewOrder(order.id)}
+                        onEdit={() => setEditOrder(order)}
+                        onShare={() => handleShare(order)}
+                        onDelete={() => setDeleteTarget(order)}
+                        onTogglePaid={() => void handleTogglePaid(order)}
+                        muted
+                      />
+                    </div>
+                  ))}
+                </div>
+              </Accordion>
+            )}
+          </div>
         )}
 
         <p className="text-xs text-center text-[var(--muted-foreground)]">
-          {visible.length} order{visible.length !== 1 ? 's' : ''} shown
+          {visibleActive.length + visibleComplete.length} order{(visibleActive.length + visibleComplete.length) !== 1 ? 's' : ''} shown
           {statusFilter !== 'All' && ` · filtered by "${statusFilter}"`}
         </p>
       </main>
@@ -351,9 +496,145 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
   )
 }
 
+// ── Mobile card ────────────────────────────────────────────────────────────────
+
+interface MobileCardProps {
+  order: WorkOrder
+  copiedId: string | null
+  onView: () => void
+  onEdit: () => void
+  onShare: () => void
+  onDelete: () => void
+  onTogglePaid: () => void
+  muted?: boolean
+}
+
+function MobileCard({ order, copiedId, onView, onEdit, onShare, onDelete, onTogglePaid, muted }: MobileCardProps) {
+  const profit = (order.price ?? 5) - (order.cost ?? 2)
+  return (
+    <div className={`bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3 ${muted ? 'opacity-80' : ''}`}>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <p className="font-medium text-[var(--foreground)]">{order.item}</p>
+          <p className="text-sm text-[var(--muted-foreground)]">{order.customer}</p>
+        </div>
+        <StatusBadge status={order.status} />
+      </div>
+
+      <div className="flex items-center justify-between gap-3">
+        <ColorDot color={order.color} />
+        <div className="flex items-center gap-2 ml-auto">
+          <span className="text-xs text-[var(--muted-foreground)]">Paid</span>
+          <Switch
+            isSelected={order.paid}
+            onChange={onTogglePaid}
+            color="green"
+            aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
+          />
+        </div>
+      </div>
+
+      {/* Price / Cost / Profit row */}
+      <div className="flex items-center gap-4 text-xs">
+        <span className="text-[var(--muted-foreground)]">
+          Price <span className="text-[var(--accent-green)] font-medium">${(order.price ?? 5).toFixed(2)}</span>
+        </span>
+        <span className="text-[var(--muted-foreground)]">
+          Cost <span className="font-medium">${(order.cost ?? 2).toFixed(2)}</span>
+        </span>
+        <span className="text-[var(--muted-foreground)]">
+          Profit <ProfitBadge profit={profit} />
+        </span>
+      </div>
+
+      {order.notes && (
+        <p className="text-xs text-[var(--muted-foreground)]">{order.notes}</p>
+      )}
+
+      <div className="flex items-center gap-2 pt-1 border-t border-[var(--border)]">
+        <Button variant="ghost" className="flex-1 justify-center text-xs py-1" onPress={onView}>
+          View
+        </Button>
+        <Button variant="ghost" className="flex-1 justify-center text-xs py-1" onPress={onEdit}>
+          Edit
+        </Button>
+        <button
+          onClick={onShare}
+          className="flex-1 py-1 rounded-lg text-xs text-[var(--muted-foreground)] hover:bg-[var(--secondary)] transition-colors"
+        >
+          {copiedId === order.id ? 'Copied!' : 'Share'}
+        </button>
+        <button
+          onClick={onDelete}
+          className="px-3 py-1 rounded-lg text-xs text-[var(--destructive)] hover:bg-[var(--accent-red-light)] transition-colors"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Desktop action buttons ─────────────────────────────────────────────────────
+
+interface OrderActionsProps {
+  order: WorkOrder
+  copiedId: string | null
+  onView: () => void
+  onEdit: () => void
+  onShare: () => void
+  onDelete: () => void
+}
+
+function OrderActions({ order, copiedId, onView, onEdit, onShare, onDelete }: OrderActionsProps) {
+  return (
+    <div className="flex items-center justify-end gap-1">
+      <button
+        onClick={onView}
+        className="p-1.5 rounded hover:bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+        title="View order"
+      >
+        <ExternalLink className="w-4 h-4" />
+      </button>
+      {order.model_url && (
+        <a
+          href={order.model_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
+          title="Open model"
+        >
+          <ExternalLink className="w-4 h-4" />
+        </a>
+      )}
+      <button
+        onClick={onShare}
+        className="p-1.5 rounded hover:bg-[var(--accent-green-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-green)] transition-colors"
+        title={copiedId === order.id ? 'Copied!' : 'Copy order link'}
+      >
+        <Share2 className="w-4 h-4" />
+      </button>
+      <button
+        onClick={onEdit}
+        className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
+        title="Edit"
+      >
+        <Pencil className="w-4 h-4" />
+      </button>
+      <button
+        onClick={onDelete}
+        className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+        title="Delete"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  )
+}
+
 // ── Small helpers ──────────────────────────────────────────────────────────────
 
-function Th({ children, align = 'left' }: { children: React.ReactNode; align?: 'left' | 'right' }) {
+function Th({ children, align = 'left' }: { children?: React.ReactNode; align?: 'left' | 'right' }) {
   return (
     <th className={`px-4 py-3 text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider ${align === 'right' ? 'text-right' : 'text-left'}`}>
       {children}
@@ -366,6 +647,15 @@ function Td({ children, align = 'left' }: { children: React.ReactNode; align?: '
     <td className={`px-4 py-3 text-[var(--foreground)] ${align === 'right' ? 'text-right' : 'text-left'}`}>
       {children}
     </td>
+  )
+}
+
+function ProfitBadge({ profit }: { profit: number }) {
+  const isPositive = profit >= 0
+  return (
+    <span className={`font-medium text-xs ${isPositive ? 'text-[var(--accent-green)]' : 'text-[var(--destructive)]'}`}>
+      {isPositive ? '+' : ''}${Math.abs(profit).toFixed(2)}
+    </span>
   )
 }
 
@@ -411,7 +701,7 @@ function StatusSelect({ order, onChange }: { order: WorkOrder; onChange: (o: Wor
 
 interface StatCardProps {
   label: string
-  value: number
+  value: number | string
   accent?: 'orange' | 'blue' | 'green' | 'muted'
 }
 
