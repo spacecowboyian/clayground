@@ -13,6 +13,24 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.0.0] – 2026-03-11
+
+### feat(print-queue)
+- **Data-driven order costing** — cost per order is now calculated automatically from filament and labor inputs instead of relying on a manually entered value
+- **Filament roll data** — `Filament` gains `roll_cost` (USD) and `roll_size_g` (grams); used to derive material cost per gram
+- **Model costing data** — `PrintModel` gains `filament_usage_g` (grams per print) and `post_processing_mins` (manual labor time); used to derive material and labor cost per item
+- **Farm Settings page** (`#/settings`) — configurable labor rate (default $30/hour) stored in localStorage; linked from the dashboard header "Settings" button
+- **Auto-calculated cost in order form** — selecting a model + filament automatically fills the Cost field with a material + labor breakdown; the user can still override it manually, and a "↺ Reset to calculated" link restores the auto value
+- **"Other" filament material** — choosing "Other" in the Material dropdown reveals a free-text field for custom material names (e.g. Nylon, PA-CF); stored value is the typed name, not the literal string "Other"
+- **Inventory: clickable model images** — when a model has both an image URL and a model URL, the image is wrapped in a link that opens the external model page in a new tab; a subtle hover-dim indicates it is clickable
+- **Order form shortcuts** — "＋ Add a new model" and "＋ Add a new filament" links inside the New/Edit Order dialog close the dialog and navigate directly to the Inventory page
+- **Dashboard Settings button** — gear icon + "Settings" label added to the dashboard header alongside the existing Inventory button
+- New utility `src/lib/costing.ts`: `calculateItemCost(model, filament, laborRate)` returns `{ material_cost, labor_cost, total_cost }`
+- New `src/lib/settings.ts` + `src/types/FarmSettings.ts` for localStorage-backed farm settings
+- Seed data updated: models seeded with `filament_usage_g` / `post_processing_mins`; filaments seeded with `roll_cost: 20` / `roll_size_g: 1000`
+
+---
+
 ## [0.9.0] – 2026-03-11
 
 ### feat(gearhead)

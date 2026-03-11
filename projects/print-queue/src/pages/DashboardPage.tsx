@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Dialog, Switch, Accordion } from '@gearhead/ui'
-import { ExternalLink, GripVertical, Package, Pencil, Plus, Share2, Trash2 } from 'lucide-react'
+import { ExternalLink, GripVertical, Package, Pencil, Plus, Settings, Share2, Trash2 } from 'lucide-react'
 import { deleteOrder, listOrders, createOrder, updateOrder, reorderOrders } from '../lib/storage'
 import { listModels, listFilaments } from '../lib/inventory'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -19,9 +19,10 @@ interface DashboardPageProps {
   onLogout: () => void
   onViewOrder: (id: string) => void
   onInventory: () => void
+  onSettings: () => void
 }
 
-export function DashboardPage({ onLogout, onViewOrder, onInventory }: DashboardPageProps) {
+export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }: DashboardPageProps) {
   const [orders, setOrders]         = useState<WorkOrder[]>([])
   const [models, setModels]         = useState<PrintModel[]>([])
   const [filaments, setFilaments]   = useState<Filament[]>([])
@@ -197,6 +198,10 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory }: DashboardP
             <Button variant="ghost" onPress={onInventory} className="text-sm" title="Inventory">
               <Package className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">Inventory</span>
+            </Button>
+            <Button variant="ghost" onPress={onSettings} className="text-sm" title="Farm Settings">
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">Settings</span>
             </Button>
             <Button variant="ghost" onPress={handleLogout} className="text-sm">
               Lock
