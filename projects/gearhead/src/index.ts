@@ -46,5 +46,9 @@ export { DetailsPage } from './components/patterns/DetailsPage/DetailsPage';
 export type { DetailField, DetailSection } from './components/patterns/DetailsPage/DetailsPage';
 export { DashboardPage } from './components/patterns/DashboardPage/DashboardPage';
 
+// ─── Domain Components ────────────────────────────────────────────────────────
+export { OrderStatusTimeline } from './components/OrderStatusTimeline/OrderStatusTimeline';
+export type { PrintOrderStatus } from './components/OrderStatusTimeline/OrderStatusTimeline';
+
 // ─── Utilities ───────────────────────────────────────────────────────────────
 export { cn } from './utils/cn';

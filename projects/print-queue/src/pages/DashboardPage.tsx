@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Dialog, Switch, Accordion } from '@gearhead/ui'
-import { ExternalLink, GripVertical, Package, Pencil, Plus, Settings, Share2, Trash2 } from 'lucide-react'
+import { GripVertical, Package, Pencil, Plus, Settings, Trash2 } from 'lucide-react'
 import { deleteOrder, listOrders, createOrder, updateOrder, reorderOrders } from '../lib/storage'
 import { listModels, listFilaments } from '../lib/inventory'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -32,7 +32,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
   const [addOpen, setAddOpen]       = useState(false)
   const [editOrder, setEditOrder]   = useState<WorkOrder | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<WorkOrder | null>(null)
-  const [copiedId, setCopiedId]     = useState<string | null>(null)
 
   // Drag-and-drop state
   const dragIdRef    = useRef<string | null>(null)
@@ -88,13 +87,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
   async function handleStatusChange(order: WorkOrder, status: WorkOrderStatus) {
     await updateOrder(order.id, { status })
     await reload()
-  }
-
-  function handleShare(order: WorkOrder) {
-    const url = `${window.location.origin}${window.location.pathname}#/order/${order.id}`
-    void navigator.clipboard.writeText(url)
-    setCopiedId(order.id)
-    setTimeout(() => setCopiedId(id => (id === order.id ? null : id)), 2000)
   }
 
   function handleLogout() {
@@ -320,7 +312,14 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
                           <td className="px-2 py-3 cursor-grab active:cursor-grabbing text-[var(--muted-foreground)]">
                             <GripVertical className="w-4 h-4" />
                           </td>
-                          <Td>{order.customer}</Td>
+                          <Td>
+                            <button
+                              onClick={() => onViewOrder(order.id)}
+                              className="font-medium text-[var(--accent-blue)] hover:underline text-left"
+                            >
+                              {order.customer}
+                            </button>
+                          </Td>
                           <Td>{order.item}</Td>
                           <Td>
                             <div className="flex items-center gap-1.5">
@@ -355,11 +354,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
                           </Td>
                           <Td align="right">
                             <OrderActions
-                              order={order}
-                              copiedId={copiedId}
-                              onView={() => onViewOrder(order.id)}
                               onEdit={() => setEditOrder(order)}
-                              onShare={() => handleShare(order)}
                               onDelete={() => setDeleteTarget(order)}
                             />
                           </Td>
@@ -375,10 +370,8 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
                     <MobileCard
                       key={order.id}
                       order={order}
-                      copiedId={copiedId}
                       onView={() => onViewOrder(order.id)}
                       onEdit={() => setEditOrder(order)}
-                      onShare={() => handleShare(order)}
                       onDelete={() => setDeleteTarget(order)}
                       onTogglePaid={() => void handleTogglePaid(order)}
                     />
@@ -420,7 +413,14 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
                           key={order.id}
                           className="border-b border-[var(--border)] bg-[var(--card)] hover:bg-[var(--secondary)] transition-colors opacity-80"
                         >
-                          <Td>{order.customer}</Td>
+                          <Td>
+                            <button
+                              onClick={() => onViewOrder(order.id)}
+                              className="font-medium text-[var(--accent-blue)] hover:underline text-left"
+                            >
+                              {order.customer}
+                            </button>
+                          </Td>
                           <Td>{order.item}</Td>
                           <Td>
                             <div className="flex items-center gap-1.5">
@@ -455,11 +455,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
                           </Td>
                           <Td align="right">
                             <OrderActions
-                              order={order}
-                              copiedId={copiedId}
-                              onView={() => onViewOrder(order.id)}
                               onEdit={() => setEditOrder(order)}
-                              onShare={() => handleShare(order)}
                               onDelete={() => setDeleteTarget(order)}
                             />
                           </Td>
@@ -475,10 +471,8 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
                     <div key={order.id} className="p-2">
                       <MobileCard
                         order={order}
-                        copiedId={copiedId}
                         onView={() => onViewOrder(order.id)}
                         onEdit={() => setEditOrder(order)}
-                        onShare={() => handleShare(order)}
                         onDelete={() => setDeleteTarget(order)}
                         onTogglePaid={() => void handleTogglePaid(order)}
                         muted
@@ -545,23 +539,26 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
 
 interface MobileCardProps {
   order: WorkOrder
-  copiedId: string | null
   onView: () => void
   onEdit: () => void
-  onShare: () => void
   onDelete: () => void
   onTogglePaid: () => void
   muted?: boolean
 }
 
-function MobileCard({ order, copiedId, onView, onEdit, onShare, onDelete, onTogglePaid, muted }: MobileCardProps) {
+function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: MobileCardProps) {
   const profit = (order.price ?? 5) - (order.cost ?? 2)
   return (
     <div className={`bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3 ${muted ? 'opacity-80' : ''}`}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-medium text-[var(--foreground)]">{order.item}</p>
-          <p className="text-sm text-[var(--muted-foreground)]">{order.customer}</p>
+          <button
+            onClick={onView}
+            className="text-sm text-[var(--accent-blue)] hover:underline text-left"
+          >
+            {order.customer}
+          </button>
         </div>
         <StatusBadge status={order.status} />
       </div>
@@ -602,18 +599,9 @@ function MobileCard({ order, copiedId, onView, onEdit, onShare, onDelete, onTogg
       )}
 
       <div className="flex items-center gap-2 pt-1 border-t border-[var(--border)]">
-        <Button variant="ghost" className="flex-1 justify-center text-xs py-1" onPress={onView}>
-          View
-        </Button>
         <Button variant="ghost" className="flex-1 justify-center text-xs py-1" onPress={onEdit}>
           Edit
         </Button>
-        <button
-          onClick={onShare}
-          className="flex-1 py-1 rounded-lg text-xs text-[var(--muted-foreground)] hover:bg-[var(--secondary)] transition-colors"
-        >
-          {copiedId === order.id ? 'Copied!' : 'Share'}
-        </button>
         <button
           onClick={onDelete}
           className="px-3 py-1 rounded-lg text-xs text-[var(--destructive)] hover:bg-[var(--accent-red-light)] transition-colors"
@@ -628,42 +616,13 @@ function MobileCard({ order, copiedId, onView, onEdit, onShare, onDelete, onTogg
 // ── Desktop action buttons ─────────────────────────────────────────────────────
 
 interface OrderActionsProps {
-  order: WorkOrder
-  copiedId: string | null
-  onView: () => void
   onEdit: () => void
-  onShare: () => void
   onDelete: () => void
 }
 
-function OrderActions({ order, copiedId, onView, onEdit, onShare, onDelete }: OrderActionsProps) {
+function OrderActions({ onEdit, onDelete }: OrderActionsProps) {
   return (
     <div className="flex items-center justify-end gap-1">
-      <button
-        onClick={onView}
-        className="p-1.5 rounded hover:bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
-        title="View order"
-      >
-        <ExternalLink className="w-4 h-4" />
-      </button>
-      {order.model_url && (
-        <a
-          href={order.model_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
-          title="Open model"
-        >
-          <ExternalLink className="w-4 h-4" />
-        </a>
-      )}
-      <button
-        onClick={onShare}
-        className="p-1.5 rounded hover:bg-[var(--accent-green-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-green)] transition-colors"
-        title={copiedId === order.id ? 'Copied!' : 'Copy order link'}
-      >
-        <Share2 className="w-4 h-4" />
-      </button>
       <button
         onClick={onEdit}
         className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"

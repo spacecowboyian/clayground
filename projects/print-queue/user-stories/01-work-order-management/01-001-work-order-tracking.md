@@ -57,3 +57,9 @@ So that I and my helpers can view and manage print jobs without needing individu
 - Verify #/order/:id works without login
 - Verify dashboard redirects to login when not authenticated
 - Verify sharing an individual order URL works from incognito
+
+## Additions
+### 2026-03-11 — Requested by: @copilot
+- Simplified home page table actions: removed View, Open Model, and Copy Link buttons; kept only Edit and Delete; customer name is now a clickable link to the order detail page.
+- Enhanced order detail page: replaced plain StatusBadge with a visual OrderStatusTimeline component showing progress through In Queue → Printing → Done; payment status now shows "Not Paid" in red and "Paid" in green.
+- Added reusable `OrderStatusTimeline` component to the Gearhead design library with Storybook story covering all four states (Queue, Printing, Complete, Cancelled).

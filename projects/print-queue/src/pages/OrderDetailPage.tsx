@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Button } from '@gearhead/ui'
+import { Button, OrderStatusTimeline } from '@gearhead/ui'
 import { getOrder } from '../lib/storage'
-import { StatusBadge } from '../components/StatusBadge/StatusBadge'
 import type { WorkOrder } from '../types/WorkOrder'
 
 interface OrderDetailPageProps {
@@ -67,11 +66,16 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
 
         {/* Card */}
         <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
-          {/* Status bar */}
-          <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
-            <StatusBadge status={order.status} />
-            <span className={`text-sm font-medium ${order.paid ? 'text-[var(--accent-green)]' : 'text-[var(--muted-foreground)]'}`}>
-              {order.paid ? '✓ Paid' : 'Not Paid'}
+          {/* Status timeline */}
+          <div className="px-6 py-5 border-b border-[var(--border)]">
+            <OrderStatusTimeline status={order.status} />
+          </div>
+
+          {/* Payment status */}
+          <div className="px-6 py-3 border-b border-[var(--border)] flex items-center justify-between">
+            <span className="text-sm text-[var(--muted-foreground)]">Payment</span>
+            <span className={`text-sm font-semibold ${order.paid ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]'}`}>
+              {order.paid ? '✓ Paid' : '✗ Not Paid'}
             </span>
           </div>
 
