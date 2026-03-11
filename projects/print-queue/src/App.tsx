@@ -3,11 +3,13 @@ import { isAuthenticated } from './lib/auth'
 import { LoginPage } from './pages/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
+import { InventoryPage } from './pages/InventoryPage'
 
 type Route =
   | { page: 'login' }
   | { page: 'dashboard' }
   | { page: 'order'; id: string }
+  | { page: 'inventory' }
 
 function parseHash(hash: string): Route {
   const path = hash.replace(/^#\/?/, '')
@@ -16,6 +18,7 @@ function parseHash(hash: string): Route {
     return { page: 'order', id }
   }
   if (path === 'dashboard') return { page: 'dashboard' }
+  if (path === 'inventory') return { page: 'inventory' }
   return { page: 'login' }
 }
 
@@ -50,6 +53,16 @@ export function App() {
     )
   }
 
+  if (route.page === 'inventory') {
+    if (!isAuthenticated()) {
+      navigate('#/')
+      return null
+    }
+    return (
+      <InventoryPage onBack={() => navigate('#/dashboard')} />
+    )
+  }
+
   if (route.page === 'dashboard') {
     if (!isAuthenticated()) {
       navigate('#/')
@@ -59,6 +72,7 @@ export function App() {
       <DashboardPage
         onLogout={() => navigate('#/')}
         onViewOrder={id => navigate(`#/order/${id}`)}
+        onInventory={() => navigate('#/inventory')}
       />
     )
   }

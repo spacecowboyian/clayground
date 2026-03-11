@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button, TextField, Select, Switch, TextArea, NumberField } from '@gearhead/ui'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../../types/WorkOrder'
+import type { PrintModel, Filament } from '../../types/Inventory'
 
 const STATUS_OPTIONS = [
   { id: 'Queue',     label: 'Queue' },
@@ -9,44 +10,116 @@ const STATUS_OPTIONS = [
   { id: 'Cancelled', label: 'Cancelled' },
 ]
 
+const FILAMENT_SURCHARGE = 5
+
+const CUSTOM_COLOR_ID = '__custom__'
+
 interface WorkOrderFormProps {
   initial?: WorkOrder
+  models: PrintModel[]
+  filaments: Filament[]
   onSave: (input: WorkOrderInput) => Promise<void>
   onCancel: () => void
 }
 
-export function WorkOrderForm({ initial, onSave, onCancel }: WorkOrderFormProps) {
-  const [customer, setCustomer] = useState(initial?.customer  ?? '')
-  const [item, setItem]         = useState(initial?.item      ?? '')
-  const [color, setColor]       = useState(initial?.color     ?? '')
-  const [modelUrl, setModelUrl] = useState(initial?.model_url ?? '')
-  const [status, setStatus]     = useState<WorkOrderStatus>(initial?.status ?? 'Queue')
-  const [paid, setPaid]         = useState(initial?.paid      ?? false)
-  const [notes, setNotes]       = useState(initial?.notes     ?? '')
-  const [price, setPrice]       = useState(initial?.price     ?? 5)
-  const [cost, setCost]         = useState(initial?.cost      ?? 2)
-  const [saving, setSaving]     = useState(false)
-  const [error, setError]       = useState<string | null>(null)
+export function WorkOrderForm({ initial, models, filaments, onSave, onCancel }: WorkOrderFormProps) {
+  // Resolve initial model id: either stored model_id or find by matching item name
+  const initialModelId = initial?.model_id
+    ?? models.find(m => m.name === initial?.item)?.id
+    ?? (models.length > 0 ? '' : '')
+
+  // Resolve initial filament: check if initial color matches a filament
+  const initialFilamentId = (() => {
+    if (!initial?.color) return ''
+    const match = filaments.find(f => f.color.toLowerCase() === initial.color.toLowerCase())
+    return match ? match.id : CUSTOM_COLOR_ID
+  })()
+
+  const [customer, setCustomer]           = useState(initial?.customer  ?? '')
+  const [modelId, setModelId]             = useState(initialModelId)
+  const [filamentId, setFilamentId]       = useState(initialFilamentId)
+  const [customColor, setCustomColor]     = useState(
+    initialFilamentId === CUSTOM_COLOR_ID ? (initial?.color ?? '') : ''
+  )
+  const [status, setStatus]               = useState<WorkOrderStatus>(initial?.status ?? 'Queue')
+  const [paid, setPaid]                   = useState(initial?.paid      ?? false)
+  const [notes, setNotes]                 = useState(initial?.notes     ?? '')
+  const [price, setPrice]                 = useState(initial?.price     ?? 5)
+  const [cost, setCost]                   = useState(initial?.cost      ?? 2)
+  const [saving, setSaving]               = useState(false)
+  const [error, setError]                 = useState<string | null>(null)
+
+  const isCustomColor = filamentId === CUSTOM_COLOR_ID
+  const needsFilament = isCustomColor && customColor.trim().length > 0
+
+  const selectedModel    = models.find(m => m.id === modelId)
+  const selectedFilament = filaments.find(f => f.id === filamentId)
+
+  const modelOptions = [
+    ...models.map(m => ({ id: m.id, label: m.name })),
+  ]
+
+  const inStockFilaments = filaments.filter(f => f.in_stock)
+  const filamentOptions = [
+    ...inStockFilaments.map(f => ({
+      id: f.id,
+      label: f.color,
+    })),
+    { id: CUSTOM_COLOR_ID, label: '✦ Custom / Special Color (+$5)' },
+  ]
+
+  function handleFilamentChange(key: string) {
+    const prev = filamentId
+    const wasCustom = prev === CUSTOM_COLOR_ID
+    const isNowCustom = key === CUSTOM_COLOR_ID
+
+    setFilamentId(key)
+
+    // Apply / remove the filament surcharge automatically
+    if (!wasCustom && isNowCustom) {
+      setPrice(p => p + FILAMENT_SURCHARGE)
+    } else if (wasCustom && !isNowCustom) {
+      setPrice(p => Math.max(0, p - FILAMENT_SURCHARGE))
+    }
+
+    if (!isNowCustom) setCustomColor('')
+  }
+
+  function resolveColor(): string {
+    if (isCustomColor) return customColor.trim()
+    return selectedFilament?.color ?? ''
+  }
 
   async function handleSave() {
-    if (!customer.trim() || !item.trim() || !color.trim()) {
-      setError('Customer, Item, and Color are required.')
+    const resolvedColor = resolveColor()
+    if (!customer.trim()) {
+      setError('Customer is required.')
+      return
+    }
+    if (!modelId || !selectedModel) {
+      setError('Please select a model.')
+      return
+    }
+    if (!resolvedColor) {
+      setError('Please select a color or enter a custom color.')
       return
     }
     setSaving(true)
     setError(null)
     try {
       await onSave({
-        customer: customer.trim(),
-        item: item.trim(),
-        color: color.trim(),
-        model_url: modelUrl.trim(),
+        customer:       customer.trim(),
+        item:           selectedModel.name,
+        color:          resolvedColor,
+        model_url:      selectedModel.model_url,
+        model_id:       selectedModel.id,
+        needs_filament: needsFilament,
         status,
         paid,
-        notes: notes.trim(),
-        price,
+        notes:          notes.trim(),
+        price:          price,
         cost,
-        sort_order: initial?.sort_order ?? 0,
+        sort_order:     initial?.sort_order ?? 0,
       })
     } catch {
       setError('Failed to save. Please try again.')
@@ -56,37 +129,58 @@ export function WorkOrderForm({ initial, onSave, onCancel }: WorkOrderFormProps)
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <TextField
-          label="Customer"
-          value={customer}
-          onChange={setCustomer}
-          isRequired
-          placeholder="e.g. Karen coworker"
-        />
-        <TextField
-          label="Item"
-          value={item}
-          onChange={setItem}
-          isRequired
-          placeholder="e.g. Heart curio shelf"
-        />
-      </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <TextField
-          label="Color"
-          value={color}
-          onChange={setColor}
-          isRequired
-          placeholder="e.g. Pink"
-        />
+      <TextField
+        label="Customer"
+        value={customer}
+        onChange={setCustomer}
+        isRequired
+        placeholder="e.g. Karen coworker"
+      />
+
+      <Select
+        label="Model"
+        options={modelOptions}
+        selectedKey={modelId}
+        onSelectionChange={key => { if (key != null) setModelId(key as string) }}
+        placeholder="Select a model…"
+      />
+
+      <div className="space-y-2">
         <Select
-          label="Status"
-          options={STATUS_OPTIONS}
-          selectedKey={status}
-          onSelectionChange={(key) => { if (key != null) setStatus(key as WorkOrderStatus) }}
+          label="Color"
+          options={filamentOptions}
+          selectedKey={filamentId}
+          onSelectionChange={key => { if (key != null) handleFilamentChange(key as string) }}
+          placeholder="Select a color…"
         />
+        {isCustomColor && (
+          <div className="space-y-2 pl-1 border-l-2 border-[var(--accent-orange)] ml-1">
+            <TextField
+              label="Custom Color Name"
+              value={customColor}
+              onChange={setCustomColor}
+              isRequired
+              placeholder="e.g. Neon Yellow"
+            />
+            {customColor.trim() && (
+              <p className="text-xs text-[var(--accent-orange)] flex items-center gap-1.5">
+                <span>⚠</span>
+                <span>
+                  This color requires buying a new roll of filament. A <strong>$5 surcharge</strong> has been added to the price.
+                </span>
+              </p>
+            )}
+          </div>
+        )}
       </div>
+
+      <Select
+        label="Status"
+        options={STATUS_OPTIONS}
+        selectedKey={status}
+        onSelectionChange={(key) => { if (key != null) setStatus(key as WorkOrderStatus) }}
+      />
+
       <div className="grid grid-cols-2 gap-4">
         <NumberField
           label="Price ($)"
@@ -103,12 +197,7 @@ export function WorkOrderForm({ initial, onSave, onCancel }: WorkOrderFormProps)
           formatOptions={{ style: 'currency', currency: 'USD' }}
         />
       </div>
-      <TextField
-        label="Model URL"
-        value={modelUrl}
-        onChange={setModelUrl}
-        placeholder="https://makerworld.com/..."
-      />
+
       <TextArea
         label="Notes"
         value={notes}

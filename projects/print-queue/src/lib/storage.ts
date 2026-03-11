@@ -13,15 +13,15 @@ const KAREN_URL_UNO =
 type SeedTemplate = Omit<WorkOrder, 'id' | 'created_at' | 'updated_at'>
 
 const SEED_TEMPLATES: SeedTemplate[] = [
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Pink',       model_url: KAREN_URL_HEART,     status: 'Complete',  paid: false, notes: '', price: 5, cost: 2, sort_order: 1 },
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Purple',     model_url: KAREN_URL_HEART,     status: 'Complete',  paid: false, notes: '', price: 5, cost: 2, sort_order: 2 },
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Light Blue', model_url: KAREN_URL_HEART,     status: 'Printing',  paid: false, notes: '', price: 5, cost: 2, sort_order: 3 },
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Light Blue', model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 4 },
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Purple',     model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 5 },
-  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Yellow',     model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 6 },
-  { customer: 'Karen coworker', item: 'Hot Wheels shelf',    color: 'Dark Blue',  model_url: KAREN_URL_HOTWHEELS, status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 7 },
-  { customer: 'Karen coworker', item: 'Hot Wheels shelf',    color: 'Dark Blue',  model_url: KAREN_URL_HOTWHEELS, status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 8 },
-  { customer: 'Karen coworker', item: 'Uno card holder',     color: 'TBD',        model_url: KAREN_URL_UNO,       status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 9 },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Pink',       model_url: KAREN_URL_HEART,     status: 'Complete',  paid: false, notes: '', price: 5, cost: 2, sort_order: 1, model_id: null, needs_filament: false },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Purple',     model_url: KAREN_URL_HEART,     status: 'Complete',  paid: false, notes: '', price: 5, cost: 2, sort_order: 2, model_id: null, needs_filament: false },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Light Blue', model_url: KAREN_URL_HEART,     status: 'Printing',  paid: false, notes: '', price: 5, cost: 2, sort_order: 3, model_id: null, needs_filament: false },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Light Blue', model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 4, model_id: null, needs_filament: false },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Purple',     model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 5, model_id: null, needs_filament: false },
+  { customer: 'Karen coworker', item: 'Heart curio shelf',   color: 'Yellow',     model_url: KAREN_URL_HEART,     status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 6, model_id: null, needs_filament: false },
+  { customer: 'Karen coworker', item: 'Hot Wheels shelf',    color: 'Dark Blue',  model_url: KAREN_URL_HOTWHEELS, status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 7, model_id: null, needs_filament: false },
+  { customer: 'Karen coworker', item: 'Hot Wheels shelf',    color: 'Dark Blue',  model_url: KAREN_URL_HOTWHEELS, status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 8, model_id: null, needs_filament: false },
+  { customer: 'Karen coworker', item: 'Uno card holder',     color: 'TBD',        model_url: KAREN_URL_UNO,       status: 'Queue',     paid: false, notes: '', price: 5, cost: 2, sort_order: 9, model_id: null, needs_filament: false },
 ]
 
 const LS_KEY = 'print_queue_orders'
