@@ -42,7 +42,9 @@ So that I can understand the true cost of each order without relying on a manual
 - Existing `models` and `filaments` Supabase tables require `ALTER TABLE` migrations to add new columns
 - Farm settings are localStorage-only (no Supabase column needed)
 
-## SQL Migrations
+## Additions
+### 2026-03-11 — Requested by: @copilot
+- Updated `calculateItemCost` to accept `filament_requirements[]` and a full filaments list, summing material cost across all assigned requirements; `filament_usage_g` removed from the model type.
 ```sql
 -- filaments table
 ALTER TABLE filaments ADD COLUMN roll_cost numeric NOT NULL DEFAULT 20;

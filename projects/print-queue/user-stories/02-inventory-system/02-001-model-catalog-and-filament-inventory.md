@@ -23,6 +23,14 @@ So that I can track what I can print, what materials I have, and ensure orders r
 - [x] The surcharge is clearly indicated in the order form and on the order detail
 - [x] Model print history (print count + colors used) is derived from completed orders
 - [x] Inventory page is accessible from the dashboard header
+- [x] Each model can optionally have an image URL associated with it
+- [x] A model can be flagged as `self_created`, which changes the URL label to "Source URL (optional)"
+- [x] Each model supports 1–4 `filament_requirements` entries, each with a `filament_id` and `quantity_g`
+- [x] The `filament_requirements` array replaces the single `filament_usage_g` field
+- [x] Existing localStorage data is automatically migrated to the new shape on first load
+- [x] Model cards in the inventory display the total filament usage and per-requirement breakdown
+- [x] Model cards show a "Self-created" badge when the flag is set
+- [x] Order costing sums material cost across all assigned filament requirements
 - [x] Filament tracks `current_quantity_g` — grams of filament currently on hand
 - [x] Filament tracks `purchase_url` — optional link to buy more filament
 - [x] Filament table shows On Hand / Reserved / Consumed / Remaining columns
@@ -49,7 +57,9 @@ So that I can track what I can print, what materials I have, and ensure orders r
 - `computeFilamentStats(filaments, orders, models)` pure utility exported from `inventory.ts`
 - `FilamentStats` interface added to `src/types/Inventory.ts`
 
-## Dependencies
+## Additions
+### 2026-03-11 — Requested by: @copilot
+- Extended model data model to support optional image references, a self-created flag, and multiple per-filament requirements (up to 4) per model, replacing the single `filament_usage_g` field with a `filament_requirements` array.
 - Supabase project with `models` and `filaments` tables (SQL in README)
 - Existing `work_orders` table (ALTER migration adds `model_id` and `needs_filament`)
 

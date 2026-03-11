@@ -1,11 +1,22 @@
+/** A single filament requirement for one unit of a printed model */
+export interface ModelFilamentRequirement {
+  /** ID of the catalogued filament. Null when the filament hasn't been catalogued yet. */
+  filament_id: string | null
+  /** Grams of this filament required to print one unit */
+  quantity_g: number
+}
+
 export interface PrintModel {
   id: string
   name: string
   description: string
+  /** External source URL (MakerWorld, Thingiverse, etc.). May be empty for self-created models. */
   model_url: string
   image_url: string
-  /** Grams of filament consumed to print one unit */
-  filament_usage_g: number
+  /** True when the model was designed by the farm owner */
+  self_created: boolean
+  /** Per-unit filament requirements. Up to four entries (one per filament/color used). */
+  filament_requirements: ModelFilamentRequirement[]
   /** Manual post-processing time in minutes (cleanup, assembly, packaging, etc.) */
   post_processing_mins: number
   created_at: string

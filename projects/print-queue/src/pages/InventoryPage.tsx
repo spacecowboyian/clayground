@@ -7,6 +7,7 @@ import {
   computeFilamentStats,
 } from '../lib/inventory'
 import { listOrders } from '../lib/storage'
+import { totalFilamentUsageG } from '../lib/costing'
 import { ModelForm } from '../components/ModelForm/ModelForm'
 import { FilamentForm } from '../components/FilamentForm/FilamentForm'
 import type { PrintModel, PrintModelInput, Filament, FilamentInput, FilamentStats } from '../types/Inventory'
@@ -204,11 +205,42 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                           )
                         )}
                         <div>
-                          <p className="font-medium text-[var(--foreground)]">{model.name}</p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-medium text-[var(--foreground)]">{model.name}</p>
+                            {model.self_created && (
+                              <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--accent-orange-light)] text-[var(--accent-orange)] font-medium shrink-0">
+                                Self-created
+                              </span>
+                            )}
+                          </div>
                           {model.description && (
                             <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{model.description}</p>
                           )}
                         </div>
+
+                        {/* Filament requirements */}
+                        {model.filament_requirements?.length > 0 && (
+                          <div className="text-xs space-y-1">
+                            <p className="text-[var(--muted-foreground)] font-medium">
+                              Filament · {totalFilamentUsageG(model.filament_requirements)}g total
+                            </p>
+                            <div className="space-y-0.5">
+                              {model.filament_requirements.map((req, i) => {
+                                const fil = filaments.find(f => f.id === req.filament_id)
+                                return (
+                                  <div key={i} className="flex items-center gap-1.5 text-[var(--muted-foreground)]">
+                                    {fil ? (
+                                      <ColorChip color={fil.color} hex={fil.color_hex} />
+                                    ) : (
+                                      <span className="italic">Unassigned</span>
+                                    )}
+                                    <span>— {req.quantity_g}g</span>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
 
                         {/* Print history */}
                         <div className="text-xs space-y-1">
@@ -311,6 +343,7 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
           <ModelForm
             onSave={handleCreateModel}
             onCancel={() => setAddModelOpen(false)}
+            filaments={filaments}
           />
         </Dialog>
       )}
@@ -327,6 +360,7 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
             initial={editModel}
             onSave={handleEditModel}
             onCancel={() => setEditModel(null)}
+            filaments={filaments}
           />
         </Dialog>
       )}
