@@ -32,12 +32,12 @@ export function Dialog({
   return (
     <DialogTrigger isOpen={isOpen} onOpenChange={onOpenChange}>
       {trigger}
-      <ModalOverlay className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <Modal className="bg-card rounded-lg border border-border shadow-xl max-w-md w-full">
-          <AriaDialog className={cn('p-6 space-y-4 outline-none', className)}>
+      <ModalOverlay className="fixed inset-0 bg-black/50 flex items-stretch sm:items-center justify-center sm:p-4 z-50">
+        <Modal className="bg-card border border-border shadow-xl w-full h-dvh sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-md sm:rounded-lg flex flex-col">
+          <AriaDialog className={cn('flex flex-col flex-1 outline-none overflow-hidden', className)}>
             {({ close }) => (
               <>
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between flex-none px-6 pt-6 pb-4">
                   {title && <Heading className="text-xl text-foreground">{title}</Heading>}
                   <Button
                     className="p-1 rounded hover:bg-secondary transition-colors ml-auto"
@@ -46,8 +46,12 @@ export function Dialog({
                     <X className="w-5 h-5 text-muted-foreground" />
                   </Button>
                 </div>
-                <div className="text-sm text-muted-foreground">{children}</div>
-                {footer && <div className="flex justify-end gap-3 pt-4">{footer}</div>}
+                <div className="flex-1 overflow-y-auto px-6 text-sm text-muted-foreground">{children}</div>
+                {footer && (
+                  <div className="flex-none flex justify-end gap-3 px-6 py-4 border-t border-border">
+                    {footer}
+                  </div>
+                )}
               </>
             )}
           </AriaDialog>

@@ -13,6 +13,13 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.1.1] – 2026-03-11
+
+### fix(gearhead)
+- **Full-page mobile edit screens** — the `Dialog` component now presents as a full-viewport page on mobile: the title/close header is locked to the top, the cancel/save footer is locked to the bottom, and the form content scrolls in between. On `sm+` (desktop) the centered modal behaviour is unchanged.
+
+---
+
 ## [1.1.0] – 2026-03-11
 
 ### feat(print-queue)
