@@ -53,6 +53,8 @@ jobs:
           # Expose Supabase keys if they are added as repo secrets
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # Optional: dashboard password for print-queue (defaults to "beeps" if not set)
+          VITE_PRINT_QUEUE_PASSWORD: ${{ secrets.VITE_PRINT_QUEUE_PASSWORD }}
         run: |
           for dir in projects/*/; do
             if [ -f "${dir}package.json" ]; then

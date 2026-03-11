@@ -48,46 +48,29 @@ Supabase gives you a free PostgreSQL database that all users share in real time.
 
 ### Step 2 — Create the Database Tables
 
-In the Supabase Dashboard, open **SQL Editor** and run:
+The full schema is in [`supabase/migrations/001_initial_schema.sql`](supabase/migrations/001_initial_schema.sql). Copy and paste that file into **Supabase Dashboard → SQL Editor** and click **Run**.
+
+For reference, the complete schema is shown below:
 
 ```sql
--- Create the work orders table
-CREATE TABLE work_orders (
-  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  customer       TEXT NOT NULL,
-  item           TEXT NOT NULL,
-  color          TEXT NOT NULL DEFAULT '',
-  model_url      TEXT NOT NULL DEFAULT '',
-  status         TEXT NOT NULL DEFAULT 'Queue'
-                   CHECK (status IN ('Queue','Printing','Complete','Cancelled')),
-  paid           BOOLEAN NOT NULL DEFAULT false,
-  notes          TEXT NOT NULL DEFAULT '',
-  price          NUMERIC NOT NULL DEFAULT 5.00,
-  cost           NUMERIC NOT NULL DEFAULT 2.00,
-  sort_order     INTEGER NOT NULL DEFAULT 0,
-  model_id       UUID,
-  needs_filament BOOLEAN NOT NULL DEFAULT false,
-  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+-- ── Helper: auto-update updated_at ───────────────────────────────────────────
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN NEW.updated_at = NOW(); RETURN NEW; END;
+$$ LANGUAGE plpgsql;
 
--- Allow public read + write (no login required)
-ALTER TABLE work_orders ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "public read"   ON work_orders FOR SELECT USING (true);
-CREATE POLICY "public insert" ON work_orders FOR INSERT WITH CHECK (true);
-CREATE POLICY "public update" ON work_orders FOR UPDATE USING (true);
-CREATE POLICY "public delete" ON work_orders FOR DELETE USING (true);
-
--- Model catalog
-CREATE TABLE models (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name        TEXT NOT NULL,
-  description TEXT NOT NULL DEFAULT '',
-  model_url   TEXT NOT NULL DEFAULT '',
-  image_url   TEXT NOT NULL DEFAULT '',
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+-- ── models ────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS models (
+  id                    UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  name                  TEXT        NOT NULL,
+  description           TEXT        NOT NULL DEFAULT '',
+  model_url             TEXT        NOT NULL DEFAULT '',
+  image_url             TEXT        NOT NULL DEFAULT '',
+  self_created          BOOLEAN     NOT NULL DEFAULT false,
+  filament_requirements JSONB       NOT NULL DEFAULT '[]',
+  post_processing_mins  INTEGER     NOT NULL DEFAULT 0,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE models ENABLE ROW LEVEL SECURITY;
@@ -96,21 +79,23 @@ CREATE POLICY "public insert" ON models FOR INSERT WITH CHECK (true);
 CREATE POLICY "public update" ON models FOR UPDATE USING (true);
 CREATE POLICY "public delete" ON models FOR DELETE USING (true);
 
--- FK from work_orders to models (set null on delete)
-ALTER TABLE work_orders
-  ADD CONSTRAINT fk_work_orders_model
-  FOREIGN KEY (model_id) REFERENCES models(id) ON DELETE SET NULL;
+CREATE TRIGGER set_updated_at_models BEFORE UPDATE ON models
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
--- Filament inventory
-CREATE TABLE filaments (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  brand       TEXT NOT NULL DEFAULT '',
-  material    TEXT NOT NULL DEFAULT 'PLA',
-  color       TEXT NOT NULL,
-  color_hex   TEXT NOT NULL DEFAULT '',
-  in_stock    BOOLEAN NOT NULL DEFAULT true,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+-- ── filaments ─────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS filaments (
+  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  brand               TEXT        NOT NULL DEFAULT '',
+  material            TEXT        NOT NULL DEFAULT 'PLA',
+  color               TEXT        NOT NULL,
+  color_hex           TEXT        NOT NULL DEFAULT '',
+  in_stock            BOOLEAN     NOT NULL DEFAULT true,
+  roll_cost           NUMERIC     NOT NULL DEFAULT 0,
+  roll_size_g         NUMERIC     NOT NULL DEFAULT 1000,
+  current_quantity_g  NUMERIC     NOT NULL DEFAULT 0,
+  purchase_url        TEXT        NOT NULL DEFAULT '',
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE filaments ENABLE ROW LEVEL SECURITY;
@@ -119,25 +104,58 @@ CREATE POLICY "public insert" ON filaments FOR INSERT WITH CHECK (true);
 CREATE POLICY "public update" ON filaments FOR UPDATE USING (true);
 CREATE POLICY "public delete" ON filaments FOR DELETE USING (true);
 
--- Optional: auto-update updated_at on every change
-CREATE OR REPLACE FUNCTION update_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN NEW.updated_at = NOW(); RETURN NEW; END;
-$$ LANGUAGE plpgsql;
+CREATE TRIGGER set_updated_at_filaments BEFORE UPDATE ON filaments
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ── work_orders ───────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS work_orders (
+  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer       TEXT        NOT NULL,
+  item           TEXT        NOT NULL,
+  color          TEXT        NOT NULL DEFAULT '',
+  model_url      TEXT        NOT NULL DEFAULT '',
+  status         TEXT        NOT NULL DEFAULT 'Queue'
+                   CHECK (status IN ('Queue','Printing','Complete','Cancelled')),
+  paid           BOOLEAN     NOT NULL DEFAULT false,
+  notes          TEXT        NOT NULL DEFAULT '',
+  price          NUMERIC     NOT NULL DEFAULT 5.00,
+  cost           NUMERIC     NOT NULL DEFAULT 2.00,
+  sort_order     INTEGER     NOT NULL DEFAULT 0,
+  model_id       UUID        REFERENCES models(id) ON DELETE SET NULL,
+  needs_filament BOOLEAN     NOT NULL DEFAULT false,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE work_orders ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read"   ON work_orders FOR SELECT USING (true);
+CREATE POLICY "public insert" ON work_orders FOR INSERT WITH CHECK (true);
+CREATE POLICY "public update" ON work_orders FOR UPDATE USING (true);
+CREATE POLICY "public delete" ON work_orders FOR DELETE USING (true);
 
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON work_orders
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER set_updated_at_models BEFORE UPDATE ON models
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER set_updated_at_filaments BEFORE UPDATE ON filaments
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 ```
 
-#### Upgrading an existing `work_orders` table
+#### Upgrading an existing schema
 
-If you created the table before the inventory feature was added, run this to add all missing columns (`price` and `cost` were used by the app but may be missing from the original SQL, `model_id` and `needs_filament` are new for inventory):
+If you created tables before the inventory feature was added, run this to add any missing columns:
 
 ```sql
+-- Add missing columns to models (if upgrading from an older schema)
+ALTER TABLE models
+  ADD COLUMN IF NOT EXISTS self_created         BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS filament_requirements JSONB   NOT NULL DEFAULT '[]',
+  ADD COLUMN IF NOT EXISTS post_processing_mins  INTEGER NOT NULL DEFAULT 0;
+
+-- Add missing columns to filaments (if upgrading from an older schema)
+ALTER TABLE filaments
+  ADD COLUMN IF NOT EXISTS roll_cost          NUMERIC NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS roll_size_g        NUMERIC NOT NULL DEFAULT 1000,
+  ADD COLUMN IF NOT EXISTS current_quantity_g NUMERIC NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS purchase_url       TEXT    NOT NULL DEFAULT '';
+
+-- Add missing columns to work_orders (if upgrading from the original schema)
 ALTER TABLE work_orders
   ADD COLUMN IF NOT EXISTS price          NUMERIC  NOT NULL DEFAULT 5.00,
   ADD COLUMN IF NOT EXISTS cost           NUMERIC  NOT NULL DEFAULT 2.00,
@@ -146,20 +164,14 @@ ALTER TABLE work_orders
   ADD COLUMN IF NOT EXISTS needs_filament BOOLEAN  NOT NULL DEFAULT false;
 ```
 
-### Step 3 — Seed the Initial Orders (Optional)
+### Step 3 — Seed the Initial Data (Optional)
 
-```sql
-INSERT INTO work_orders (customer, item, color, model_url, status, paid) VALUES
-  ('Karen coworker','Heart curio shelf','Pink',   'https://makerworld.com/en/models/644775-heart-curio-trinket-shelf?from=search#profileId-570867','Complete',false),
-  ('Karen coworker','Heart curio shelf','Purple',  'https://makerworld.com/en/models/644775-heart-curio-trinket-shelf?from=search#profileId-570867','Complete',false),
-  ('Karen coworker','Heart curio shelf','Light Blue','https://makerworld.com/en/models/644775-heart-curio-trinket-shelf?from=search#profileId-570867','Printing',false),
-  ('Karen coworker','Heart curio shelf','Light Blue','https://makerworld.com/en/models/644775-heart-curio-trinket-shelf?from=search#profileId-570867','Queue',   false),
-  ('Karen coworker','Heart curio shelf','Purple',  'https://makerworld.com/en/models/644775-heart-curio-trinket-shelf?from=search#profileId-570867','Queue',   false),
-  ('Karen coworker','Heart curio shelf','Yellow',  'https://makerworld.com/en/models/644775-heart-curio-trinket-shelf?from=search#profileId-570867','Queue',   false),
-  ('Karen coworker','Hot Wheels shelf', 'Dark Blue','https://makerworld.com/en/models/851161-hot-wheels-shelf-for-10-cars?from=search#profileId-799264','Queue',  false),
-  ('Karen coworker','Hot Wheels shelf', 'Dark Blue','https://makerworld.com/en/models/851161-hot-wheels-shelf-for-10-cars?from=search#profileId-799264','Queue',  false),
-  ('Karen coworker','Uno card holder',  'TBD',     'https://makerworld.com/en/models/2175464-simple-customizable-card-box-parametric#profileId-2360117','Queue', false);
-```
+The seed script is in [`supabase/seed.sql`](supabase/seed.sql). It inserts the same starter data as demo mode (Karen's initial orders, 3 models, 9 filament colors). Copy and paste it into **Supabase Dashboard → SQL Editor** and click **Run**.
+
+The script uses deterministic UUIDs and `ON CONFLICT DO NOTHING`, so it is safe to re-run.
+
+> **Note:** localStorage demo data is local to your browser and is not shared. Supabase is required for shared/real-time data and for AI agent automation.
+
 ### Step 4 — Get Your API Keys
 
 In your Supabase project: **Project Settings → API**
@@ -181,14 +193,19 @@ VITE_PRINT_QUEUE_PASSWORD=your-secret-password
 
 #### For GitHub Pages deployment
 
-Add these as **repository secrets** in GitHub → Settings → Secrets → Actions:
+Add these as **repository secrets** in GitHub → **Settings → Secrets and variables → Actions → New repository secret**:
 
-| Secret name | Value |
-|-------------|-------|
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Your anon key |
+| Secret name | Required | Value |
+|-------------|----------|-------|
+| `VITE_SUPABASE_URL` | ✅ Yes | Your Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | ✅ Yes | Your anon / public key |
+| `VITE_PRINT_QUEUE_PASSWORD` | Optional | Dashboard password (defaults to `beeps`) |
 
-> The `VITE_PRINT_QUEUE_PASSWORD` secret is **not** added to CI — the password defaults to `beeps` in the deployed build. To change it, add `VITE_PRINT_QUEUE_PASSWORD` as a repo secret too.
+Once secrets are set, every push to `main` automatically rebuilds and redeploys the app via `.github/workflows/deploy.yml`.
+
+To trigger a rebuild without pushing new code (e.g. after updating secrets), go to **Actions → Print Queue — Build & Deploy → Run workflow**.
+
+> **Important:** Never commit `VITE_SUPABASE_ANON_KEY` or any other secret to source control. The `.env.local` file is gitignored for this reason.
 
 ### Step 6 — Rebuild and Deploy
 
