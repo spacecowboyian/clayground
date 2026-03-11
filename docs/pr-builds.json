@@ -13,5 +13,12 @@
       "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-23/",
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-23/"
     }
+  },
+  "29": {
+    "title": "[WIP] Configure Supabase for projects/print-queue app",
+    "url": "https://github.com/spacecowboyian/clayground/pull/29",
+    "builds": {
+      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-29/"
+    }
   }
 }
