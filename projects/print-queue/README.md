@@ -21,6 +21,9 @@ A 3-D print work-order tracker for **Tiny Prints**. Password-protect the managem
 | 📱 Responsive | Card layout on mobile, table on desktop |
 | 💾 Supabase backend | Shared real-time data for all users |
 | 🔋 Demo mode | Falls back to localStorage when Supabase is not configured |
+| 🗂️ Model catalog | Track printable models with name, description, URL, image, and print history |
+| 🧵 Filament inventory | Track filament rolls in stock; controls available color options when ordering |
+| ⚠️ Custom color surcharge | Special color requests flag the order and auto-add a $5 surcharge |
 
 ---
 
@@ -43,33 +46,78 @@ Supabase gives you a free PostgreSQL database that all users share in real time.
 3. Select a region closest to you
 4. Wait ~2 minutes for the project to spin up
 
-### Step 2 — Create the `work_orders` Table
+### Step 2 — Create the Database Tables
 
 In the Supabase Dashboard, open **SQL Editor** and run:
 
 ```sql
 -- Create the work orders table
 CREATE TABLE work_orders (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  customer    TEXT NOT NULL,
-  item        TEXT NOT NULL,
-  color       TEXT NOT NULL DEFAULT '',
-  model_url   TEXT NOT NULL DEFAULT '',
-  status      TEXT NOT NULL DEFAULT 'Queue'
-                CHECK (status IN ('Queue','Printing','Complete','Cancelled')),
-  paid        BOOLEAN NOT NULL DEFAULT false,
-  notes       TEXT NOT NULL DEFAULT '',
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer       TEXT NOT NULL,
+  item           TEXT NOT NULL,
+  color          TEXT NOT NULL DEFAULT '',
+  model_url      TEXT NOT NULL DEFAULT '',
+  status         TEXT NOT NULL DEFAULT 'Queue'
+                   CHECK (status IN ('Queue','Printing','Complete','Cancelled')),
+  paid           BOOLEAN NOT NULL DEFAULT false,
+  notes          TEXT NOT NULL DEFAULT '',
+  price          NUMERIC NOT NULL DEFAULT 5.00,
+  cost           NUMERIC NOT NULL DEFAULT 2.00,
+  sort_order     INTEGER NOT NULL DEFAULT 0,
+  model_id       UUID,
+  needs_filament BOOLEAN NOT NULL DEFAULT false,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Allow public read + write (no login required)
 ALTER TABLE work_orders ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "public read"  ON work_orders FOR SELECT USING (true);
+CREATE POLICY "public read"   ON work_orders FOR SELECT USING (true);
 CREATE POLICY "public insert" ON work_orders FOR INSERT WITH CHECK (true);
 CREATE POLICY "public update" ON work_orders FOR UPDATE USING (true);
 CREATE POLICY "public delete" ON work_orders FOR DELETE USING (true);
+
+-- Model catalog
+CREATE TABLE models (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  model_url   TEXT NOT NULL DEFAULT '',
+  image_url   TEXT NOT NULL DEFAULT '',
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE models ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read"   ON models FOR SELECT USING (true);
+CREATE POLICY "public insert" ON models FOR INSERT WITH CHECK (true);
+CREATE POLICY "public update" ON models FOR UPDATE USING (true);
+CREATE POLICY "public delete" ON models FOR DELETE USING (true);
+
+-- FK from work_orders to models (set null on delete)
+ALTER TABLE work_orders
+  ADD CONSTRAINT fk_work_orders_model
+  FOREIGN KEY (model_id) REFERENCES models(id) ON DELETE SET NULL;
+
+-- Filament inventory
+CREATE TABLE filaments (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  brand       TEXT NOT NULL DEFAULT '',
+  material    TEXT NOT NULL DEFAULT 'PLA',
+  color       TEXT NOT NULL,
+  color_hex   TEXT NOT NULL DEFAULT '',
+  in_stock    BOOLEAN NOT NULL DEFAULT true,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE filaments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read"   ON filaments FOR SELECT USING (true);
+CREATE POLICY "public insert" ON filaments FOR INSERT WITH CHECK (true);
+CREATE POLICY "public update" ON filaments FOR UPDATE USING (true);
+CREATE POLICY "public delete" ON filaments FOR DELETE USING (true);
 
 -- Optional: auto-update updated_at on every change
 CREATE OR REPLACE FUNCTION update_updated_at()
@@ -77,9 +125,25 @@ RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = NOW(); RETURN NEW; END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER set_updated_at
-  BEFORE UPDATE ON work_orders
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON work_orders
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER set_updated_at_models BEFORE UPDATE ON models
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER set_updated_at_filaments BEFORE UPDATE ON filaments
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+```
+
+#### Upgrading an existing `work_orders` table
+
+If you created the table before the inventory feature was added, run this to add all missing columns (`price` and `cost` were used by the app but may be missing from the original SQL, `model_id` and `needs_filament` are new for inventory):
+
+```sql
+ALTER TABLE work_orders
+  ADD COLUMN IF NOT EXISTS price          NUMERIC  NOT NULL DEFAULT 5.00,
+  ADD COLUMN IF NOT EXISTS cost           NUMERIC  NOT NULL DEFAULT 2.00,
+  ADD COLUMN IF NOT EXISTS sort_order     INTEGER  NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS model_id       UUID,
+  ADD COLUMN IF NOT EXISTS needs_filament BOOLEAN  NOT NULL DEFAULT false;
 ```
 
 ### Step 3 — Seed the Initial Orders (Optional)
@@ -96,7 +160,6 @@ INSERT INTO work_orders (customer, item, color, model_url, status, paid) VALUES
   ('Karen coworker','Hot Wheels shelf', 'Dark Blue','https://makerworld.com/en/models/851161-hot-wheels-shelf-for-10-cars?from=search#profileId-799264','Queue',  false),
   ('Karen coworker','Uno card holder',  'TBD',     'https://makerworld.com/en/models/2175464-simple-customizable-card-box-parametric#profileId-2360117','Queue', false);
 ```
-
 ### Step 4 — Get Your API Keys
 
 In your Supabase project: **Project Settings → API**

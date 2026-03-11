@@ -81,6 +81,13 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
             <Field label="Item" value={order.item} />
             <Field label="Color" value={order.color} />
             <Field label="Price" value={`$${(order.price ?? 5).toFixed(2)}`} />
+            {order.needs_filament && (
+              <div className="px-6 py-3 flex items-center gap-2 bg-[var(--accent-orange-light)]">
+                <span className="text-sm text-[var(--accent-orange)]">
+                  ⚠ Special color — requires new filament purchase (+$5)
+                </span>
+              </div>
+            )}
             {order.model_url && (
               <div className="px-6 py-4 flex justify-between items-start gap-4">
                 <span className="text-sm text-[var(--muted-foreground)] shrink-0 pt-0.5">Model</span>

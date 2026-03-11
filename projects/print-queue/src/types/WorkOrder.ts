@@ -12,6 +12,10 @@ export interface WorkOrder {
   price: number
   cost: number
   sort_order: number
+  /** FK to models table — null for orders created before inventory was added */
+  model_id: string | null
+  /** True when the order color requires purchasing a new filament roll (+$5 surcharge) */
+  needs_filament: boolean
   created_at: string
   updated_at: string
 }

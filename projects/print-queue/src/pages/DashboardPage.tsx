@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Dialog, Switch, Accordion } from '@gearhead/ui'
-import { ExternalLink, GripVertical, Pencil, Plus, Share2, Trash2 } from 'lucide-react'
+import { ExternalLink, GripVertical, Package, Pencil, Plus, Share2, Trash2 } from 'lucide-react'
 import { deleteOrder, listOrders, createOrder, updateOrder, reorderOrders } from '../lib/storage'
+import { listModels, listFilaments } from '../lib/inventory'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { logout } from '../lib/auth'
 import { StatusBadge } from '../components/StatusBadge/StatusBadge'
 import { WorkOrderForm } from '../components/WorkOrderForm/WorkOrderForm'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../types/WorkOrder'
+import type { PrintModel, Filament } from '../types/Inventory'
 
 const STATUS_FILTERS: Array<WorkOrderStatus | 'All'> = ['All', 'Queue', 'Printing', 'Complete', 'Cancelled']
 
@@ -16,10 +18,13 @@ const COMPLETE_STATUSES = new Set<WorkOrderStatus>(['Complete', 'Cancelled'])
 interface DashboardPageProps {
   onLogout: () => void
   onViewOrder: (id: string) => void
+  onInventory: () => void
 }
 
-export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
+export function DashboardPage({ onLogout, onViewOrder, onInventory }: DashboardPageProps) {
   const [orders, setOrders]         = useState<WorkOrder[]>([])
+  const [models, setModels]         = useState<PrintModel[]>([])
+  const [filaments, setFilaments]   = useState<Filament[]>([])
   const [loading, setLoading]       = useState(true)
   const [error, setError]           = useState<string | null>(null)
   const [statusFilter, setFilter]   = useState<WorkOrderStatus | 'All'>('All')
@@ -36,7 +41,14 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
     setLoading(true)
     setError(null)
     try {
-      setOrders(await listOrders())
+      const [orderData, modelData, filamentData] = await Promise.all([
+        listOrders(),
+        listModels(),
+        listFilaments(),
+      ])
+      setOrders(orderData)
+      setModels(modelData)
+      setFilaments(filamentData)
     } catch {
       setError('Failed to load orders. Check your Supabase configuration.')
     } finally {
@@ -182,6 +194,10 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
                 Demo mode
               </span>
             )}
+            <Button variant="ghost" onPress={onInventory} className="text-sm" title="Inventory">
+              <Package className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">Inventory</span>
+            </Button>
             <Button variant="ghost" onPress={handleLogout} className="text-sm">
               Lock
             </Button>
@@ -231,6 +247,8 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
               <WorkOrderForm
                 onSave={handleCreate}
                 onCancel={() => setAddOpen(false)}
+                models={models}
+                filaments={filaments}
               />
             </Dialog>
           </div>
@@ -295,7 +313,14 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
                           </td>
                           <Td>{order.customer}</Td>
                           <Td>{order.item}</Td>
-                          <Td><ColorDot color={order.color} /></Td>
+                          <Td>
+                            <div className="flex items-center gap-1.5">
+                              <ColorDot color={order.color} />
+                              {order.needs_filament && (
+                                <span className="text-xs text-[var(--accent-orange)]" title="Requires new filament purchase">⚠</span>
+                              )}
+                            </div>
+                          </Td>
                           <Td>
                             <StatusSelect order={order} onChange={handleStatusChange} />
                           </Td>
@@ -388,7 +413,14 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
                         >
                           <Td>{order.customer}</Td>
                           <Td>{order.item}</Td>
-                          <Td><ColorDot color={order.color} /></Td>
+                          <Td>
+                            <div className="flex items-center gap-1.5">
+                              <ColorDot color={order.color} />
+                              {order.needs_filament && (
+                                <span className="text-xs text-[var(--accent-orange)]" title="Requires new filament purchase">⚠</span>
+                              )}
+                            </div>
+                          </Td>
                           <Td>
                             <StatusSelect order={order} onChange={handleStatusChange} />
                           </Td>
@@ -468,6 +500,8 @@ export function DashboardPage({ onLogout, onViewOrder }: DashboardPageProps) {
             initial={editOrder}
             onSave={handleEdit}
             onCancel={() => setEditOrder(null)}
+            models={models}
+            filaments={filaments}
           />
         </Dialog>
       )}
@@ -522,7 +556,12 @@ function MobileCard({ order, copiedId, onView, onEdit, onShare, onDelete, onTogg
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <ColorDot color={order.color} />
+        <div className="flex items-center gap-1.5">
+          <ColorDot color={order.color} />
+          {order.needs_filament && (
+            <span className="text-xs text-[var(--accent-orange)]" title="Requires new filament purchase">⚠ Special color</span>
+          )}
+        </div>
         <div className="flex items-center gap-2 ml-auto">
           <span className="text-xs text-[var(--muted-foreground)]">Paid</span>
           <Switch
