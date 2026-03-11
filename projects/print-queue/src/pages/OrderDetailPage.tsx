@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button, OrderStatusTimeline } from '@gearhead/ui'
 import { getOrder } from '../lib/storage'
+import { ErrorModal } from '../components/ErrorModal/ErrorModal'
 import type { WorkOrder } from '../types/WorkOrder'
 
 interface OrderDetailPageProps {
@@ -12,18 +13,38 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
   const [order, setOrder]     = useState<WorkOrder | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [error, setError]     = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
+    setError(null)
+    setNotFound(false)
     getOrder(orderId).then(o => {
       if (cancelled) return
       if (o) setOrder(o)
       else setNotFound(true)
       setLoading(false)
+    }).catch(err => {
+      if (cancelled) return
+      setError(err instanceof Error ? err.message : 'Failed to load order')
+      setLoading(false)
     })
     return () => { cancelled = true }
-  }, [orderId])
+  }, [orderId, retryCount])
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+        <ErrorModal
+          error={error}
+          onRetry={() => setRetryCount(c => c + 1)}
+          onDismiss={onBack}
+        />
+      </div>
+    )
+  }
 
   if (loading) {
     return (

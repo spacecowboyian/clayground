@@ -1,28 +1,27 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Dialog, Accordion, Card } from '@gearhead/ui'
 import { Pencil, Plus, ShoppingCart, Trash2, ExternalLink } from 'lucide-react'
-import {
-  listModels, createModel, updateModel, deleteModel,
-  listFilaments, createFilament, updateFilament, deleteFilament,
-  computeFilamentStats,
-} from '../lib/inventory'
-import { listOrders } from '../lib/storage'
+import { computeFilamentStats } from '../lib/inventory'
 import { totalFilamentUsageG } from '../lib/costing'
 import { ModelForm } from '../components/ModelForm/ModelForm'
 import { FilamentForm } from '../components/FilamentForm/FilamentForm'
+import { ErrorModal } from '../components/ErrorModal/ErrorModal'
+import { useAppDispatch, useAppSelector } from '../store'
+import { fetchInventory, addModel, editModel as editModelThunk, removeModel, addFilament, editFilament as editFilamentThunk, removeFilament, clearInventoryError } from '../store/inventorySlice'
+import { fetchOrders } from '../store/ordersSlice'
 import type { PrintModel, PrintModelInput, Filament, FilamentInput, FilamentStats } from '../types/Inventory'
-import type { WorkOrder } from '../types/WorkOrder'
 
 interface InventoryPageProps {
   onBack: () => void
 }
 
 export function InventoryPage({ onBack }: InventoryPageProps) {
-  const [models, setModels]       = useState<PrintModel[]>([])
-  const [filaments, setFilaments] = useState<Filament[]>([])
-  const [orders, setOrders]       = useState<WorkOrder[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [error, setError]         = useState<string | null>(null)
+  const dispatch   = useAppDispatch()
+  const models     = useAppSelector(state => state.inventory.models)
+  const filaments  = useAppSelector(state => state.inventory.filaments)
+  const orders     = useAppSelector(state => state.orders.items)
+  const loading    = useAppSelector(state => state.inventory.loading || state.orders.loading)
+  const error      = useAppSelector(state => state.inventory.error ?? state.orders.error)
 
   const [addModelOpen, setAddModelOpen]       = useState(false)
   const [editModel, setEditModel]             = useState<PrintModel | null>(null)
@@ -32,63 +31,47 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
   const [editFilament, setEditFilament]             = useState<Filament | null>(null)
   const [deleteFilamentTarget, setDeleteFilamentTarget] = useState<Filament | null>(null)
 
-  const reload = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const [m, f, o] = await Promise.all([listModels(), listFilaments(), listOrders()])
-      setModels(m)
-      setFilaments(f)
-      setOrders(o)
-    } catch {
-      setError('Failed to load inventory. Check your configuration.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const load = useCallback(() => {
+    void dispatch(fetchInventory())
+    void dispatch(fetchOrders())
+  }, [dispatch])
 
-  useEffect(() => { void reload() }, [reload])
+  useEffect(() => { load() }, [load])
 
   // ── Model handlers ───────────────────────────────────────────────────────────
   async function handleCreateModel(input: PrintModelInput) {
-    await createModel(input)
+    await dispatch(addModel(input)).unwrap()
     setAddModelOpen(false)
-    await reload()
   }
 
   async function handleEditModel(input: PrintModelInput) {
     if (!editModel) return
-    await updateModel(editModel.id, input)
+    await dispatch(editModelThunk({ id: editModel.id, patch: input })).unwrap()
     setEditModel(null)
-    await reload()
   }
 
   async function handleDeleteModel() {
     if (!deleteModelTarget) return
-    await deleteModel(deleteModelTarget.id)
+    await dispatch(removeModel(deleteModelTarget.id)).unwrap()
     setDeleteModelTarget(null)
-    await reload()
   }
 
   // ── Filament handlers ────────────────────────────────────────────────────────
   async function handleCreateFilament(input: FilamentInput) {
-    await createFilament(input)
+    await dispatch(addFilament(input)).unwrap()
     setAddFilamentOpen(false)
-    await reload()
   }
 
   async function handleEditFilament(input: FilamentInput) {
     if (!editFilament) return
-    await updateFilament(editFilament.id, input)
+    await dispatch(editFilamentThunk({ id: editFilament.id, patch: input })).unwrap()
     setEditFilament(null)
-    await reload()
   }
 
   async function handleDeleteFilament() {
     if (!deleteFilamentTarget) return
-    await deleteFilament(deleteFilamentTarget.id)
+    await dispatch(removeFilament(deleteFilamentTarget.id)).unwrap()
     setDeleteFilamentTarget(null)
-    await reload()
   }
 
   // ── Derived: print history per model ────────────────────────────────────────
@@ -120,8 +103,17 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
         {loading && (
           <p className="text-[var(--muted-foreground)]">Loading inventory…</p>
         )}
+
+        {/* Error Modal */}
         {error && (
-          <p className="text-sm text-[var(--destructive)]">{error}</p>
+          <ErrorModal
+            error={error}
+            onRetry={() => {
+              dispatch(clearInventoryError())
+              load()
+            }}
+            onDismiss={() => dispatch(clearInventoryError())}
+          />
         )}
 
         {!loading && (
@@ -295,9 +287,8 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                       stats={computeFilamentStats(filaments, orders, models)}
                       onEdit={setEditFilament}
                       onDelete={setDeleteFilamentTarget}
-                      onToggleStock={async f => {
-                        await updateFilament(f.id, { in_stock: !f.in_stock })
-                        await reload()
+                      onToggleStock={f => {
+                        void dispatch(editFilamentThunk({ id: f.id, patch: { in_stock: !f.in_stock } }))
                       }}
                     />
                   </div>
@@ -317,9 +308,8 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                         stats={computeFilamentStats(filaments, orders, models)}
                         onEdit={setEditFilament}
                         onDelete={setDeleteFilamentTarget}
-                        onToggleStock={async f => {
-                          await updateFilament(f.id, { in_stock: !f.in_stock })
-                          await reload()
+                        onToggleStock={f => {
+                          void dispatch(editFilamentThunk({ id: f.id, patch: { in_stock: !f.in_stock } }))
                         }}
                         muted
                       />

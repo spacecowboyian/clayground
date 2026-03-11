@@ -13,6 +13,18 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.2.0] – 2026-03-11
+
+### feat(print-queue)
+- **Redux state management** — `@reduxjs/toolkit` + `react-redux` added; root store configured with three slices: `ordersSlice`, `inventorySlice`, and `settingsSlice`
+- **Supabase-only data** — `src/lib/storage.ts` and `src/lib/inventory.ts` no longer fall back to localStorage or seed data; all CRUD operations require a configured Supabase project and throw a descriptive error if credentials are missing
+- **Error modal** — new `ErrorModal` component (full-screen overlay with Retry / Dismiss buttons) shown by Dashboard and Inventory pages when Supabase data cannot be loaded, replacing previous inline error text; `OrderDetailPage` also shows the modal on load failure
+- **Redux-driven pages** — `DashboardPage`, `InventoryPage`, and `FarmSettingsPage` now read data from the Redux store via `useAppSelector` and dispatch async thunks (`fetchOrders`, `fetchInventory`, `addOrder`, `editOrder`, `removeOrder`, `reorderOrdersThunk`, and inventory counterparts) instead of managing their own data state
+- **Farm settings in Redux** — `settingsSlice` seeds from localStorage on startup and persists changes back; pages read and write settings via `useAppSelector` / `dispatch(updateSettings(…))`
+- **Removed "Demo mode" badge** — the orange "Demo mode" indicator is removed since the app now requires a real Supabase connection
+
+---
+
 ## [1.1.1] – 2026-03-11
 
 ### fix(gearhead)
