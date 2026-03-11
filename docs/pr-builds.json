@@ -13,12 +13,5 @@
       "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-23/",
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-23/"
     }
-  },
-  "24": {
-    "title": "feat(print-queue): model catalog + filament inventory with order integration",
-    "url": "https://github.com/spacecowboyian/clayground/pull/24",
-    "builds": {
-      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-24/"
-    }
   }
 }
