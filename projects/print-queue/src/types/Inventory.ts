@@ -4,6 +4,10 @@ export interface PrintModel {
   description: string
   model_url: string
   image_url: string
+  /** Grams of filament consumed to print one unit */
+  filament_usage_g: number
+  /** Manual post-processing time in minutes (cleanup, assembly, packaging, etc.) */
+  post_processing_mins: number
   created_at: string
   updated_at: string
 }
@@ -17,6 +21,10 @@ export interface Filament {
   color: string
   color_hex: string
   in_stock: boolean
+  /** Cost of one full roll in USD */
+  roll_cost: number
+  /** Weight of one full roll in grams */
+  roll_size_g: number
   created_at: string
   updated_at: string
 }

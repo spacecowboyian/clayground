@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Dialog, Accordion } from '@gearhead/ui'
+import { Button, Dialog, Accordion, Card } from '@gearhead/ui'
 import { Pencil, Plus, Trash2, ExternalLink } from 'lucide-react'
 import {
   listModels, createModel, updateModel, deleteModel,
@@ -147,13 +147,60 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                   {models.map(model => {
                     const history = printHistoryForModel(model)
                     return (
-                      <div key={model.id} className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3">
+                      <Card
+                        key={model.id}
+                        footer={
+                          <div className="flex items-center gap-2">
+                            {model.model_url && (
+                              <a
+                                href={model.model_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
+                                title="Open model"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            )}
+                            <button
+                              onClick={() => setEditModel(model)}
+                              className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteModelTarget(model)}
+                              className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        }
+                      >
                         {model.image_url && (
-                          <img
-                            src={model.image_url}
-                            alt={model.name}
-                            className="w-full h-32 object-cover rounded-lg border border-[var(--border)]"
-                          />
+                          model.model_url ? (
+                            <a
+                              href={model.model_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block"
+                              title="Open model"
+                            >
+                              <img
+                                src={model.image_url}
+                                alt={model.name}
+                                className="w-full h-32 object-cover rounded-lg border border-[var(--border)] hover:opacity-80 transition-opacity"
+                              />
+                            </a>
+                          ) : (
+                            <img
+                              src={model.image_url}
+                              alt={model.name}
+                              className="w-full h-32 object-cover rounded-lg border border-[var(--border)]"
+                            />
+                          )
                         )}
                         <div>
                           <p className="font-medium text-[var(--foreground)]">{model.name}</p>
@@ -176,35 +223,7 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                             </div>
                           )}
                         </div>
-
-                        <div className="flex items-center gap-2 pt-1 border-t border-[var(--border)]">
-                          {model.model_url && (
-                            <a
-                              href={model.model_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
-                              title="Open model"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          )}
-                          <button
-                            onClick={() => setEditModel(model)}
-                            className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
-                            title="Edit"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteModelTarget(model)}
-                            className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
+                      </Card>
                     )
                   })}
                 </div>
@@ -405,6 +424,8 @@ function FilamentTable({ filaments, onEdit, onDelete, onToggleStock, muted }: Fi
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Color</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Brand</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Material</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Roll Cost</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Roll Size</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Stock</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Actions</th>
             </tr>
@@ -417,6 +438,12 @@ function FilamentTable({ filaments, onEdit, onDelete, onToggleStock, muted }: Fi
                 </td>
                 <td className="px-4 py-3 text-[var(--foreground)]">{f.brand || '—'}</td>
                 <td className="px-4 py-3 text-[var(--foreground)]">{f.material}</td>
+                <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                  {f.roll_cost != null ? `$${f.roll_cost.toFixed(2)}` : '—'}
+                </td>
+                <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                  {f.roll_size_g != null ? `${f.roll_size_g}g` : '—'}
+                </td>
                 <td className="px-4 py-3">
                   <button
                     onClick={() => onToggleStock(f)}
@@ -460,6 +487,9 @@ function FilamentTable({ filaments, onEdit, onDelete, onToggleStock, muted }: Fi
             <ColorChip color={f.color} hex={f.color_hex} />
             <div className="flex-1 min-w-0">
               <p className="text-sm text-[var(--foreground)]">{f.brand ? `${f.brand} · ` : ''}{f.material}</p>
+              <p className="text-xs text-[var(--muted-foreground)]">
+                {f.roll_cost != null ? `$${f.roll_cost.toFixed(2)}` : '—'} · {f.roll_size_g != null ? `${f.roll_size_g}g` : '—'}
+              </p>
               <button
                 onClick={() => onToggleStock(f)}
                 className={`text-xs px-2 py-0.5 rounded-full font-medium mt-0.5 ${

@@ -4,12 +4,14 @@ import { LoginPage } from './pages/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
 import { InventoryPage } from './pages/InventoryPage'
+import { FarmSettingsPage } from './pages/FarmSettingsPage'
 
 type Route =
   | { page: 'login' }
   | { page: 'dashboard' }
   | { page: 'order'; id: string }
   | { page: 'inventory' }
+  | { page: 'settings' }
 
 function parseHash(hash: string): Route {
   const path = hash.replace(/^#\/?/, '')
@@ -19,6 +21,7 @@ function parseHash(hash: string): Route {
   }
   if (path === 'dashboard') return { page: 'dashboard' }
   if (path === 'inventory') return { page: 'inventory' }
+  if (path === 'settings')  return { page: 'settings' }
   return { page: 'login' }
 }
 
@@ -63,6 +66,16 @@ export function App() {
     )
   }
 
+  if (route.page === 'settings') {
+    if (!isAuthenticated()) {
+      navigate('#/')
+      return null
+    }
+    return (
+      <FarmSettingsPage onBack={() => navigate('#/dashboard')} />
+    )
+  }
+
   if (route.page === 'dashboard') {
     if (!isAuthenticated()) {
       navigate('#/')
@@ -73,6 +86,7 @@ export function App() {
         onLogout={() => navigate('#/')}
         onViewOrder={id => navigate(`#/order/${id}`)}
         onInventory={() => navigate('#/inventory')}
+        onSettings={() => navigate('#/settings')}
       />
     )
   }
