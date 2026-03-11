@@ -239,7 +239,9 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory }: DashboardP
               onOpenChange={setAddOpen}
               trigger={
                 <Button variant="primary" color="orange" onPress={() => setAddOpen(true)}>
-                  <Plus className="w-4 h-4" /> Add Order
+                  <Plus className="w-4 h-4" />
+                  <span className="sm:hidden">Add</span>
+                  <span className="hidden sm:inline">Add Order</span>
                 </Button>
               }
               title="New Work Order"

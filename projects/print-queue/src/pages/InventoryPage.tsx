@@ -132,7 +132,9 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                   <p className="text-xs text-[var(--muted-foreground)]">Printable items you offer. Print history is derived from completed orders.</p>
                 </div>
                 <Button variant="primary" color="orange" onPress={() => setAddModelOpen(true)}>
-                  <Plus className="w-4 h-4 mr-1" /> Add Model
+                  <Plus className="w-4 h-4 mr-1" />
+                  <span className="sm:hidden">Add</span>
+                  <span className="hidden sm:inline">Add Model</span>
                 </Button>
               </div>
 
@@ -219,7 +221,9 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
                   </p>
                 </div>
                 <Button variant="primary" color="orange" onPress={() => setAddFilamentOpen(true)}>
-                  <Plus className="w-4 h-4 mr-1" /> Add Filament
+                  <Plus className="w-4 h-4 mr-1" />
+                  <span className="sm:hidden">Add</span>
+                  <span className="hidden sm:inline">Add Filament</span>
                 </Button>
               </div>
 
