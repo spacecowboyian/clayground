@@ -13,6 +13,24 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [0.8.0] – 2026-03-11
+
+### feat(print-queue)
+- New project: **Tiny Prints — Print Queue** — 3-D print work-order tracker
+- Password-protected management dashboard (`#/dashboard`) with status filter tabs and stats bar
+- Full CRUD: add, edit, and delete work orders via React Aria dialog forms
+- Inline status dropdown (Queue → Printing → Complete → Cancelled) and paid toggle per row
+- Shareable public per-order links (`#/order/:id`) — no password required to view
+- Color swatches render named filament colors (pink, purple, light blue, dark blue, yellow, etc.)
+- Supabase PostgreSQL backend with public RLS policies; graceful localStorage fallback for demo mode
+- Seed data pre-loaded with Karen coworker's 9 initial orders
+- Responsive layout: table on desktop, card layout on mobile
+- SVG logo for Tiny Prints brand; `tinyprints-logo.svg` in `public/`
+- README with step-by-step Supabase setup, SQL schema, and seeding instructions
+- Registered in `docs/projects.json`
+
+---
+
 ## [0.7.0] – 2026-02-27
 
 ### feat(somethings-happening)
