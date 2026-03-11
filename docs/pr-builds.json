@@ -5,5 +5,13 @@
     "builds": {
       "kc-live-timing": "https://spacecowboyian.github.io/clayground/kc-live-timing/pr-19/"
     }
+  },
+  "23": {
+    "title": "[WIP] Add price and cost fields to prints",
+    "url": "https://github.com/spacecowboyian/clayground/pull/23",
+    "builds": {
+      "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-23/",
+      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-23/"
+    }
   }
 }
