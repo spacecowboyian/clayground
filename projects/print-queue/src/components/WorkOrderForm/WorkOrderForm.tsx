@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import type React from 'react'
-import { Button, TextField, Select, Switch, TextArea } from '@gearhead/ui'
+import { Button, TextField, Select, Switch, TextArea, NumberField } from '@gearhead/ui'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../../types/WorkOrder'
 
 const STATUS_OPTIONS = [
@@ -24,6 +23,8 @@ export function WorkOrderForm({ initial, onSave, onCancel }: WorkOrderFormProps)
   const [status, setStatus]     = useState<WorkOrderStatus>(initial?.status ?? 'Queue')
   const [paid, setPaid]         = useState(initial?.paid      ?? false)
   const [notes, setNotes]       = useState(initial?.notes     ?? '')
+  const [price, setPrice]       = useState(initial?.price     ?? 5)
+  const [cost, setCost]         = useState(initial?.cost      ?? 2)
   const [saving, setSaving]     = useState(false)
   const [error, setError]       = useState<string | null>(null)
 
@@ -43,6 +44,9 @@ export function WorkOrderForm({ initial, onSave, onCancel }: WorkOrderFormProps)
         status,
         paid,
         notes: notes.trim(),
+        price,
+        cost,
+        sort_order: initial?.sort_order ?? 0,
       })
     } catch {
       setError('Failed to save. Please try again.')
@@ -80,7 +84,23 @@ export function WorkOrderForm({ initial, onSave, onCancel }: WorkOrderFormProps)
           label="Status"
           options={STATUS_OPTIONS}
           selectedKey={status}
-          onSelectionChange={(key: React.Key) => setStatus(key as WorkOrderStatus)}
+          onSelectionChange={(key) => { if (key != null) setStatus(key as WorkOrderStatus) }}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <NumberField
+          label="Price ($)"
+          value={price}
+          onChange={setPrice}
+          minValue={0}
+          formatOptions={{ style: 'currency', currency: 'USD' }}
+        />
+        <NumberField
+          label="Cost ($)"
+          value={cost}
+          onChange={setCost}
+          minValue={0}
+          formatOptions={{ style: 'currency', currency: 'USD' }}
         />
       </div>
       <TextField

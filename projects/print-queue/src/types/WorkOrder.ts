@@ -9,6 +9,9 @@ export interface WorkOrder {
   status: WorkOrderStatus
   paid: boolean
   notes: string
+  price: number
+  cost: number
+  sort_order: number
   created_at: string
   updated_at: string
 }

@@ -80,6 +80,7 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
             <Field label="Customer" value={order.customer} />
             <Field label="Item" value={order.item} />
             <Field label="Color" value={order.color} />
+            <Field label="Price" value={`$${(order.price ?? 5).toFixed(2)}`} />
             {order.model_url && (
               <div className="px-6 py-4 flex justify-between items-start gap-4">
                 <span className="text-sm text-[var(--muted-foreground)] shrink-0 pt-0.5">Model</span>
