@@ -28,7 +28,7 @@ A 3-D print work-order tracker for **Tiny Prints**. Password-protect the managem
 
 No backend needed to try it out. Just open the app — data is seeded into `localStorage` automatically with Karen's initial orders.
 
-Default password: **`tinyprints`**
+Default password: **`beeps`**
 
 ---
 
@@ -125,7 +125,7 @@ Add these as **repository secrets** in GitHub → Settings → Secrets → Actio
 | `VITE_SUPABASE_URL` | Your Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Your anon key |
 
-> The `VITE_PRINT_QUEUE_PASSWORD` secret is **not** added to CI — the password defaults to `tinyprints` in the deployed build. To change it, add `VITE_PRINT_QUEUE_PASSWORD` as a repo secret too.
+> The `VITE_PRINT_QUEUE_PASSWORD` secret is **not** added to CI — the password defaults to `beeps` in the deployed build. To change it, add `VITE_PRINT_QUEUE_PASSWORD` as a repo secret too.
 
 ### Step 6 — Rebuild and Deploy
 

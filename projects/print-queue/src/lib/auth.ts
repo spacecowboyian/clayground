@@ -1,5 +1,5 @@
 const SESSION_KEY = 'print_queue_authed'
-const PASSWORD = import.meta.env.VITE_PRINT_QUEUE_PASSWORD || 'tinyprints'
+const PASSWORD = import.meta.env.VITE_PRINT_QUEUE_PASSWORD || 'beeps'
 
 export function isAuthenticated(): boolean {
   return sessionStorage.getItem(SESSION_KEY) === 'yes'
