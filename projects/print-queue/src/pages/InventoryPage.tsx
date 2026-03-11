@@ -421,6 +421,8 @@ function FilamentTable({ filaments, onEdit, onDelete, onToggleStock, muted }: Fi
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Color</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Brand</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Material</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Roll Cost</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Roll Size</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Stock</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Actions</th>
             </tr>
@@ -433,6 +435,12 @@ function FilamentTable({ filaments, onEdit, onDelete, onToggleStock, muted }: Fi
                 </td>
                 <td className="px-4 py-3 text-[var(--foreground)]">{f.brand || '—'}</td>
                 <td className="px-4 py-3 text-[var(--foreground)]">{f.material}</td>
+                <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                  {f.roll_cost != null ? `$${f.roll_cost.toFixed(2)}` : '—'}
+                </td>
+                <td className="px-4 py-3 text-[var(--muted-foreground)]">
+                  {f.roll_size_g != null ? `${f.roll_size_g}g` : '—'}
+                </td>
                 <td className="px-4 py-3">
                   <button
                     onClick={() => onToggleStock(f)}
@@ -476,6 +484,9 @@ function FilamentTable({ filaments, onEdit, onDelete, onToggleStock, muted }: Fi
             <ColorChip color={f.color} hex={f.color_hex} />
             <div className="flex-1 min-w-0">
               <p className="text-sm text-[var(--foreground)]">{f.brand ? `${f.brand} · ` : ''}{f.material}</p>
+              <p className="text-xs text-[var(--muted-foreground)]">
+                {f.roll_cost != null ? `$${f.roll_cost.toFixed(2)}` : '—'} · {f.roll_size_g != null ? `${f.roll_size_g}g` : '—'}
+              </p>
               <button
                 onClick={() => onToggleStock(f)}
                 className={`text-xs px-2 py-0.5 rounded-full font-medium mt-0.5 ${

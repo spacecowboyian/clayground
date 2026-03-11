@@ -15,7 +15,7 @@ const PREDEFINED_MATERIALS = new Set(MATERIAL_OPTIONS.map(o => o.id))
 
 /** Derive dropdown key + custom text from a stored material string. */
 function resolveMaterialKey(stored: string | undefined): { key: string; custom: string } {
-  const m = stored ?? 'PLA'
+  const m = stored ?? 'PETG'
   if (PREDEFINED_MATERIALS.has(m)) return { key: m, custom: '' }
   // Stored value is a free-text "Other" name (e.g. "Nylon")
   return { key: 'Other', custom: m }
