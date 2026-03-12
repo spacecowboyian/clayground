@@ -34,17 +34,17 @@ export function NumberField({
   return (
     <AriaNumberField className={cn('flex flex-col gap-2', className)} {...props}>
       {label && <Label className="text-sm text-foreground">{label}</Label>}
-      <Group className="flex">
+      <Group className="flex h-10">
         <Input
           className={cn(
-            'flex-1 px-3 py-2 bg-input rounded-l-lg border border-border text-foreground',
+            'h-10 flex-1 px-3 bg-input rounded-l-lg border border-border text-foreground',
             'focus:outline-none focus:ring-2 focus:ring-offset-0 focus:z-10',
             focusColors[focusColor]
           )}
         />
         <div className="flex flex-col border-y border-r border-border rounded-r-lg overflow-hidden">
-          <Button slot="increment" className="px-2 py-1 bg-secondary hover:bg-muted text-foreground text-xs transition-colors">+</Button>
-          <Button slot="decrement" className="px-2 py-1 bg-secondary hover:bg-muted text-foreground text-xs border-t border-border transition-colors">-</Button>
+          <Button slot="increment" className="flex-1 px-2 bg-secondary hover:bg-muted text-foreground text-xs transition-colors flex items-center justify-center">+</Button>
+          <Button slot="decrement" className="flex-1 px-2 bg-secondary hover:bg-muted text-foreground text-xs border-t border-border transition-colors flex items-center justify-center">-</Button>
         </div>
       </Group>
       {description && <Text slot="description" className="text-xs text-muted-foreground">{description}</Text>}
