@@ -144,10 +144,11 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
   const hasAny = visibleActive.length > 0 || visibleComplete.length > 0
 
   // Stats
-  const total  = orders.length
-  const unpaid = orders.filter(o => !o.paid).length
-  const due    = orders.filter(o => !o.paid).reduce((sum, o) => sum + (o.price ?? 5), 0)
-  const profit = orders
+  const total          = orders.length
+  const unpaid         = orders.filter(o => !o.paid).length
+  const due            = orders.filter(o => !o.paid).reduce((sum, o) => sum + (o.price ?? 5), 0)
+  const expectedProfit = orders.reduce((sum, o) => sum + ((o.price ?? 5) - (o.cost ?? 2)), 0)
+  const profit         = orders
     .filter(o => o.paid)
     .reduce((sum, o) => sum + ((o.price ?? 5) - (o.cost ?? 2)), 0)
 
@@ -168,7 +169,16 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
           <StatCard label="Total Orders"     value={total}    />
           <StatCard label="Awaiting Payment" value={unpaid}   accent="orange" />
           <StatCard label="Due"              value={`$${due.toFixed(2)}`} accent="blue" />
-          <StatCard label="Profit (paid)"    value={`$${profit.toFixed(2)}`} accent="green" />
+          <StatCard
+            label="Profit"
+            value={
+              <>
+                <span className="text-[var(--foreground)]">${expectedProfit.toFixed(2)}</span>
+                <span className="text-[var(--muted-foreground)] font-normal text-xl"> / </span>
+                <span className="text-[var(--accent-green)]">${profit.toFixed(2)}</span>
+              </>
+            }
+          />
         </div>
 
         {/* Toolbar */}
@@ -284,7 +294,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                         <Th>Item</Th>
                         <Th>Color</Th>
                         <Th>Status</Th>
-                        <Th>Profit</Th>
+                        <Th>Due / Profit</Th>
                         <Th align="right">Actions</Th>
                       </tr>
                     </thead>
@@ -329,7 +339,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                             <StatusSelect order={order} onChange={handleStatusChange} />
                           </Td>
                           <Td>
-                            <ProfitBadge profit={(order.price ?? 5) - (order.cost ?? 2)} />
+                            <DueProfitCell order={order} />
                           </Td>
                           <Td align="right">
                             <OrderActions
@@ -381,7 +391,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                         <Th>Item</Th>
                         <Th>Color</Th>
                         <Th>Status</Th>
-                        <Th>Profit</Th>
+                        <Th>Due / Profit</Th>
                         <Th align="right">Actions</Th>
                       </tr>
                     </thead>
@@ -415,7 +425,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                             <StatusSelect order={order} onChange={handleStatusChange} />
                           </Td>
                           <Td>
-                            <ProfitBadge profit={(order.price ?? 5) - (order.cost ?? 2)} />
+                            <DueProfitCell order={order} />
                           </Td>
                           <Td align="right">
                             <OrderActions
@@ -514,7 +524,6 @@ interface MobileCardProps {
 }
 
 function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: MobileCardProps) {
-  const profit = (order.price ?? 5) - (order.cost ?? 2)
   return (
     <div className={`bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3 ${muted ? 'opacity-80' : ''}`}>
       <div className="flex items-start justify-between gap-2">
@@ -540,10 +549,10 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
         )}
       </div>
 
-      {/* Profit row */}
+      {/* Due / Profit row */}
       <div className="flex items-center gap-4 text-xs">
         <span className="text-[var(--muted-foreground)]">
-          Profit <ProfitBadge profit={profit} />
+          {order.paid ? 'Profit' : 'Due'}{' '}<DueProfitCell order={order} />
         </span>
       </div>
 
@@ -654,6 +663,17 @@ function ProfitBadge({ profit }: { profit: number }) {
   )
 }
 
+function DueProfitCell({ order }: { order: WorkOrder }) {
+  if (!order.paid) {
+    return (
+      <span className="font-medium text-xs text-[var(--foreground)]">
+        ${(order.price ?? 5).toFixed(2)}
+      </span>
+    )
+  }
+  return <ProfitBadge profit={(order.price ?? 5) - (order.cost ?? 2)} />
+}
+
 function ColorDot({ color }: { color: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-sm text-[var(--foreground)]">
@@ -713,7 +733,7 @@ function StatusSelect({ order, onChange }: { order: WorkOrder; onChange: (o: Wor
 
 interface StatCardProps {
   label: string
-  value: number | string
+  value: React.ReactNode
   accent?: 'orange' | 'blue' | 'green' | 'muted'
 }
 
@@ -726,7 +746,7 @@ function StatCard({ label, value, accent = 'green' }: StatCardProps) {
   }
   return (
     <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
-      <p className={`text-2xl font-bold ${colors[accent]}`}>{value}</p>
+      <p className={`text-2xl font-bold ${typeof value === 'string' || typeof value === 'number' ? colors[accent] : ''}`}>{value}</p>
       <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{label}</p>
     </div>
   )
