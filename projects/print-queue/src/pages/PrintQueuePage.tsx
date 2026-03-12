@@ -7,8 +7,8 @@ import { ErrorModal } from '../components/ErrorModal/ErrorModal'
 import { AppHeader } from '../components/AppHeader/AppHeader'
 import { useAppDispatch, useAppSelector } from '../store'
 import { fetchOrders, editOrder as editOrderThunk, clearOrdersError } from '../store/ordersSlice'
-import { fetchInventory, clearInventoryError } from '../store/inventorySlice'
-import type { WorkOrder, WorkOrderInput, PrintItemStatus } from '../types/WorkOrder'
+import { fetchInventory, editFilament as editFilamentThunk, clearInventoryError } from '../store/inventorySlice'
+import type { WorkOrder, WorkOrderInput, OrderItem, PrintItemStatus, WorkOrderStatus } from '../types/WorkOrder'
 import type { Filament } from '../types/Inventory'
 
 interface PrintQueuePageProps {
@@ -38,6 +38,8 @@ const ITEM_STATUS_OPTIONS: Array<{ id: PrintItemStatus; label: string }> = [
   { id: 'printing', label: 'Printing' },
   { id: 'complete', label: 'Complete' },
 ]
+
+const AMS_SLOTS = [1, 2, 3, 4] as const
 
 export function PrintQueuePage({
   onLogout, onPrintQueue, onOrders, onModels, onFilaments, onSettings,
@@ -135,7 +137,33 @@ export function PrintQueuePage({
     const updatedItems = order.order_items.map((item, i) =>
       i === row.itemIndex ? { ...item, status: newStatus } : item
     )
-    await dispatch(editOrderThunk({ id: order.id, patch: { order_items: updatedItems } })).unwrap()
+
+    // Automatically derive the order-level status from item statuses
+    const derivedStatus = deriveOrderStatus(updatedItems)
+    const patch: Partial<WorkOrderInput> = { order_items: updatedItems }
+    if (derivedStatus !== order.status) {
+      patch.status = derivedStatus
+    }
+
+    await dispatch(editOrderThunk({ id: order.id, patch })).unwrap()
+  }
+
+  async function handleAmsSlotAssign(slot: number, filamentId: string | null) {
+    // Clear any filament currently in this slot
+    const currentInSlot = filaments.find(f => f.ams_slot === slot)
+    if (currentInSlot && currentInSlot.id !== filamentId) {
+      await dispatch(editFilamentThunk({ id: currentInSlot.id, patch: { ams_slot: null } })).unwrap()
+    }
+    if (filamentId) {
+      await dispatch(editFilamentThunk({ id: filamentId, patch: { ams_slot: slot } })).unwrap()
+    }
+  }
+
+  async function handleAmsClear(slot: number) {
+    const current = filaments.find(f => f.ams_slot === slot)
+    if (current) {
+      await dispatch(editFilamentThunk({ id: current.id, patch: { ams_slot: null } })).unwrap()
+    }
   }
 
   async function handleEditOrder(input: WorkOrderInput) {
@@ -163,6 +191,8 @@ export function PrintQueuePage({
     }
   }
 
+  const inStock = filaments.filter(f => f.in_stock)
+
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <AppHeader
@@ -189,6 +219,31 @@ export function PrintQueuePage({
               dispatch(clearInventoryError())
             }}
           />
+        )}
+
+        {/* AMS Slots */}
+        {!loading && (
+          <section className="space-y-3">
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">AMS Slots</h2>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Select which filament is currently loaded in each AMS slot.
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {AMS_SLOTS.map(slot => {
+                const loaded = filaments.find(f => f.ams_slot === slot) ?? null
+                return (
+                  <AmsSlotTile
+                    key={slot}
+                    slot={slot}
+                    loaded={loaded}
+                    filaments={inStock}
+                    onAssign={id => void handleAmsSlotAssign(slot, id)}
+                    onClear={() => void handleAmsClear(slot)}
+                  />
+                )
+              })}
+            </div>
+          </section>
         )}
 
         {loading ? (
@@ -436,4 +491,76 @@ function ItemStatusSelect({
       ))}
     </select>
   )
+}
+
+// ── AMS Slot Tile ──────────────────────────────────────────────────────────────
+
+interface AmsSlotTileProps {
+  slot: number
+  loaded: Filament | null
+  filaments: Filament[]
+  onAssign: (filamentId: string) => void
+  onClear: () => void
+}
+
+function AmsSlotTile({ slot, loaded, filaments, onAssign, onClear }: AmsSlotTileProps) {
+  return (
+    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
+          Slot {slot}
+        </span>
+        {loaded && (
+          <button
+            onClick={onClear}
+            className="text-xs text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+            title="Clear slot"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      {loaded ? (
+        <div className="flex items-center gap-2">
+          <span
+            className="w-4 h-4 rounded-full border border-[var(--border)] shrink-0"
+            style={{ background: loaded.color_hex || colorNameToHex(loaded.color) }}
+          />
+          <div>
+            <p className="text-sm font-medium text-[var(--foreground)]">{loaded.color}</p>
+            <p className="text-xs text-[var(--muted-foreground)]">{loaded.brand} {loaded.material}</p>
+          </div>
+        </div>
+      ) : (
+        <p className="text-sm text-[var(--muted-foreground)] italic">Empty</p>
+      )}
+
+      <select
+        value={loaded?.id ?? ''}
+        onChange={e => {
+          if (e.target.value) onAssign(e.target.value)
+          else onClear()
+        }}
+        className="w-full bg-[var(--input)] border border-[var(--border)] text-sm rounded px-2 py-1.5 text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-orange)]"
+      >
+        <option value="">— Empty —</option>
+        {filaments.map(f => (
+          <option key={f.id} value={f.id}>{f.color} ({f.material})</option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+/** Derive the order-level status from all item statuses.
+ *  - All items complete → 'complete'
+ *  - Any item printing or complete (but not all complete) → 'in_progress'
+ *  - All items queued → 'waiting'
+ */
+function deriveOrderStatus(items: OrderItem[]): WorkOrderStatus {
+  const statuses = items.map(i => i.status ?? 'queue')
+  if (statuses.every(s => s === 'complete')) return 'complete'
+  if (statuses.some(s => s === 'printing' || s === 'complete')) return 'in_progress'
+  return 'waiting'
 }
