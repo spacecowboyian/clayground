@@ -58,6 +58,6 @@ export interface FilamentStats {
   consumed_g: number
   /** Grams reserved by active (waiting / in_progress) orders */
   reserved_g: number
-  /** Grams remaining after reservations: current_quantity_g - reserved_g */
+  /** Grams remaining: current_quantity_g - reserved_g - consumed_g */
   remaining_g: number
 }
