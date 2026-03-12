@@ -20,12 +20,5 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-31/"
     }
-  },
-  "34": {
-    "title": "[WIP] Update main table design for print queue orders",
-    "url": "https://github.com/spacecowboyian/clayground/pull/34",
-    "builds": {
-      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-34/"
-    }
   }
 }
