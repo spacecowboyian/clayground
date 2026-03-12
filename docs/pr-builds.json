@@ -35,5 +35,12 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-36/"
     }
+  },
+  "38": {
+    "title": "fix(print-queue): mobile UI polish — icon-only actions, full-width add buttons, filament row layout",
+    "url": "https://github.com/spacecowboyian/clayground/pull/38",
+    "builds": {
+      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-38/"
+    }
   }
 }
