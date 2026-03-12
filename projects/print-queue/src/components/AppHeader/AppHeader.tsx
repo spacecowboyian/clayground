@@ -4,7 +4,6 @@ export type AppPage = 'dashboard' | 'inventory' | 'settings'
 
 interface AppHeaderProps {
   currentPage: AppPage
-  subtitle?: string
   onDashboard: () => void
   onInventory: () => void
   onSettings: () => void
@@ -13,7 +12,6 @@ interface AppHeaderProps {
 
 export function AppHeader({
   currentPage,
-  subtitle,
   onDashboard,
   onInventory,
   onSettings,
@@ -30,14 +28,6 @@ export function AppHeader({
     { id: 'settings',  label: 'Settings',  onPress: onSettings  },
   ]
 
-  const pageSubtitles: Record<AppPage, string> = {
-    dashboard: 'Print Queue',
-    inventory: 'Inventory',
-    settings:  'Farm Settings',
-  }
-
-  const displaySubtitle = subtitle ?? pageSubtitles[currentPage]
-
   return (
     <header className="border-b border-[var(--border)] bg-[var(--card)] sticky top-0 z-10">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-4">
@@ -45,7 +35,6 @@ export function AppHeader({
         <div className="flex items-center gap-3 shrink-0">
           <img src="./tinyprints-printer.svg" alt="Tiny Prints" className="w-9 h-9 object-contain" />
           <span className="font-bold text-[var(--foreground)] text-lg hidden sm:block">Tiny Prints</span>
-          <span className="text-[var(--muted-foreground)] text-sm hidden sm:block">/ {displaySubtitle}</span>
         </div>
 
         {/* Primary nav — left-aligned next to logo */}

@@ -1,4 +1,4 @@
-export type WorkOrderStatus = 'Queue' | 'Printing' | 'Complete' | 'Cancelled'
+export type WorkOrderStatus = 'Queue' | 'Printing' | 'Complete'
 
 /** A single item line within a multi-item work order */
 export interface OrderItem {

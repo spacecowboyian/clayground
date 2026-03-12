@@ -13,6 +13,16 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.4.0] – 2026-03-12
+
+### feat(print-queue)
+- **Simplified orders table** — removed Price and Cost columns; only Profit is shown. Paid status moved out of its own column into the Actions column as a DollarSign icon that turns green when clicked (toggleable). Cancelled status removed entirely; orders are now deleted rather than cancelled.
+- **Streamlined stats tiles** — removed Printing Now and In Queue tiles; added a "Due" tile showing the total amount still owed across all unpaid orders. Tile layout is now: Total Orders → Awaiting Payment → Due → Profit (paid).
+- **Auto-calculated cost** — cost is now derived exclusively from filament usage and post-processing minutes; the manual Cost field has been removed from the Add/Edit Order form.
+- **Fixed header layout** — removed the "/ Page Name" breadcrumb subtitle from the `AppHeader` so the navigation menu stays at a consistent horizontal position on every page.
+
+---
+
 ## [1.3.0] – 2026-03-12
 
 ### feat(print-queue)

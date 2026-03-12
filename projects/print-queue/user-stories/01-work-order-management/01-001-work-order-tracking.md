@@ -65,6 +65,7 @@ So that I and my helpers can view and manage print jobs without needing individu
 - Added reusable `OrderStatusTimeline` component to the Gearhead design library with Storybook story covering all four states (Queue, Printing, Complete, Cancelled).
 
 ### 2026-03-12 — Requested by: @copilot
-- Added multi-item support per order: `order_items: OrderItem[]` JSONB field on `work_orders` table (migration 002); `WorkOrderForm` redesigned with add/remove item rows (model + color + qty per item); backward-compatible with legacy single-item orders.
-- Fixed `OrderDetailPage` logo to use the icon-only SVG (`tinyprints-printer.svg`) instead of the wordmark.
-- Replaced per-page nav with a shared `AppHeader` component: Orders/Inventory/Settings always visible, left-aligned after logo, with active-state highlight on the current page.
+- Updated orders table: removed Price and Cost columns (only Profit shown); moved Paid into the Actions column as a DollarSign icon toggle (green = paid); removed Cancelled status entirely.
+- Reorganised dashboard stats tiles: removed Printing Now and In Queue; added Due (total unpaid amount) between Awaiting Payment and Profit (paid).
+- Removed cost field from Add/Edit Order form; cost is now auto-derived from filament usage and post-processing only.
+- Removed breadcrumb subtitle ("/ Farm Settings" etc.) from AppHeader so the nav menu stays at a fixed horizontal position across all pages.
