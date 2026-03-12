@@ -1,14 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Dialog, Switch, Accordion } from '@gearhead/ui'
 import { GripVertical, Package, Pencil, Plus, Settings, Trash2 } from 'lucide-react'
-import { deleteOrder, listOrders, createOrder, updateOrder, reorderOrders } from '../lib/storage'
-import { listModels, listFilaments } from '../lib/inventory'
-import { isSupabaseConfigured } from '../lib/supabase'
 import { logout } from '../lib/auth'
 import { StatusBadge } from '../components/StatusBadge/StatusBadge'
 import { WorkOrderForm } from '../components/WorkOrderForm/WorkOrderForm'
+import { ErrorModal } from '../components/ErrorModal/ErrorModal'
+import { useAppDispatch, useAppSelector } from '../store'
+import {
+  fetchOrders,
+  addOrder,
+  editOrder as editOrderThunk,
+  removeOrder,
+  reorderOrdersThunk,
+  optimisticReorder,
+  clearOrdersError,
+} from '../store/ordersSlice'
+import { fetchInventory, clearInventoryError } from '../store/inventorySlice'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../types/WorkOrder'
-import type { PrintModel, Filament } from '../types/Inventory'
 
 const STATUS_FILTERS: Array<WorkOrderStatus | 'All'> = ['All', 'Queue', 'Printing', 'Complete', 'Cancelled']
 
@@ -23,11 +31,15 @@ interface DashboardPageProps {
 }
 
 export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }: DashboardPageProps) {
-  const [orders, setOrders]         = useState<WorkOrder[]>([])
-  const [models, setModels]         = useState<PrintModel[]>([])
-  const [filaments, setFilaments]   = useState<Filament[]>([])
-  const [loading, setLoading]       = useState(true)
-  const [error, setError]           = useState<string | null>(null)
+  const dispatch = useAppDispatch()
+  const orders   = useAppSelector(state => state.orders.items)
+  const models   = useAppSelector(state => state.inventory.models)
+  const filaments = useAppSelector(state => state.inventory.filaments)
+  const loading  = useAppSelector(state => state.orders.loading || state.inventory.loading)
+  const ordersError    = useAppSelector(state => state.orders.error)
+  const inventoryError = useAppSelector(state => state.inventory.error)
+  const error = ordersError ?? inventoryError
+
   const [statusFilter, setFilter]   = useState<WorkOrderStatus | 'All'>('All')
   const [addOpen, setAddOpen]       = useState(false)
   const [editOrder, setEditOrder]   = useState<WorkOrder | null>(null)
@@ -37,56 +49,37 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
   const dragIdRef    = useRef<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
 
-  const reload = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const [orderData, modelData, filamentData] = await Promise.all([
-        listOrders(),
-        listModels(),
-        listFilaments(),
-      ])
-      setOrders(orderData)
-      setModels(modelData)
-      setFilaments(filamentData)
-    } catch {
-      setError('Failed to load orders. Check your Supabase configuration.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const load = useCallback(() => {
+    void dispatch(fetchOrders())
+    void dispatch(fetchInventory())
+  }, [dispatch])
 
-  useEffect(() => { void reload() }, [reload])
+  useEffect(() => { load() }, [load])
 
   async function handleCreate(input: WorkOrderInput) {
     const nextSort = orders.filter(o => ACTIVE_STATUSES.has(o.status)).length + 1
-    await createOrder({ ...input, sort_order: nextSort })
+    await dispatch(addOrder({ ...input, sort_order: nextSort })).unwrap()
     setAddOpen(false)
-    await reload()
   }
 
   async function handleEdit(input: WorkOrderInput) {
     if (!editOrder) return
-    await updateOrder(editOrder.id, input)
+    await dispatch(editOrderThunk({ id: editOrder.id, patch: input })).unwrap()
     setEditOrder(null)
-    await reload()
   }
 
   async function handleDelete() {
     if (!deleteTarget) return
-    await deleteOrder(deleteTarget.id)
+    await dispatch(removeOrder(deleteTarget.id)).unwrap()
     setDeleteTarget(null)
-    await reload()
   }
 
   async function handleTogglePaid(order: WorkOrder) {
-    await updateOrder(order.id, { paid: !order.paid })
-    await reload()
+    await dispatch(editOrderThunk({ id: order.id, patch: { paid: !order.paid } })).unwrap()
   }
 
   async function handleStatusChange(order: WorkOrder, status: WorkOrderStatus) {
-    await updateOrder(order.id, { status })
-    await reload()
+    await dispatch(editOrderThunk({ id: order.id, patch: { status } })).unwrap()
   }
 
   function handleLogout() {
@@ -126,16 +119,8 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
     reordered.splice(toIdx, 0, sourceId)
 
     // Optimistic update
-    setOrders(prev => {
-      const idSet = new Set(reordered)
-      const reorderedActive = reordered.map((id, idx) => ({
-        ...prev.find(o => o.id === id)!,
-        sort_order: idx + 1,
-      }))
-      const rest = prev.filter(o => !idSet.has(o.id))
-      return [...reorderedActive, ...rest]
-    })
-    await reorderOrders(reordered)
+    dispatch(optimisticReorder(reordered))
+    await dispatch(reorderOrdersThunk(reordered))
   }
 
   function handleDragEnd() {
@@ -182,11 +167,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
             <span className="text-[var(--muted-foreground)] text-sm hidden sm:block">/ Print Queue</span>
           </div>
           <div className="flex items-center gap-2">
-            {!isSupabaseConfigured && (
-              <span className="text-xs px-2 py-1 rounded bg-[var(--accent-orange-light)] text-[var(--accent-orange)]">
-                Demo mode
-              </span>
-            )}
             <Button variant="ghost" onPress={onInventory} className="text-sm" title="Inventory">
               <Package className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">Inventory</span>
@@ -255,11 +235,20 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
           </div>
         </div>
 
-        {/* Error */}
+        {/* Error Modal */}
         {error && (
-          <div className="bg-[var(--accent-red-light)] border border-[var(--destructive)] rounded-xl p-4 text-sm text-[var(--destructive)]">
-            {error}
-          </div>
+          <ErrorModal
+            error={error}
+            onRetry={() => {
+              dispatch(clearOrdersError())
+              dispatch(clearInventoryError())
+              load()
+            }}
+            onDismiss={() => {
+              dispatch(clearOrdersError())
+              dispatch(clearInventoryError())
+            }}
+          />
         )}
 
         {/* Content */}

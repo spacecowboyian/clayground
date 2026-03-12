@@ -1,21 +1,21 @@
 import { useState } from 'react'
 import { Button, NumberField } from '@gearhead/ui'
-import { loadSettings, saveSettings } from '../lib/settings'
 import { DEFAULT_FARM_SETTINGS } from '../types/FarmSettings'
+import { useAppDispatch, useAppSelector } from '../store'
+import { updateSettings } from '../store/settingsSlice'
 
 interface FarmSettingsPageProps {
   onBack: () => void
 }
 
 export function FarmSettingsPage({ onBack }: FarmSettingsPageProps) {
-  const [settings, setSettings]   = useState(() => loadSettings())
+  const dispatch  = useAppDispatch()
+  const settings  = useAppSelector(state => state.settings.settings)
   const [saved, setSaved]         = useState(false)
   const [laborRate, setLaborRate] = useState(settings.labor_rate_per_hour)
 
   function handleSave() {
-    const updated = { ...settings, labor_rate_per_hour: laborRate }
-    saveSettings(updated)
-    setSettings(updated)
+    dispatch(updateSettings({ ...settings, labor_rate_per_hour: laborRate }))
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
