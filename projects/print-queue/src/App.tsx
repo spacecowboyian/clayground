@@ -62,7 +62,11 @@ export function App() {
       return null
     }
     return (
-      <InventoryPage onBack={() => navigate('#/dashboard')} />
+      <InventoryPage
+        onBack={() => navigate('#/dashboard')}
+        onDashboard={() => navigate('#/dashboard')}
+        onSettings={() => navigate('#/settings')}
+      />
     )
   }
 
@@ -72,7 +76,11 @@ export function App() {
       return null
     }
     return (
-      <FarmSettingsPage onBack={() => navigate('#/dashboard')} />
+      <FarmSettingsPage
+        onBack={() => navigate('#/settings')}
+        onDashboard={() => navigate('#/dashboard')}
+        onInventory={() => navigate('#/inventory')}
+      />
     )
   }
 
@@ -87,6 +95,7 @@ export function App() {
         onViewOrder={id => navigate(`#/order/${id}`)}
         onInventory={() => navigate('#/inventory')}
         onSettings={() => navigate('#/settings')}
+        onDashboard={() => navigate('#/dashboard')}
       />
     )
   }

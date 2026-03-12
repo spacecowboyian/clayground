@@ -78,7 +78,7 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
       <div className="max-w-lg mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3 pt-4">
-          <img src="./tinyprints-logo.svg" alt="Tiny Prints" className="w-10 h-auto" />
+          <img src="./tinyprints-printer.svg" alt="Tiny Prints" className="w-10 h-auto" />
           <div>
             <h1 className="text-lg font-bold text-[var(--foreground)]">Tiny Prints</h1>
             <p className="text-xs text-[var(--muted-foreground)]">Order Detail</p>
@@ -103,8 +103,30 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
           {/* Fields */}
           <div className="divide-y divide-[var(--border)]">
             <Field label="Customer" value={order.customer} />
-            <Field label="Item" value={order.item} />
-            <Field label="Color" value={order.color} />
+            {/* Multiple items */}
+            {order.order_items && order.order_items.length > 1 ? (
+              <div className="px-6 py-4">
+                <span className="text-sm text-[var(--muted-foreground)]">Items</span>
+                <div className="mt-2 space-y-2">
+                  {order.order_items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-start gap-4">
+                      <div className="flex items-center gap-2 text-sm text-[var(--foreground)]">
+                        {item.quantity > 1 && (
+                          <span className="font-medium text-[var(--muted-foreground)]">{item.quantity}×</span>
+                        )}
+                        <span>{item.item}</span>
+                      </div>
+                      <span className="text-sm text-[var(--muted-foreground)] text-right shrink-0">{item.color}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                <Field label="Item" value={order.order_items?.[0]?.item ?? order.item} />
+                <Field label="Color" value={order.order_items?.[0]?.color ?? order.color} />
+              </>
+            )}
             <Field label="Price" value={`$${(order.price ?? 5).toFixed(2)}`} />
             {order.needs_filament && (
               <div className="px-6 py-3 flex items-center gap-2 bg-[var(--accent-orange-light)]">

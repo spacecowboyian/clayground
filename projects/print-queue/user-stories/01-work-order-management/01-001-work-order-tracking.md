@@ -63,3 +63,8 @@ So that I and my helpers can view and manage print jobs without needing individu
 - Simplified home page table actions: removed View, Open Model, and Copy Link buttons; kept only Edit and Delete; customer name is now a clickable link to the order detail page.
 - Enhanced order detail page: replaced plain StatusBadge with a visual OrderStatusTimeline component showing progress through In Queue → Printing → Done; payment status now shows "Not Paid" in red and "Paid" in green.
 - Added reusable `OrderStatusTimeline` component to the Gearhead design library with Storybook story covering all four states (Queue, Printing, Complete, Cancelled).
+
+### 2026-03-12 — Requested by: @copilot
+- Added multi-item support per order: `order_items: OrderItem[]` JSONB field on `work_orders` table (migration 002); `WorkOrderForm` redesigned with add/remove item rows (model + color + qty per item); backward-compatible with legacy single-item orders.
+- Fixed `OrderDetailPage` logo to use the icon-only SVG (`tinyprints-printer.svg`) instead of the wordmark.
+- Replaced per-page nav with a shared `AppHeader` component: Orders/Inventory/Settings always visible, left-aligned after logo, with active-state highlight on the current page.
