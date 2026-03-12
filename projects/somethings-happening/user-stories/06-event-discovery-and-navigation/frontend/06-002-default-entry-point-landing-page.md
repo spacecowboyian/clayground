@@ -42,3 +42,6 @@ Verify first render and direct navigation flows in desktop and mobile widths.
 ## Additions
 ### 2026-03-12 — Requested by: @copilot
 - Set the print-queue app home screen to Orders by default.
+
+### 2026-03-12 — Requested by: @copilot
+- Fix duplicate rendering so the AMS block appears only once on the print-queue page.

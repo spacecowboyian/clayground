@@ -172,8 +172,6 @@ export function PrintQueuePage({
     setEditOrder(null)
   }
 
-  const inStockFilaments = filaments.filter(f => f.status === 'in_stock')
-
   function getFilament(id: string | null): Filament | null {
     return id ? (filamentMap.get(id) ?? null) : null
   }
@@ -208,29 +206,6 @@ export function PrintQueuePage({
       />
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* ── AMS Slots ──────────────────────────────────────────────────── */}
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-[var(--foreground)]">AMS Slots</h2>
-          <p className="text-xs text-[var(--muted-foreground)]">
-            Select which filament is currently loaded in each AMS slot.
-          </p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {AMS_SLOTS.map(slot => {
-              const loaded = filaments.find(f => f.ams_slot === slot) ?? null
-              return (
-                <AmsSlotTile
-                  key={slot}
-                  slot={slot}
-                  loaded={loaded}
-                  filaments={inStockFilaments}
-                  onAssign={id => void handleAmsSlotAssign(slot, id)}
-                  onClear={() => void handleAmsClear(slot)}
-                />
-              )
-            })}
-          </div>
-        </section>
-
         {error && (
           <ErrorModal
             error={error}

@@ -11,6 +11,12 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### fix(print-queue)
+- Remove duplicate AMS Slots section from the Print Queue page so the AMS block is shown only once.
+
+### docs(somethings-happening)
+- Append a user-story addition noting the AMS duplicate-rendering fix request.
+
 ---
 
 ## [1.5.0] – 2026-03-12
