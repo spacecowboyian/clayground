@@ -92,10 +92,6 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
     await dispatch(editOrderThunk({ id: order.id, patch: { paid: !order.paid } })).unwrap()
   }
 
-  async function handleStatusChange(order: WorkOrder, status: WorkOrderStatus) {
-    await dispatch(editOrderThunk({ id: order.id, patch: { status } })).unwrap()
-  }
-
   // ── Drag handlers ──────────────────────────────────────────────────────────
   function handleDragStart(id: string) {
     dragIdRef.current = id
@@ -351,7 +347,7 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
                             </div>
                           </Td>
                           <Td>
-                            <StatusSelect order={order} onChange={handleStatusChange} />
+                            <StatusBadge status={order.status} />
                           </Td>
                           <Td>
                             <DueProfitCell order={order} />
@@ -437,7 +433,7 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
                             </div>
                           </Td>
                           <Td>
-                            <StatusSelect order={order} onChange={handleStatusChange} />
+                            <StatusBadge status={order.status} />
                           </Td>
                           <Td>
                             <DueProfitCell order={order} />
@@ -724,26 +720,6 @@ function orderColorLabel(order: WorkOrder): string {
     return colors[0] ?? order.color
   }
   return order.order_items?.[0]?.color ?? order.color
-}
-
-const STATUS_OPTIONS_INLINE = [
-  { id: 'waiting',     label: 'Waiting' },
-  { id: 'in_progress', label: 'In Progress' },
-  { id: 'complete',    label: 'Complete' },
-]
-
-function StatusSelect({ order, onChange }: { order: WorkOrder; onChange: (o: WorkOrder, s: WorkOrderStatus) => void }) {
-  return (
-    <select
-      value={order.status}
-      onChange={e => onChange(order, e.target.value as WorkOrderStatus)}
-      className="bg-[var(--input)] border border-[var(--border)] text-sm rounded px-2 py-1 text-[var(--foreground)] cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--accent-orange)]"
-    >
-      {STATUS_OPTIONS_INLINE.map(o => (
-        <option key={o.id} value={o.id}>{o.label}</option>
-      ))}
-    </select>
-  )
 }
 
 interface StatCardProps {
