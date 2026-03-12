@@ -24,6 +24,8 @@
   "32": {
     "title": "[WIP] Fix unable to load data error in print queue project",
     "url": "https://github.com/spacecowboyian/clayground/pull/32",
-    "builds": {}
+    "builds": {
+      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-32/"
+    }
   }
 }
