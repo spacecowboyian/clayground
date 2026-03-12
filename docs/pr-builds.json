@@ -42,12 +42,5 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-38/"
     }
-  },
-  "41": {
-    "title": "feat(print-queue): redesign nav, split inventory, add print queue page",
-    "url": "https://github.com/spacecowboyian/clayground/pull/41",
-    "builds": {
-      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-41/"
-    }
   }
 }
