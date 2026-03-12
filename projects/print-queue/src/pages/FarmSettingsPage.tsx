@@ -3,12 +3,15 @@ import { Button, NumberField } from '@gearhead/ui'
 import { DEFAULT_FARM_SETTINGS } from '../types/FarmSettings'
 import { useAppDispatch, useAppSelector } from '../store'
 import { updateSettings } from '../store/settingsSlice'
+import { AppHeader } from '../components/AppHeader/AppHeader'
 
 interface FarmSettingsPageProps {
   onBack: () => void
+  onDashboard: () => void
+  onInventory: () => void
 }
 
-export function FarmSettingsPage({ onBack }: FarmSettingsPageProps) {
+export function FarmSettingsPage({ onBack, onDashboard, onInventory }: FarmSettingsPageProps) {
   const dispatch  = useAppDispatch()
   const settings  = useAppSelector(state => state.settings.settings)
   const [saved, setSaved]         = useState(false)
@@ -27,18 +30,12 @@ export function FarmSettingsPage({ onBack }: FarmSettingsPageProps) {
   return (
     <div className="min-h-screen bg-[var(--background)]">
       {/* Top bar */}
-      <header className="border-b border-[var(--border)] bg-[var(--card)] sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src="./tinyprints-printer.svg" alt="Tiny Prints" className="w-9 h-9 object-contain" />
-            <span className="font-bold text-[var(--foreground)] text-lg hidden sm:block">Tiny Prints</span>
-            <span className="text-[var(--muted-foreground)] text-sm hidden sm:block">/ Farm Settings</span>
-          </div>
-          <Button variant="ghost" onPress={onBack} className="text-sm">
-            ← Queue
-          </Button>
-        </div>
-      </header>
+      <AppHeader
+        currentPage="settings"
+        onDashboard={onDashboard}
+        onInventory={onInventory}
+        onSettings={onBack}
+      />
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-8">
         <section className="max-w-md space-y-6">
@@ -101,3 +98,4 @@ export function FarmSettingsPage({ onBack }: FarmSettingsPageProps) {
     </div>
   )
 }
+

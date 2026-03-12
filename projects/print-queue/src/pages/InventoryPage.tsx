@@ -6,6 +6,7 @@ import { totalFilamentUsageG } from '../lib/costing'
 import { ModelForm } from '../components/ModelForm/ModelForm'
 import { FilamentForm } from '../components/FilamentForm/FilamentForm'
 import { ErrorModal } from '../components/ErrorModal/ErrorModal'
+import { AppHeader } from '../components/AppHeader/AppHeader'
 import { useAppDispatch, useAppSelector } from '../store'
 import { fetchInventory, addModel, editModel as editModelThunk, removeModel, addFilament, editFilament as editFilamentThunk, removeFilament, clearInventoryError } from '../store/inventorySlice'
 import { fetchOrders } from '../store/ordersSlice'
@@ -13,9 +14,11 @@ import type { PrintModel, PrintModelInput, Filament, FilamentInput, FilamentStat
 
 interface InventoryPageProps {
   onBack: () => void
+  onDashboard: () => void
+  onSettings: () => void
 }
 
-export function InventoryPage({ onBack }: InventoryPageProps) {
+export function InventoryPage({ onBack, onDashboard, onSettings }: InventoryPageProps) {
   const dispatch   = useAppDispatch()
   const models     = useAppSelector(state => state.inventory.models)
   const filaments  = useAppSelector(state => state.inventory.filaments)
@@ -86,18 +89,12 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
   return (
     <div className="min-h-screen bg-[var(--background)]">
       {/* Top bar */}
-      <header className="border-b border-[var(--border)] bg-[var(--card)] sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src="./tinyprints-printer.svg" alt="Tiny Prints" className="w-9 h-9 object-contain" />
-            <span className="font-bold text-[var(--foreground)] text-lg hidden sm:block">Tiny Prints</span>
-            <span className="text-[var(--muted-foreground)] text-sm hidden sm:block">/ Inventory</span>
-          </div>
-          <Button variant="ghost" onPress={onBack} className="text-sm">
-            ← Queue
-          </Button>
-        </div>
-      </header>
+      <AppHeader
+        currentPage="inventory"
+        onDashboard={onDashboard}
+        onInventory={onBack}
+        onSettings={onSettings}
+      />
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-8">
         {loading && (
@@ -326,6 +323,7 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
       {addModelOpen && (
         <Dialog
           isOpen
+          size="xl"
           onOpenChange={open => { if (!open) setAddModelOpen(false) }}
           trigger={<span />}
           title="Add Model"
@@ -342,6 +340,7 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
       {editModel && (
         <Dialog
           isOpen
+          size="xl"
           onOpenChange={open => { if (!open) setEditModel(null) }}
           trigger={<span />}
           title="Edit Model"
@@ -379,6 +378,7 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
       {addFilamentOpen && (
         <Dialog
           isOpen
+          size="xl"
           onOpenChange={open => { if (!open) setAddFilamentOpen(false) }}
           trigger={<span />}
           title="Add Filament"
@@ -394,6 +394,7 @@ export function InventoryPage({ onBack }: InventoryPageProps) {
       {editFilament && (
         <Dialog
           isOpen
+          size="xl"
           onOpenChange={open => { if (!open) setEditFilament(null) }}
           trigger={<span />}
           title="Edit Filament"

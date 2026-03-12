@@ -187,7 +187,7 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
         <p className="text-sm text-[var(--destructive)]">{error}</p>
       )}
 
-      <div className="flex justify-end gap-3 pt-2">
+      <div className="sticky bottom-0 bg-[var(--card)] -mx-6 px-6 pt-4 pb-4 border-t border-[var(--border)] flex justify-end gap-3 mt-2">
         <Button variant="outline" onPress={onCancel} isDisabled={saving}>
           Cancel
         </Button>

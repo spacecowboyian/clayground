@@ -13,6 +13,17 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.3.0] – 2026-03-12
+
+### feat(print-queue)
+- **Multiple items per order** — `WorkOrder` now carries an `order_items: OrderItem[] | null` JSONB field; each item stores model, color, quantity, price, and cost. `WorkOrderForm` redesigned with add/remove item rows (model + color + qty per item). SQL migration `002_order_items.sql` adds the column to Supabase. Legacy single-item orders (null `order_items`) continue to work unchanged.
+- **Shared `AppHeader` navigation** — new `AppHeader` component replaces per-page headers; Orders / Inventory / Settings always visible, left-aligned after the logo, with an active-state highlight on the current page. `Lock` button pushed to the right.
+- **Wider modals on desktop** — gearhead `Dialog` now supports a `size` prop (`md` | `xl`); `--modal-max-w-xl: 42rem` CSS variable added to `theme.css`. All form dialogs (work order, model, filament) now use `xl`.
+- **Sticky form footers** — action buttons in `WorkOrderForm`, `ModelForm`, and `FilamentForm` now use `sticky bottom-0` positioning so they remain visible while scrolling long forms, and a `border-b` separator added to the dialog header.
+- **Fixed model-form horizontal overflow** — `ModelForm` qty field reduced from `w-28` to `w-20` to prevent the filament requirements row from exceeding the dialog width.
+- **Order detail page logo** — corrected to use the icon-only `tinyprints-printer.svg` instead of the wordmark.
+- **Order detail multi-item display** — `OrderDetailPage` shows a grouped items list when an order has multiple items.
+
 ## [1.2.1] – 2026-03-12
 
 ### fix(print-queue)

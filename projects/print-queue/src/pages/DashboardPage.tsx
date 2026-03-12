@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Dialog, Switch, Accordion } from '@gearhead/ui'
-import { GripVertical, Package, Pencil, Plus, Settings, Trash2 } from 'lucide-react'
-import { logout } from '../lib/auth'
+import { GripVertical, Pencil, Plus, Trash2 } from 'lucide-react'
 import { StatusBadge } from '../components/StatusBadge/StatusBadge'
 import { WorkOrderForm } from '../components/WorkOrderForm/WorkOrderForm'
 import { ErrorModal } from '../components/ErrorModal/ErrorModal'
+import { AppHeader } from '../components/AppHeader/AppHeader'
 import { useAppDispatch, useAppSelector } from '../store'
 import {
   fetchOrders,
@@ -28,9 +28,10 @@ interface DashboardPageProps {
   onViewOrder: (id: string) => void
   onInventory: () => void
   onSettings: () => void
+  onDashboard: () => void
 }
 
-export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }: DashboardPageProps) {
+export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, onDashboard }: DashboardPageProps) {
   const dispatch = useAppDispatch()
   const orders   = useAppSelector(state => state.orders.items)
   const models   = useAppSelector(state => state.inventory.models)
@@ -80,11 +81,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
 
   async function handleStatusChange(order: WorkOrder, status: WorkOrderStatus) {
     await dispatch(editOrderThunk({ id: order.id, patch: { status } })).unwrap()
-  }
-
-  function handleLogout() {
-    logout()
-    onLogout()
   }
 
   // ── Drag handlers ──────────────────────────────────────────────────────────
@@ -159,28 +155,13 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
   return (
     <div className="min-h-screen bg-[var(--background)]">
       {/* Top bar */}
-      <header className="border-b border-[var(--border)] bg-[var(--card)] sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src="./tinyprints-printer.svg" alt="Tiny Prints" className="w-9 h-9 object-contain" />
-            <span className="font-bold text-[var(--foreground)] text-lg hidden sm:block">Tiny Prints</span>
-            <span className="text-[var(--muted-foreground)] text-sm hidden sm:block">/ Print Queue</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onPress={onInventory} className="text-sm" title="Inventory">
-              <Package className="w-4 h-4" />
-              <span className="hidden sm:inline ml-1">Inventory</span>
-            </Button>
-            <Button variant="ghost" onPress={onSettings} className="text-sm" title="Farm Settings">
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline ml-1">Settings</span>
-            </Button>
-            <Button variant="ghost" onPress={handleLogout} className="text-sm">
-              Lock
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AppHeader
+        currentPage="dashboard"
+        onDashboard={onDashboard}
+        onInventory={onInventory}
+        onSettings={onSettings}
+        onLogout={onLogout}
+      />
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Stats row */}
@@ -214,6 +195,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
             <Dialog
               isOpen={addOpen}
               onOpenChange={setAddOpen}
+              size="xl"
               trigger={
                 <Button variant="primary" color="orange" onPress={() => setAddOpen(true)}>
                   <Plus className="w-4 h-4" />
@@ -309,10 +291,10 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
                               {order.customer}
                             </button>
                           </Td>
-                          <Td>{order.item}</Td>
+                          <Td>{orderItemLabel(order)}</Td>
                           <Td>
                             <div className="flex items-center gap-1.5">
-                              <ColorDot color={order.color} />
+                              <ColorDot color={orderColorLabel(order)} />
                               {order.needs_filament && (
                                 <span className="text-xs text-[var(--accent-orange)]" title="Requires new filament purchase">⚠</span>
                               )}
@@ -410,10 +392,10 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
                               {order.customer}
                             </button>
                           </Td>
-                          <Td>{order.item}</Td>
+                          <Td>{orderItemLabel(order)}</Td>
                           <Td>
                             <div className="flex items-center gap-1.5">
-                              <ColorDot color={order.color} />
+                              <ColorDot color={orderColorLabel(order)} />
                               {order.needs_filament && (
                                 <span className="text-xs text-[var(--accent-orange)]" title="Requires new filament purchase">⚠</span>
                               )}
@@ -484,6 +466,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings }
       {editOrder && (
         <Dialog
           isOpen
+          size="xl"
           onOpenChange={open => { if (!open) setEditOrder(null) }}
           trigger={<span />}
           title="Edit Work Order"
@@ -541,7 +524,7 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
     <div className={`bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3 ${muted ? 'opacity-80' : ''}`}>
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-medium text-[var(--foreground)]">{order.item}</p>
+          <p className="font-medium text-[var(--foreground)]">{orderItemLabel(order)}</p>
           <button
             onClick={onView}
             className="text-sm text-[var(--accent-blue)] hover:underline text-left"
@@ -554,7 +537,7 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
 
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-1.5">
-          <ColorDot color={order.color} />
+          <ColorDot color={orderColorLabel(order)} />
           {order.needs_filament && (
             <span className="text-xs text-[var(--accent-orange)]" title="Requires new filament purchase">⚠ Special color</span>
           )}
@@ -674,6 +657,24 @@ function colorToCSS(name: string): string {
     white: '#f5f5f5', black: '#1a1a1a', gray: '#9ca3af', tbd: '#6b7280',
   }
   return map[name.toLowerCase()] ?? '#9ca3af'
+}
+
+/** Returns a display label for the item(s) in an order */
+function orderItemLabel(order: WorkOrder): string {
+  if (order.order_items && order.order_items.length > 1) {
+    return `${order.order_items[0].item} +${order.order_items.length - 1} more`
+  }
+  return order.order_items?.[0]?.item ?? order.item
+}
+
+/** Returns a display label for the color(s) in an order */
+function orderColorLabel(order: WorkOrder): string {
+  if (order.order_items && order.order_items.length > 1) {
+    const colors = [...new Set(order.order_items.map(i => i.color))].filter(Boolean)
+    if (colors.length > 1) return `${colors[0]} +${colors.length - 1}`
+    return colors[0] ?? order.color
+  }
+  return order.order_items?.[0]?.color ?? order.color
 }
 
 const STATUS_OPTIONS_INLINE = [
