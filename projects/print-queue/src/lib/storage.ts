@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase'
-import type { WorkOrder, WorkOrderInput } from '../types/WorkOrder'
+import type { WorkOrder, WorkOrderInput, PaymentStatus } from '../types/WorkOrder'
 
 function now(): string {
   return new Date().toISOString()
@@ -79,4 +79,30 @@ export async function reorderOrders(orderedIds: string[]): Promise<void> {
         .eq('id', id)
     )
   )
+}
+
+/**
+ * Update only the payment_status field for an order.
+ * Also keeps the legacy `paid` boolean in sync:
+ *   paid → paid = true
+ *   unpaid | verifying_payment → paid = false
+ *
+ * This is intentionally a narrow update so the public order detail page
+ * can call it without needing management credentials.
+ */
+export async function updatePaymentStatus(id: string, status: PaymentStatus): Promise<WorkOrder> {
+  const db = requireSupabase()
+  const patch: Record<string, unknown> = {
+    payment_status: status,
+    paid: status === 'paid',
+    updated_at: now(),
+  }
+  const { data, error } = await db
+    .from('work_orders')
+    .update(patch)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data as WorkOrder
 }

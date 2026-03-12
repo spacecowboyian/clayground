@@ -38,19 +38,22 @@ I want to review pending payments and confirm them only after checking Venmo,
 So that work orders are not incorrectly marked as paid.
 
 #### Acceptance Criteria
-- A public order detail page for unpaid orders shows a button: "I've Sent Payment".
-- When clicked, the order moves from "Not Paid" to "Verifying Payment" (pending state) and persists this state in the database.
-- The public order detail page clearly shows "Verifying Payment" until the operator confirms or rejects the payment.
-- The management dashboard includes a clear filter/indicator for orders in "Verifying Payment".
-- Only authenticated management users can change "Verifying Payment" to "Paid".
-- Marking as "Paid" updates the DB and immediately reflects in both the dashboard and public order detail page.
-- Optionally, the operator can revert a pending payment back to "Not Paid" if no Venmo payment is found.
+- [x] A public order detail page for unpaid orders shows a button: "I've Sent Payment".
+- [x] When clicked, the order moves from "Not Paid" to "Verifying Payment" (pending state) and persists this state in the database.
+- [x] The public order detail page clearly shows "Verifying Payment" until the operator confirms or rejects the payment.
+- [x] The management dashboard includes a clear filter/indicator for orders in "Verifying Payment".
+- [x] Only authenticated management users can change "Verifying Payment" to "Paid".
+- [x] Marking as "Paid" updates the DB and immediately reflects in both the dashboard and public order detail page.
+- [x] Optionally, the operator can revert a pending payment back to "Not Paid" if no Venmo payment is found.
 
 #### Technical Notes
 - Add a payment state field separate from print status (recommended enum: `unpaid | verifying_payment | paid`).
 - Keep existing print status workflow unchanged; this is a payment-state-only enhancement.
 - Public page can set `verifying_payment`, but cannot set `paid` directly.
 - Dashboard remains the single place to finalize payment after manual Venmo validation.
+
+### 2026-03-12 — Requested by: @copilot (implementation)
+- Implemented payment verification workflow: migration 008 adds `payment_status` column backfilled from `paid`; `OrderDetailPage` shows "Pay via Venmo" + "I've Sent Payment" buttons for unpaid orders and a verification banner for verifying_payment orders; `DashboardPage` shows ⏳ Verifying badge and orange DollarSign when payment is pending confirmation.
 
 ## Technical Notes
 - Project: `projects/print-queue`

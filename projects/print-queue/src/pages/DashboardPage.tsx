@@ -89,7 +89,14 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
   }
 
   async function handleTogglePaid(order: WorkOrder) {
-    await dispatch(editOrderThunk({ id: order.id, patch: { paid: !order.paid } })).unwrap()
+    const nowPaid = !order.paid
+    await dispatch(editOrderThunk({
+      id: order.id,
+      patch: {
+        paid: nowPaid,
+        payment_status: nowPaid ? 'paid' : 'unpaid',
+      },
+    })).unwrap()
   }
 
   // ── Drag handlers ──────────────────────────────────────────────────────────
@@ -535,6 +542,7 @@ interface MobileCardProps {
 }
 
 function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: MobileCardProps) {
+  const paymentStatus = order.payment_status ?? (order.paid ? 'paid' : 'unpaid')
   return (
     <div className={`bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3 ${muted ? 'opacity-80' : ''}`}>
       <div className="flex items-start justify-between gap-2">
@@ -565,6 +573,11 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
         <span className="text-[var(--muted-foreground)]">
           {order.paid ? 'Profit' : 'Due'}{' '}<DueProfitCell order={order} />
         </span>
+        {paymentStatus === 'verifying_payment' && (
+          <span className="text-xs font-medium text-[var(--accent-orange)] px-1.5 py-0.5 rounded bg-[var(--accent-orange-light)]">
+            ⏳ Verifying
+          </span>
+        )}
       </div>
 
       {order.notes && (
@@ -577,10 +590,24 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
           className={`p-1.5 rounded transition-colors ${
             order.paid
               ? 'text-[var(--accent-green)]'
-              : 'text-[var(--muted-foreground)] hover:text-[var(--accent-green)]'
+              : paymentStatus === 'verifying_payment'
+                ? 'text-[var(--accent-orange)] hover:bg-[var(--accent-orange-light)]'
+                : 'text-[var(--muted-foreground)] hover:text-[var(--accent-green)]'
           }`}
-          title={order.paid ? 'Mark unpaid' : 'Mark paid'}
-          aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
+          title={
+            order.paid
+              ? 'Mark unpaid'
+              : paymentStatus === 'verifying_payment'
+                ? 'Confirm payment (mark paid)'
+                : 'Mark paid'
+          }
+          aria-label={
+            order.paid
+              ? 'Mark unpaid'
+              : paymentStatus === 'verifying_payment'
+                ? 'Confirm payment'
+                : 'Mark paid'
+          }
         >
           <DollarSign className="w-4 h-4" />
         </button>
@@ -615,17 +642,40 @@ interface OrderActionsProps {
 }
 
 function OrderActions({ order, onEdit, onDelete, onTogglePaid }: OrderActionsProps) {
+  const paymentStatus = order.payment_status ?? (order.paid ? 'paid' : 'unpaid')
   return (
     <div className="flex items-center justify-end gap-1">
+      {paymentStatus === 'verifying_payment' && (
+        <span
+          className="text-xs font-medium text-[var(--accent-orange)] px-1.5 py-0.5 rounded bg-[var(--accent-orange-light)]"
+          title="Customer has sent payment — verify in Venmo"
+        >
+          ⏳ Verifying
+        </span>
+      )}
       <button
         onClick={onTogglePaid}
         className={`p-1.5 rounded transition-colors ${
           order.paid
             ? 'text-[var(--accent-green)] hover:bg-[var(--secondary)]'
-            : 'text-[var(--muted-foreground)] hover:text-[var(--accent-green)] hover:bg-[var(--secondary)]'
+            : paymentStatus === 'verifying_payment'
+              ? 'text-[var(--accent-orange)] hover:bg-[var(--accent-orange-light)]'
+              : 'text-[var(--muted-foreground)] hover:text-[var(--accent-green)] hover:bg-[var(--secondary)]'
         }`}
-        title={order.paid ? 'Mark unpaid' : 'Mark paid'}
-        aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
+        title={
+          order.paid
+            ? 'Mark unpaid'
+            : paymentStatus === 'verifying_payment'
+              ? 'Confirm payment (mark paid)'
+              : 'Mark paid'
+        }
+        aria-label={
+          order.paid
+            ? 'Mark unpaid'
+            : paymentStatus === 'verifying_payment'
+              ? 'Confirm payment'
+              : 'Mark paid'
+        }
       >
         <DollarSign className="w-4 h-4" />
       </button>
