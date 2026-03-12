@@ -165,7 +165,7 @@ export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormPro
                   }}
                 />
               </div>
-              <div className="w-20 shrink-0">
+              <div className="shrink-0">
                 <NumberField
                   label="Qty (g)"
                   value={req.quantity_g}
