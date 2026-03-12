@@ -252,6 +252,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                     <thead>
                       <tr className="border-b border-[var(--border)] bg-[var(--card)]">
                         <th className="w-8 px-2 py-3" aria-label="Drag handle" />
+                        <Th>#</Th>
                         <Th>Customer</Th>
                         <Th>Item</Th>
                         <Th>Color</Th>
@@ -280,10 +281,13 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                           <Td>
                             <button
                               onClick={() => onViewOrder(order.id)}
-                              className="font-medium text-[var(--accent-blue)] hover:underline text-left"
+                              className="font-medium text-[var(--accent-blue)] hover:underline text-left tabular-nums"
                             >
-                              {order.customer}
+                              #{order.order_number}
                             </button>
+                          </Td>
+                          <Td>
+                            <span className="font-medium text-[var(--foreground)]">{order.customer}</span>
                           </Td>
                           <Td>{orderItemLabel(order)}</Td>
                           <Td>
@@ -345,6 +349,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-[var(--border)]">
+                        <Th>#</Th>
                         <Th>Customer</Th>
                         <Th>Item</Th>
                         <Th>Color</Th>
@@ -362,10 +367,13 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                           <Td>
                             <button
                               onClick={() => onViewOrder(order.id)}
-                              className="font-medium text-[var(--accent-blue)] hover:underline text-left"
+                              className="font-medium text-[var(--accent-blue)] hover:underline text-left tabular-nums"
                             >
-                              {order.customer}
+                              #{order.order_number}
                             </button>
+                          </Td>
+                          <Td>
+                            <span className="font-medium text-[var(--foreground)]">{order.customer}</span>
                           </Td>
                           <Td>{orderItemLabel(order)}</Td>
                           <Td>
@@ -484,13 +492,16 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
     <div className={`bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3 ${muted ? 'opacity-80' : ''}`}>
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-medium text-[var(--foreground)]">{orderItemLabel(order)}</p>
-          <button
-            onClick={onView}
-            className="text-sm text-[var(--accent-blue)] hover:underline text-left"
-          >
-            {order.customer}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onView}
+              className="text-xs font-medium text-[var(--accent-blue)] hover:underline tabular-nums"
+            >
+              #{order.order_number}
+            </button>
+            <p className="font-medium text-[var(--foreground)]">{orderItemLabel(order)}</p>
+          </div>
+          <p className="text-sm text-[var(--muted-foreground)]">{order.customer}</p>
         </div>
         <StatusBadge status={order.status} />
       </div>

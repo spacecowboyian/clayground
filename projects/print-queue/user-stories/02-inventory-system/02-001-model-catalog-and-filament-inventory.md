@@ -83,3 +83,12 @@ So that I can track what I can print, what materials I have, and ensure orders r
 - Added `computeFilamentStats` utility that calculates consumed_g, reserved_g, and remaining_g per filament from order history
 - Updated filament inventory table to show On Hand / Reserved / Consumed / Remaining columns with low-stock and overcommitted visual indicators
 - Added filament availability warning in the order creation form when filament may be insufficient for the selected model + color combination
+
+### 2026-03-12 — Requested by: @copilot
+- Added `number` (catalog/SKU) field to `PrintModel` — stored in DB via migration 003, editable in ModelForm
+- Added `order_number` (auto-increment integer) field to `WorkOrder` — assigned by DB sequence on insert, backfilled for existing rows
+- Model Catalog section header now shows an inline search box (magnifying glass) next to the title; removed static description text
+- Default model catalog view shows the 6 most recently added models as cards; when search has >1 character it switches to a ranked list view showing all matching models
+- Search covers model name, description/notes, catalog number, post-processing minutes, and filament quantities
+- Orders tables (active and completed) now show order_number as the first column, linked to the order detail page; customer name is now plain text (no link)
+- Mobile order cards updated to show order number as the detail link and customer name as plain text
