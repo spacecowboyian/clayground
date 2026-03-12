@@ -27,13 +27,17 @@ export interface PrintModel {
 
 export type PrintModelInput = Omit<PrintModel, 'id' | 'created_at' | 'updated_at'>
 
+/** Availability status for a filament spool */
+export type FilamentStatus = 'in_stock' | 'out_of_stock' | 'on_order'
+
 export interface Filament {
   id: string
   brand: string
   material: string
   color: string
   color_hex: string
-  in_stock: boolean
+  /** Availability status: in_stock, out_of_stock, or on_order */
+  status: FilamentStatus
   /** Cost of one full roll in USD */
   roll_cost: number
   /** Weight of one full roll in grams */

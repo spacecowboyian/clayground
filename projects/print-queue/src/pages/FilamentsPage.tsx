@@ -8,7 +8,7 @@ import { AppHeader } from '../components/AppHeader/AppHeader'
 import { useAppDispatch, useAppSelector } from '../store'
 import { fetchInventory, addFilament, editFilament as editFilamentThunk, removeFilament, clearInventoryError } from '../store/inventorySlice'
 import { fetchOrders } from '../store/ordersSlice'
-import type { Filament, FilamentInput, FilamentStats } from '../types/Inventory'
+import type { Filament, FilamentInput, FilamentStats, FilamentStatus } from '../types/Inventory'
 import { useState } from 'react'
 
 const AMS_SLOTS = [1, 2, 3, 4] as const
@@ -59,7 +59,12 @@ export function FilamentsPage({ onLogout, onPrintQueue, onOrders, onModels, onFi
   }
 
   function handleToggleStock(f: Filament) {
-    void dispatch(editFilamentThunk({ id: f.id, patch: { in_stock: !f.in_stock } }))
+    const nextStatus: Record<FilamentStatus, FilamentStatus> = {
+      in_stock: 'out_of_stock',
+      out_of_stock: 'on_order',
+      on_order: 'in_stock',
+    }
+    void dispatch(editFilamentThunk({ id: f.id, patch: { status: nextStatus[f.status] } }))
   }
 
   async function handleAmsSlotAssign(slot: number, filamentId: string | null) {
@@ -86,8 +91,9 @@ export function FilamentsPage({ onLogout, onPrintQueue, onOrders, onModels, onFi
   }
 
   const stats = computeFilamentStats(filaments, orders, models)
-  const inStock    = filaments.filter(f => f.in_stock)
-  const outOfStock = filaments.filter(f => !f.in_stock)
+  const inStock    = filaments.filter(f => f.status === 'in_stock')
+  const onOrder    = filaments.filter(f => f.status === 'on_order')
+  const outOfStock = filaments.filter(f => f.status === 'out_of_stock')
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -174,6 +180,26 @@ export function FilamentsPage({ onLogout, onPrintQueue, onOrders, onModels, onFi
                       onToggleStock={handleToggleStock}
                     />
                   </div>
+
+                  {onOrder.length > 0 && (
+                    <Accordion
+                      title="On Order"
+                      badge={
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--secondary)] text-[var(--muted-foreground)]">
+                          {onOrder.length}
+                        </span>
+                      }
+                    >
+                      <FilamentTable
+                        filaments={onOrder}
+                        stats={stats}
+                        onEdit={setEditFilament}
+                        onDelete={setDeleteFilamentTarget}
+                        onToggleStock={handleToggleStock}
+                        muted
+                      />
+                    </Accordion>
+                  )}
 
                   {outOfStock.length > 0 && (
                     <Accordion
@@ -395,8 +421,8 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
                   )}
                 </div>
                 <button onClick={() => onToggleStock(f)} className="p-1 rounded shrink-0 hover:opacity-70 transition-opacity"
-                  title={f.in_stock ? 'In Stock' : 'Out of Stock'}>
-                  <span className={`block w-3 h-3 rounded-full ${f.in_stock ? 'bg-[var(--accent-green)]' : 'bg-[var(--destructive)]'}`} />
+                  title={f.status === 'in_stock' ? 'In Stock (click to cycle)' : f.status === 'on_order' ? 'On Order (click to cycle)' : 'Out of Stock (click to cycle)'}>
+                  <span className={`block w-3 h-3 rounded-full ${f.status === 'in_stock' ? 'bg-[var(--accent-green)]' : f.status === 'on_order' ? 'bg-[var(--accent-orange)]' : 'bg-[var(--destructive)]'}`} />
                 </button>
               </div>
               <div className="flex items-start justify-between gap-3">

@@ -1,6 +1,12 @@
 import { useState } from 'react'
-import { Button, TextField, Switch, Select, NumberField } from '@gearhead/ui'
-import type { Filament, FilamentInput } from '../../types/Inventory'
+import { Button, TextField, Select, NumberField } from '@gearhead/ui'
+import type { Filament, FilamentInput, FilamentStatus } from '../../types/Inventory'
+
+const FILAMENT_STATUS_OPTIONS: Array<{ id: FilamentStatus; label: string }> = [
+  { id: 'in_stock',    label: 'In Stock' },
+  { id: 'out_of_stock', label: 'Out of Stock' },
+  { id: 'on_order',   label: 'On Order' },
+]
 
 const MATERIAL_OPTIONS = [
   { id: 'PLA',   label: 'PLA' },
@@ -34,7 +40,7 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
   const [customMaterial, setCustomMaterial] = useState(initialMaterial.custom)
   const [color, setColor]                   = useState(initial?.color             ?? '')
   const [colorHex, setColorHex]             = useState(initial?.color_hex         ?? '')
-  const [inStock, setInStock]               = useState(initial?.in_stock          ?? true)
+  const [filamentStatus, setFilamentStatus] = useState<FilamentStatus>(initial?.status ?? 'in_stock')
   const [rollCost, setRollCost]             = useState(initial?.roll_cost         ?? 20)
   const [rollSize, setRollSize]             = useState(initial?.roll_size_g       ?? 1000)
   const [currentQty, setCurrentQty]         = useState(initial?.current_quantity_g ?? 1000)
@@ -68,7 +74,7 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
         material: resolveMaterial(),
         color: color.trim(),
         color_hex: colorHex.trim(),
-        in_stock: inStock,
+        status: filamentStatus,
         roll_cost: rollCost,
         roll_size_g: rollSize,
         current_quantity_g: currentQty,
@@ -176,14 +182,15 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
         placeholder="https://store.example.com/filament"
       />
 
-      <div className="flex items-center gap-3">
-        <Switch isSelected={inStock} onChange={setInStock} color="green">
-          In Stock
-        </Switch>
-        <span className="text-xs text-[var(--muted-foreground)]">
-          Only in-stock filaments appear as color options when creating orders.
-        </span>
-      </div>
+      <Select
+        label="Filament Status"
+        options={FILAMENT_STATUS_OPTIONS}
+        selectedKey={filamentStatus}
+        onSelectionChange={key => { if (key != null) setFilamentStatus(key as FilamentStatus) }}
+      />
+      <p className="text-xs text-[var(--muted-foreground)]">
+        Only in-stock filaments appear as color options when creating orders.
+      </p>
 
       {error && (
         <p className="text-sm text-[var(--destructive)]">{error}</p>
