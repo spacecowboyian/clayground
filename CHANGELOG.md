@@ -13,6 +13,18 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.5.0] – 2026-03-12
+
+### feat(print-queue)
+- **Orders is now the home screen** — authenticated users landing on the root route are now redirected to `#/orders`, and successful login also routes to Orders first.
+- **AMS slot controls added to the top of Print Queue** — the queue page now includes a 4-slot AMS section above the grouped print table with assign/clear controls for in-stock filaments.
+- **Navigation order updated** — primary header nav now lists Orders before Print Queue to match the new default workflow.
+
+### docs(somethings-happening)
+- Added user story `06-002-default-entry-point-landing-page.md` to track the default landing-page request and acceptance criteria.
+
+---
+
 ## [1.4.1] – 2026-03-12
 
 ### fix(print-queue)
