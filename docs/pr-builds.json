@@ -28,5 +28,12 @@
       "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-35/",
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-35/"
     }
+  },
+  "36": {
+    "title": "feat(print-queue): model catalog search + order_number column",
+    "url": "https://github.com/spacecowboyian/clayground/pull/36",
+    "builds": {
+      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-36/"
+    }
   }
 }

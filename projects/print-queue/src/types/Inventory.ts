@@ -8,6 +8,8 @@ export interface ModelFilamentRequirement {
 
 export interface PrintModel {
   id: string
+  /** Optional catalog / SKU reference number (e.g. "MOD-001"). May be empty. */
+  number: string
   name: string
   description: string
   /** External source URL (MakerWorld, Thingiverse, etc.). May be empty for self-created models. */

@@ -14,6 +14,7 @@ interface ModelFormProps {
 
 export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormProps) {
   const [name, setName]                     = useState(initial?.name                ?? '')
+  const [number, setNumber]                 = useState(initial?.number              ?? '')
   const [description, setDesc]              = useState(initial?.description         ?? '')
   const [modelUrl, setModelUrl]             = useState(initial?.model_url           ?? '')
   const [imageUrl, setImageUrl]             = useState(initial?.image_url           ?? '')
@@ -63,6 +64,7 @@ export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormPro
     setError(null)
     try {
       await onSave({
+        number: number.trim(),
         name: name.trim(),
         description: description.trim(),
         model_url: modelUrl.trim(),
@@ -85,6 +87,12 @@ export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormPro
         onChange={setName}
         isRequired
         placeholder="e.g. Heart curio shelf"
+      />
+      <TextField
+        label="Catalog Number (optional)"
+        value={number}
+        onChange={setNumber}
+        placeholder="e.g. MOD-001"
       />
       <TextArea
         label="Description"
