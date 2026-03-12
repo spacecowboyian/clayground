@@ -18,20 +18,25 @@ import {
 import { fetchInventory, clearInventoryError } from '../store/inventorySlice'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../types/WorkOrder'
 
-const STATUS_FILTERS: Array<WorkOrderStatus | 'All'> = ['All', 'Queue', 'Printing', 'Complete']
+const STATUS_FILTERS: Array<WorkOrderStatus | 'All'> = ['All', 'waiting', 'in_progress', 'complete']
+const STATUS_FILTER_LABELS: Record<WorkOrderStatus | 'All', string> = {
+  All: 'All', waiting: 'Waiting', in_progress: 'In Progress', complete: 'Complete',
+}
 
-const ACTIVE_STATUSES   = new Set<WorkOrderStatus>(['Queue', 'Printing'])
-const COMPLETE_STATUSES = new Set<WorkOrderStatus>(['Complete'])
+const ACTIVE_STATUSES   = new Set<WorkOrderStatus>(['waiting', 'in_progress'])
+const COMPLETE_STATUSES = new Set<WorkOrderStatus>(['complete'])
 
 interface DashboardPageProps {
   onLogout: () => void
   onViewOrder: (id: string) => void
-  onInventory: () => void
+  onPrintQueue: () => void
+  onOrders: () => void
+  onModels: () => void
+  onFilaments: () => void
   onSettings: () => void
-  onDashboard: () => void
 }
 
-export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, onDashboard }: DashboardPageProps) {
+export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, onModels, onFilaments, onSettings }: DashboardPageProps) {
   const dispatch = useAppDispatch()
   const orders   = useAppSelector(state => state.orders.items)
   const models   = useAppSelector(state => state.inventory.models)
@@ -164,9 +169,11 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
     <div className="min-h-screen bg-[var(--background)]">
       {/* Top bar */}
       <AppHeader
-        currentPage="dashboard"
-        onDashboard={onDashboard}
-        onInventory={onInventory}
+        currentPage="orders"
+        onPrintQueue={onPrintQueue}
+        onOrders={onOrders}
+        onModels={onModels}
+        onFilaments={onFilaments}
         onSettings={onSettings}
         onLogout={onLogout}
       />
@@ -203,7 +210,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                       : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
                   }`}
                 >
-                  {f}
+                  {STATUS_FILTER_LABELS[f]}
                 </button>
               ))}
             </div>
@@ -225,7 +232,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                 <WorkOrderForm
                   onSave={handleCreate}
                   onCancel={() => setAddOpen(false)}
-                  onGoToInventory={() => { setAddOpen(false); onInventory() }}
+                  onGoToInventory={() => { setAddOpen(false); onModels() }}
                   models={models}
                   filaments={filaments}
                   orders={orders}
@@ -251,7 +258,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
               <WorkOrderForm
                 onSave={handleCreate}
                 onCancel={() => setAddOpen(false)}
-                onGoToInventory={() => { setAddOpen(false); onInventory() }}
+                onGoToInventory={() => { setAddOpen(false); onModels() }}
                 models={models}
                 filaments={filaments}
                 orders={orders}
@@ -471,7 +478,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
 
         <p className="text-xs text-center text-[var(--muted-foreground)]">
           {visibleActive.length + visibleComplete.length} order{(visibleActive.length + visibleComplete.length) !== 1 ? 's' : ''} shown
-          {statusFilter !== 'All' && ` · filtered by "${statusFilter}"`}
+          {statusFilter !== 'All' && ` · filtered by "${STATUS_FILTER_LABELS[statusFilter]}"`}
         </p>
       </main>
 
@@ -488,7 +495,7 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
             initial={editOrder}
             onSave={handleEdit}
             onCancel={() => setEditOrder(null)}
-            onGoToInventory={() => { setEditOrder(null); onInventory() }}
+            onGoToInventory={() => { setEditOrder(null); onModels() }}
             models={models}
             filaments={filaments}
             orders={orders}
@@ -720,9 +727,9 @@ function orderColorLabel(order: WorkOrder): string {
 }
 
 const STATUS_OPTIONS_INLINE = [
-  { id: 'Queue',    label: 'Queue' },
-  { id: 'Printing', label: 'Printing' },
-  { id: 'Complete', label: 'Complete' },
+  { id: 'waiting',     label: 'Waiting' },
+  { id: 'in_progress', label: 'In Progress' },
+  { id: 'complete',    label: 'Complete' },
 ]
 
 function StatusSelect({ order, onChange }: { order: WorkOrder; onChange: (o: WorkOrder, s: WorkOrderStatus) => void }) {
