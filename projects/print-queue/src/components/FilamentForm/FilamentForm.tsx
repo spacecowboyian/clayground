@@ -39,6 +39,7 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
   const [rollSize, setRollSize]             = useState(initial?.roll_size_g       ?? 1000)
   const [currentQty, setCurrentQty]         = useState(initial?.current_quantity_g ?? 1000)
   const [purchaseUrl, setPurchaseUrl]       = useState(initial?.purchase_url      ?? '')
+  const amsSlot                             = initial?.ams_slot ?? null
   const [saving, setSaving]                 = useState(false)
   const [error, setError]                   = useState<string | null>(null)
 
@@ -72,6 +73,7 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
         roll_size_g: rollSize,
         current_quantity_g: currentQty,
         purchase_url: purchaseUrl.trim(),
+        ams_slot: amsSlot,
       })
     } catch {
       setError('Failed to save. Please try again.')

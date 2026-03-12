@@ -137,12 +137,22 @@ export function computeFilamentStats(
           const model = item.model_id ? modelMap.get(item.model_id) : null
           if (!model) continue
 
-          const reqG = model.filament_requirements
-            .filter(r => item.filament_id
-              ? r.filament_id === f.id
-              : (r.filament_id === null || r.filament_id === f.id)
-            )
-            .reduce((sum, r) => sum + r.quantity_g, 0)
+          let reqG: number
+          if (item.filament_id) {
+            // New-style item: match requirement by filament ID
+            reqG = model.filament_requirements
+              .filter(r => r.filament_id === f.id)
+              .reduce((sum, r) => sum + r.quantity_g, 0)
+          } else {
+            // Legacy item: prefer null-filament_id requirements (color-agnostic).
+            // If none exist, fall back to total model usage so that models whose
+            // requirements were calibrated to a specific filament still contribute
+            // a correct gram estimate for any color-matched order.
+            const nullReqs = model.filament_requirements.filter(r => r.filament_id === null)
+            reqG = nullReqs.length > 0
+              ? nullReqs.reduce((sum, r) => sum + r.quantity_g, 0)
+              : model.filament_requirements.reduce((sum, r) => sum + r.quantity_g, 0)
+          }
           const totalG = reqG * (item.quantity ?? 1)
 
           if (isComplete) consumed_g += totalG

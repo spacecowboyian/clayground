@@ -20,7 +20,7 @@ import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../types/WorkOr
 
 const STATUS_FILTERS: Array<WorkOrderStatus | 'All'> = ['All', 'waiting', 'in_progress', 'complete']
 const STATUS_FILTER_LABELS: Record<WorkOrderStatus | 'All', string> = {
-  All: 'All', waiting: 'Waiting', in_progress: 'In Progress', complete: 'Complete',
+  All: 'All', waiting: 'Waiting', in_progress: 'In Progress', complete: 'Complete', cancelled: 'Cancelled',
 }
 
 const ACTIVE_STATUSES   = new Set<WorkOrderStatus>(['waiting', 'in_progress'])
