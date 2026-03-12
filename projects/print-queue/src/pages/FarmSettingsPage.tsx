@@ -6,12 +6,15 @@ import { updateSettings } from '../store/settingsSlice'
 import { AppHeader } from '../components/AppHeader/AppHeader'
 
 interface FarmSettingsPageProps {
-  onBack: () => void
-  onDashboard: () => void
-  onInventory: () => void
+  onLogout?: () => void
+  onPrintQueue: () => void
+  onOrders: () => void
+  onModels: () => void
+  onFilaments: () => void
+  onSettings: () => void
 }
 
-export function FarmSettingsPage({ onBack, onDashboard, onInventory }: FarmSettingsPageProps) {
+export function FarmSettingsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilaments, onSettings }: FarmSettingsPageProps) {
   const dispatch  = useAppDispatch()
   const settings  = useAppSelector(state => state.settings.settings)
   const [saved, setSaved]         = useState(false)
@@ -32,9 +35,12 @@ export function FarmSettingsPage({ onBack, onDashboard, onInventory }: FarmSetti
       {/* Top bar */}
       <AppHeader
         currentPage="settings"
-        onDashboard={onDashboard}
-        onInventory={onInventory}
-        onSettings={onBack}
+        onPrintQueue={onPrintQueue}
+        onOrders={onOrders}
+        onModels={onModels}
+        onFilaments={onFilaments}
+        onSettings={onSettings}
+        onLogout={onLogout}
       />
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-8">

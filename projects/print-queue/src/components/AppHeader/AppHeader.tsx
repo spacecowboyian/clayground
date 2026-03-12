@@ -1,19 +1,23 @@
 import { logout } from '../../lib/auth'
 
-export type AppPage = 'dashboard' | 'inventory' | 'settings'
+export type AppPage = 'print-queue' | 'orders' | 'models' | 'filaments' | 'settings'
 
 interface AppHeaderProps {
   currentPage: AppPage
-  onDashboard: () => void
-  onInventory: () => void
+  onPrintQueue: () => void
+  onOrders: () => void
+  onModels: () => void
+  onFilaments: () => void
   onSettings: () => void
   onLogout?: () => void
 }
 
 export function AppHeader({
   currentPage,
-  onDashboard,
-  onInventory,
+  onPrintQueue,
+  onOrders,
+  onModels,
+  onFilaments,
   onSettings,
   onLogout,
 }: AppHeaderProps) {
@@ -23,9 +27,11 @@ export function AppHeader({
   }
 
   const navItems: { id: AppPage; label: string; onPress: () => void }[] = [
-    { id: 'dashboard', label: 'Orders',    onPress: onDashboard },
-    { id: 'inventory', label: 'Inventory', onPress: onInventory },
-    { id: 'settings',  label: 'Settings',  onPress: onSettings  },
+    { id: 'print-queue', label: 'Print Queue', onPress: onPrintQueue },
+    { id: 'orders',      label: 'Orders',      onPress: onOrders     },
+    { id: 'models',      label: 'Models',      onPress: onModels     },
+    { id: 'filaments',   label: 'Filaments',   onPress: onFilaments  },
+    { id: 'settings',    label: 'Settings',    onPress: onSettings   },
   ]
 
   return (

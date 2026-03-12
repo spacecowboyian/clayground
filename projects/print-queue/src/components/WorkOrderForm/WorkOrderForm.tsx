@@ -9,9 +9,9 @@ import { computeFilamentStats } from '../../lib/inventory'
 import { extractMessage } from '../../utils/errors'
 
 const STATUS_OPTIONS = [
-  { id: 'Queue',    label: 'Queue' },
-  { id: 'Printing', label: 'Printing' },
-  { id: 'Complete', label: 'Complete' },
+  { id: 'waiting',     label: 'Waiting' },
+  { id: 'in_progress', label: 'In Progress' },
+  { id: 'complete',    label: 'Complete' },
 ]
 
 const FILAMENT_SURCHARGE = 5
@@ -79,7 +79,7 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
 
   const [customer, setCustomer]         = useState(initial?.customer ?? '')
   const [items, setItems]               = useState<ItemDraft[]>(initialDrafts)
-  const [status, setStatus]             = useState<WorkOrderStatus>(initial?.status ?? 'Queue')
+  const [status, setStatus]             = useState<WorkOrderStatus>(initial?.status ?? 'waiting')
   const [paid, setPaid]                 = useState(initial?.paid ?? false)
   const [notes, setNotes]               = useState(initial?.notes ?? '')
   const [price, setPrice]               = useState(initial?.price ?? 5)
@@ -198,11 +198,13 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
       model_id:       r.model?.id ?? null,
       item:           r.model?.name ?? '',
       color:          r.color,
+      filament_id:    r.draft.filamentId === CUSTOM_COLOR_ID ? null : (r.filament?.id ?? null),
       model_url:      r.model?.model_url ?? '',
       needs_filament: r.needsFil,
       quantity:       r.draft.quantity,
       price:          0, // per-item price not tracked; total is at order level
       cost:           r.unitCost * r.draft.quantity,
+      status:         'queue' as const,
     }))
 
     const firstItem = resolvedItems[0]

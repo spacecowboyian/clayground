@@ -100,22 +100,16 @@ export async function deleteFilament(id: string): Promise<void> {
 
 // ── Filament stats ─────────────────────────────────────────────────────────────
 
-const ACTIVE_STATUSES   = new Set<string>(['Queue', 'Printing'])
-const COMPLETE_STATUSES = new Set<string>(['Complete'])
-
-function totalRequiredG(modelMap: Map<string, PrintModel>, modelId: string | null): number {
-  if (!modelId) return 0
-  const model = modelMap.get(modelId)
-  if (!model) return 0
-  return model.filament_requirements.reduce((sum, r) => sum + r.quantity_g, 0)
-}
+const ACTIVE_STATUSES   = new Set<string>(['waiting', 'in_progress'])
+const COMPLETE_STATUSES = new Set<string>(['complete'])
 
 /**
  * Compute per-filament inventory stats (consumed, reserved, remaining) based
  * on the current list of work orders and models.
  *
- * Filament is matched to orders by color name (case-insensitive).
- * Orders with no model_id, or whose model cannot be found, contribute 0 g.
+ * For orders with order_items that have filament_id set, filament is matched
+ * directly by ID. For legacy orders or items without filament_id, falls back
+ * to color-name matching.
  */
 export function computeFilamentStats(
   filaments: Filament[],
@@ -125,17 +119,46 @@ export function computeFilamentStats(
   const modelMap = new Map(models.map(m => [m.id, m]))
 
   return filaments.map(f => {
-    const matchingOrders = orders.filter(
-      o => o.color.toLowerCase() === f.color.toLowerCase()
-    )
+    let consumed_g = 0
+    let reserved_g = 0
 
-    const consumed_g = matchingOrders
-      .filter(o => COMPLETE_STATUSES.has(o.status))
-      .reduce((sum, o) => sum + totalRequiredG(modelMap, o.model_id), 0)
+    for (const order of orders) {
+      const isActive   = ACTIVE_STATUSES.has(order.status)
+      const isComplete = COMPLETE_STATUSES.has(order.status)
+      if (!isActive && !isComplete) continue
 
-    const reserved_g = matchingOrders
-      .filter(o => ACTIVE_STATUSES.has(o.status))
-      .reduce((sum, o) => sum + totalRequiredG(modelMap, o.model_id), 0)
+      if (order.order_items && order.order_items.length > 0) {
+        for (const item of order.order_items) {
+          const matches = item.filament_id
+            ? item.filament_id === f.id
+            : item.color.toLowerCase() === f.color.toLowerCase()
+          if (!matches) continue
+
+          const model = item.model_id ? modelMap.get(item.model_id) : null
+          if (!model) continue
+
+          const reqG = model.filament_requirements
+            .filter(r => item.filament_id
+              ? r.filament_id === f.id
+              : (r.filament_id === null || r.filament_id === f.id)
+            )
+            .reduce((sum, r) => sum + r.quantity_g, 0)
+          const totalG = reqG * (item.quantity ?? 1)
+
+          if (isComplete) consumed_g += totalG
+          else            reserved_g += totalG
+        }
+      } else {
+        // Legacy single-item order
+        if (order.color.toLowerCase() !== f.color.toLowerCase()) continue
+        const model = order.model_id ? modelMap.get(order.model_id) : null
+        const totalG = model
+          ? model.filament_requirements.reduce((sum, r) => sum + r.quantity_g, 0)
+          : 0
+        if (isComplete) consumed_g += totalG
+        else            reserved_g += totalG
+      }
+    }
 
     return {
       filament_id: f.id,

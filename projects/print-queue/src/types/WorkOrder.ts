@@ -1,4 +1,8 @@
-export type WorkOrderStatus = 'Queue' | 'Printing' | 'Complete'
+/** Status of a whole work order */
+export type WorkOrderStatus = 'waiting' | 'in_progress' | 'complete'
+
+/** Per-item print status within a work order */
+export type PrintItemStatus = 'queue' | 'printing' | 'complete'
 
 /** A single item line within a multi-item work order */
 export interface OrderItem {
@@ -7,6 +11,8 @@ export interface OrderItem {
   item: string
   /** Selected filament color */
   color: string
+  /** FK to filaments.id — captured at save time. Null for custom/special colors or pre-migration items. */
+  filament_id: string | null
   /** External model URL */
   model_url: string
   /** True when this item's color requires purchasing a new filament roll (+$5 surcharge) */
@@ -17,6 +23,8 @@ export interface OrderItem {
   price: number
   /** Estimated cost for this line item */
   cost: number
+  /** Per-item print status. Defaults to 'queue' for new items. */
+  status: PrintItemStatus
 }
 
 export interface WorkOrder {
