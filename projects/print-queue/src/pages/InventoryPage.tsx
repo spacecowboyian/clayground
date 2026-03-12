@@ -122,12 +122,17 @@ export function InventoryPage({ onBack, onDashboard, onSettings }: InventoryPage
                   <h2 className="text-lg font-semibold text-[var(--foreground)]">Model Catalog</h2>
                   <p className="text-xs text-[var(--muted-foreground)]">Printable items you offer. Print history is derived from completed orders.</p>
                 </div>
-                <Button variant="primary" color="orange" onPress={() => setAddModelOpen(true)}>
+                {/* Desktop button */}
+                <Button variant="primary" color="orange" className="hidden sm:flex" onPress={() => setAddModelOpen(true)}>
                   <Plus className="w-4 h-4 mr-1" />
-                  <span className="sm:hidden">Add</span>
-                  <span className="hidden sm:inline">Add Model</span>
+                  Add Model
                 </Button>
               </div>
+              {/* Mobile full-width button */}
+              <Button variant="primary" color="orange" className="sm:hidden w-full justify-center" onPress={() => setAddModelOpen(true)}>
+                <Plus className="w-4 h-4 mr-1" />
+                Add Model
+              </Button>
 
               {models.length === 0 ? (
                 <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-8 text-center">
@@ -141,7 +146,7 @@ export function InventoryPage({ onBack, onDashboard, onSettings }: InventoryPage
                       <Card
                         key={model.id}
                         footer={
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-end gap-2">
                             {model.model_url && (
                               <a
                                 href={model.model_url}
@@ -261,12 +266,17 @@ export function InventoryPage({ onBack, onDashboard, onSettings }: InventoryPage
                     Filament rolls you currently have. Only in-stock filaments appear as color options when creating orders.
                   </p>
                 </div>
-                <Button variant="primary" color="orange" onPress={() => setAddFilamentOpen(true)}>
+                {/* Desktop button */}
+                <Button variant="primary" color="orange" className="hidden sm:flex" onPress={() => setAddFilamentOpen(true)}>
                   <Plus className="w-4 h-4 mr-1" />
-                  <span className="sm:hidden">Add</span>
-                  <span className="hidden sm:inline">Add Filament</span>
+                  Add Filament
                 </Button>
               </div>
+              {/* Mobile full-width button */}
+              <Button variant="primary" color="orange" className="sm:hidden w-full justify-center" onPress={() => setAddFilamentOpen(true)}>
+                <Plus className="w-4 h-4 mr-1" />
+                Add Filament
+              </Button>
 
               {filaments.length === 0 ? (
                 <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-8 text-center">
@@ -552,43 +562,47 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
           const lowStock = !overcommitted && remaining < 100
           return (
             <div key={f.id} className="p-4 space-y-2">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5">
+              {/* Row 1: Color chip + status indicators + stock dot (upper right) */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <ColorChip color={f.color} hex={f.color_hex} />
                   {overcommitted && <span className="text-xs text-[var(--destructive)]" title="Overcommitted">⚠</span>}
                   {lowStock && <span className="text-xs text-[var(--accent-orange)]" title="Low stock">↓</span>}
                 </div>
+                {/* Stock status dot — upper right */}
                 <button
                   onClick={() => onToggleStock(f)}
-                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    f.in_stock
-                      ? 'bg-[var(--accent-green-light)] text-[var(--accent-green)]'
-                      : 'bg-[var(--secondary)] text-[var(--muted-foreground)]'
-                  }`}
+                  className="p-1 rounded shrink-0 hover:opacity-70 transition-opacity"
+                  title={f.in_stock ? 'In Stock – click to mark out of stock' : 'Out of Stock – click to mark in stock'}
+                  aria-label={f.in_stock ? 'In Stock' : 'Out of Stock'}
                 >
-                  {f.in_stock ? 'In Stock' : 'Out of Stock'}
+                  <span className={`block w-3 h-3 rounded-full ${f.in_stock ? 'bg-[var(--accent-green)]' : 'bg-[var(--destructive)]'}`} />
                 </button>
               </div>
-              <p className="text-xs text-[var(--muted-foreground)]">{f.brand ? `${f.brand} · ` : ''}{f.material}</p>
-              {fs && (
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div>
-                    <p className="text-[var(--muted-foreground)]">On hand</p>
-                    <p className="font-medium text-[var(--foreground)]">{f.current_quantity_g}g</p>
+              {/* Row 2: Brand/material + stats to the right */}
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-xs text-[var(--muted-foreground)] min-w-0">{f.brand ? `${f.brand} · ` : ''}{f.material}</p>
+                {fs && (
+                  <div className="flex gap-3 text-xs shrink-0">
+                    <div className="text-right" title="On hand">
+                      <p className="text-[var(--muted-foreground)]">On hand</p>
+                      <p className="font-medium text-[var(--foreground)]">{f.current_quantity_g}g</p>
+                    </div>
+                    <div className="text-right" title="Reserved">
+                      <p className="text-[var(--muted-foreground)]">Rsv</p>
+                      <p className="font-medium text-[var(--accent-orange)]">{fs.reserved_g}g</p>
+                    </div>
+                    <div className="text-right" title="Remaining">
+                      <p className="text-[var(--muted-foreground)]">Rem</p>
+                      <p className={`font-medium ${overcommitted ? 'text-[var(--destructive)]' : lowStock ? 'text-[var(--accent-orange)]' : 'text-[var(--accent-green)]'}`}>
+                        {remaining}g
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[var(--muted-foreground)]">Reserved</p>
-                    <p className="font-medium text-[var(--accent-orange)]">{fs.reserved_g}g</p>
-                  </div>
-                  <div>
-                    <p className="text-[var(--muted-foreground)]">Remaining</p>
-                    <p className={`font-medium ${overcommitted ? 'text-[var(--destructive)]' : lowStock ? 'text-[var(--accent-orange)]' : 'text-[var(--accent-green)]'}`}>
-                      {remaining}g
-                    </p>
-                  </div>
-                </div>
-              )}
-              <div className="flex items-center gap-1 pt-1">
+                )}
+              </div>
+              {/* Actions — bottom right, icon-only */}
+              <div className="flex items-center justify-end gap-1 pt-1">
                 {f.purchase_url && (
                   <a
                     href={f.purchase_url}
@@ -596,19 +610,24 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
                     rel="noopener noreferrer"
                     className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
                     title="Buy filament"
+                    aria-label="Buy filament"
                   >
                     <ShoppingCart className="w-4 h-4" />
                   </a>
                 )}
                 <button
                   onClick={() => onEdit(f)}
-                  className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] transition-colors"
+                  className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
+                  title="Edit"
+                  aria-label="Edit"
                 >
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => onDelete(f)}
-                  className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] transition-colors"
+                  className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+                  title="Delete"
+                  aria-label="Delete"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

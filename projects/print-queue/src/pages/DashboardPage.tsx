@@ -172,33 +172,60 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
         </div>
 
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex gap-1 flex-wrap">
-            {STATUS_FILTERS.map(f => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                  statusFilter === f
-                    ? 'bg-[var(--accent-orange)] text-white'
-                    : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
-                }`}
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex gap-1 flex-wrap">
+              {STATUS_FILTERS.map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                    statusFilter === f
+                      ? 'bg-[var(--accent-orange)] text-white'
+                      : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+
+            {/* Add Order button — desktop (sm+) */}
+            <div className="ml-auto hidden sm:block">
+              <Dialog
+                isOpen={addOpen}
+                onOpenChange={setAddOpen}
+                size="xl"
+                trigger={
+                  <Button variant="primary" color="orange" onPress={() => setAddOpen(true)}>
+                    <Plus className="w-4 h-4" />
+                    Add Order
+                  </Button>
+                }
+                title="New Work Order"
               >
-                {f}
-              </button>
-            ))}
+                <WorkOrderForm
+                  onSave={handleCreate}
+                  onCancel={() => setAddOpen(false)}
+                  onGoToInventory={() => { setAddOpen(false); onInventory() }}
+                  models={models}
+                  filaments={filaments}
+                  orders={orders}
+                />
+              </Dialog>
+            </div>
           </div>
 
-          <div className="ml-auto">
+          {/* Add Order button — mobile full width */}
+          <div className="sm:hidden">
             <Dialog
               isOpen={addOpen}
               onOpenChange={setAddOpen}
               size="xl"
               trigger={
-                <Button variant="primary" color="orange" onPress={() => setAddOpen(true)}>
+                <Button variant="primary" color="orange" className="w-full justify-center" onPress={() => setAddOpen(true)}>
                   <Plus className="w-4 h-4" />
-                  <span className="sm:hidden">Add</span>
-                  <span className="hidden sm:inline">Add Order</span>
+                  Add Order
                 </Button>
               }
               title="New Work Order"
@@ -513,7 +540,7 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
         <p className="text-xs text-[var(--muted-foreground)]">{order.notes}</p>
       )}
 
-      <div className="flex items-center gap-2 pt-1 border-t border-[var(--border)]">
+      <div className="flex items-center justify-end gap-1 pt-1 border-t border-[var(--border)]">
         <button
           onClick={onTogglePaid}
           className={`p-1.5 rounded transition-colors ${
@@ -526,14 +553,21 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
         >
           <DollarSign className="w-4 h-4" />
         </button>
-        <Button variant="ghost" className="flex-1 justify-center text-xs py-1" onPress={onEdit}>
-          Edit
-        </Button>
+        <button
+          onClick={onEdit}
+          className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
+          title="Edit"
+          aria-label="Edit"
+        >
+          <Pencil className="w-4 h-4" />
+        </button>
         <button
           onClick={onDelete}
-          className="px-3 py-1 rounded-lg text-xs text-[var(--destructive)] hover:bg-[var(--accent-red-light)] transition-colors"
+          className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+          title="Delete"
+          aria-label="Delete"
         >
-          Delete
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
     </div>
