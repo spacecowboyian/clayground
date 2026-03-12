@@ -348,7 +348,7 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
                     )}
                   </div>
 
-                  <div className="w-20 shrink-0">
+                  <div className="shrink-0">
                     <NumberField
                       label="Qty"
                       value={draft.quantity}

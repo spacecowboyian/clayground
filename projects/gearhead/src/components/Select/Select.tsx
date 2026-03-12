@@ -47,7 +47,7 @@ export function Select<T extends object>({
   return (
     <AriaSelect className={cn('flex flex-col gap-2', className)} {...props}>
       {label && <Label className="text-sm text-foreground">{label}</Label>}
-      <Button className="flex items-center justify-between px-3 py-2 bg-input rounded-lg border border-border text-foreground hover:bg-secondary transition-colors outline-none focus:ring-2 focus:ring-ring">
+      <Button className="h-10 flex items-center justify-between px-3 bg-input rounded-lg border border-border text-foreground hover:bg-secondary transition-colors outline-none focus:ring-2 focus:ring-ring">
         <SelectValue placeholder={placeholder} className="text-sm" />
         <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
       </Button>
