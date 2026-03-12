@@ -33,7 +33,11 @@ function emptyDraft(): ItemDraft {
 }
 
 function draftFromOrderItem(item: OrderItem, filaments: Filament[]): ItemDraft {
-  const match = filaments.find(f => f.color.toLowerCase() === item.color.toLowerCase())
+  // Prefer direct filament_id lookup; fall back to colour-string match for
+  // items saved before filament_id was stored.
+  const match = item.filament_id
+    ? filaments.find(f => f.id === item.filament_id)
+    : filaments.find(f => f.color.toLowerCase() === item.color.toLowerCase())
   return {
     _key: crypto.randomUUID(),
     modelId: item.model_id ?? '',
@@ -119,9 +123,13 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
 
       const calcCost = (() => {
         if (!model) return null
-        const hasAssigned = model.filament_requirements?.some(r => r.filament_id !== null)
-        if (!hasAssigned) return null
-        return calculateItemCost(model, filaments, settings.labor_rate_per_hour)
+        if (!model.filament_requirements?.length) return null
+        // For models with colour-agnostic requirements (filament_id=null after
+        // migration 006) we need a selected filament to price the material cost.
+        // For models with assigned filament IDs, the filament arg is ignored.
+        const hasAssigned = model.filament_requirements.some(r => r.filament_id !== null)
+        if (!hasAssigned && !filament) return null
+        return calculateItemCost(model, filaments, settings.labor_rate_per_hour, filament)
       })()
 
       const unitCost = calcCost ? calcCost.total_cost : 0
