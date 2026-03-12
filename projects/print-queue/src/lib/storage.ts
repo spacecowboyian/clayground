@@ -9,7 +9,9 @@ function requireSupabase(): NonNullable<typeof supabase> {
   if (!isSupabaseConfigured || !supabase) {
     throw new Error(
       'Supabase is not configured. ' +
-      'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env.local file.'
+      'For local development, set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env.local file. ' +
+      'For deployed builds, add these as GitHub Actions secrets and trigger a new build via the ' +
+      '"Print Queue — Build & Deploy" workflow (Actions → Print Queue — Build & Deploy → Run workflow).'
     )
   }
   return supabase

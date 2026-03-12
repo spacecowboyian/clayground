@@ -67,6 +67,7 @@ jobs:
           CHANGED_PROJECTS: ${{ steps.changed.outputs.projects }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_PRINT_QUEUE_PASSWORD: ${{ secrets.VITE_PRINT_QUEUE_PASSWORD }}
         run: |
           for dir in pr-branch/projects/*/; do
             project=$(basename "$dir")
