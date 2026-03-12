@@ -21,6 +21,8 @@ export interface OrderItem {
 
 export interface WorkOrder {
   id: string
+  /** Sequential human-readable order identifier, assigned automatically by the database. */
+  order_number: number
   customer: string
   /** Legacy single-item name — also holds the first item name for multi-item orders */
   item: string
@@ -43,4 +45,4 @@ export interface WorkOrder {
   updated_at: string
 }
 
-export type WorkOrderInput = Omit<WorkOrder, 'id' | 'created_at' | 'updated_at'>
+export type WorkOrderInput = Omit<WorkOrder, 'id' | 'created_at' | 'updated_at' | 'order_number'>

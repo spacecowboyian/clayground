@@ -69,3 +69,9 @@ So that I and my helpers can view and manage print jobs without needing individu
 - Reorganised dashboard stats tiles: removed Printing Now and In Queue; added Due (total unpaid amount) between Awaiting Payment and Profit (paid).
 - Removed cost field from Add/Edit Order form; cost is now auto-derived from filament usage and post-processing only.
 - Removed breadcrumb subtitle ("/ Farm Settings" etc.) from AppHeader so the nav menu stays at a fixed horizontal position across all pages.
+
+### 2026-03-12 — Requested by: @copilot (search + order_number)
+- Added auto-incrementing `order_number` to work orders; assigned by DB sequence, backfilled for existing orders by creation date
+- Orders tables (active and completed) now show order_number as the first column, linked to the order detail page
+- Customer name in order tables is now plain text (no longer a link)
+- Mobile order cards updated to display order number as the navigation link and customer as plain text
