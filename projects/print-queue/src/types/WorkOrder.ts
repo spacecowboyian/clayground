@@ -1,5 +1,5 @@
 /** Status of a whole work order */
-export type WorkOrderStatus = 'waiting' | 'in_progress' | 'complete'
+export type WorkOrderStatus = 'waiting' | 'in_progress' | 'complete' | 'cancelled'
 
 /** Per-item print status within a work order */
 export type PrintItemStatus = 'queue' | 'printing' | 'complete'

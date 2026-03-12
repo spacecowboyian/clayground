@@ -315,11 +315,10 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Color</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Brand / Material</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">AMS</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">On Hand</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Last count</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Reserved</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Consumed</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Remaining</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Stock</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -327,14 +326,14 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
             {filaments.map(f => {
               const fs = getStats(f.id)
               const remaining = fs?.remaining_g ?? f.current_quantity_g
-              const overcommitted = remaining < 0
-              const lowStock = !overcommitted && remaining < 100
+              const depleted = remaining <= 0
+              const lowStock = !depleted && remaining < 100
               return (
                 <tr key={f.id} className="border-b border-[var(--border)] hover:bg-[var(--secondary)] transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
                       <ColorChip color={f.color} hex={f.color_hex} />
-                      {overcommitted && <span className="text-xs text-[var(--destructive)]" title="Overcommitted">⚠</span>}
+                      {depleted && <span className="text-xs text-[var(--destructive)]" title={remaining < 0 ? 'Overcommitted' : 'Out of stock'}>⚠</span>}
                       {lowStock && <span className="text-xs text-[var(--accent-orange)]" title="Running low">↓</span>}
                     </div>
                   </td>
@@ -345,16 +344,10 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
                   <td className="px-4 py-3 text-[var(--foreground)]">{f.current_quantity_g}g</td>
                   <td className="px-4 py-3 text-[var(--accent-orange)]">{fs ? `${fs.reserved_g}g` : '—'}</td>
                   <td className="px-4 py-3 text-[var(--muted-foreground)]">{fs ? `${fs.consumed_g}g` : '—'}</td>
-                  <td className={`px-4 py-3 font-medium ${overcommitted ? 'text-[var(--destructive)]' : lowStock ? 'text-[var(--accent-orange)]' : 'text-[var(--accent-green)]'}`}>
+                  <td className={`px-4 py-3 ${depleted ? 'font-bold text-[var(--destructive)]' : lowStock ? 'font-medium text-[var(--accent-orange)]' : 'font-medium text-[var(--accent-green)]'}`}>
                     {fs ? `${remaining}g` : '—'}
-                    {overcommitted && <span className="ml-1 text-xs font-normal">overcommitted</span>}
+                    {remaining < 0 && <span className="ml-1 text-xs font-normal">overcommitted</span>}
                     {lowStock && <span className="ml-1 text-xs font-normal">low</span>}
-                  </td>
-                  <td className="px-4 py-3">
-                    <button onClick={() => onToggleStock(f)}
-                      className={`text-xs px-2 py-0.5 rounded-full font-medium transition-colors ${f.in_stock ? 'bg-[var(--accent-green-light)] text-[var(--accent-green)] hover:opacity-80' : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:opacity-80'}`}>
-                      {f.in_stock ? 'In Stock' : 'Out of Stock'}
-                    </button>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -386,14 +379,14 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
         {filaments.map(f => {
           const fs = getStats(f.id)
           const remaining = fs?.remaining_g ?? f.current_quantity_g
-          const overcommitted = remaining < 0
-          const lowStock = !overcommitted && remaining < 100
+          const depleted = remaining <= 0
+          const lowStock = !depleted && remaining < 100
           return (
             <div key={f.id} className="p-4 space-y-2">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <ColorChip color={f.color} hex={f.color_hex} />
-                  {overcommitted && <span className="text-xs text-[var(--destructive)]">⚠</span>}
+                  {depleted && <span className="text-xs text-[var(--destructive)]">⚠</span>}
                   {lowStock && <span className="text-xs text-[var(--accent-orange)]">↓</span>}
                   {f.ams_slot != null && (
                     <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--accent-blue-light)] text-[var(--accent-blue)] font-medium">
@@ -411,7 +404,7 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
                 {fs && (
                   <div className="flex gap-3 text-xs shrink-0">
                     <div className="text-right">
-                      <p className="text-[var(--muted-foreground)]">On hand</p>
+                      <p className="text-[var(--muted-foreground)]">Last count</p>
                       <p className="font-medium text-[var(--foreground)]">{f.current_quantity_g}g</p>
                     </div>
                     <div className="text-right">
@@ -420,7 +413,7 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
                     </div>
                     <div className="text-right">
                       <p className="text-[var(--muted-foreground)]">Rem</p>
-                      <p className={`font-medium ${overcommitted ? 'text-[var(--destructive)]' : lowStock ? 'text-[var(--accent-orange)]' : 'text-[var(--accent-green)]'}`}>
+                      <p className={`${depleted ? 'font-bold text-[var(--destructive)]' : lowStock ? 'font-medium text-[var(--accent-orange)]' : 'font-medium text-[var(--accent-green)]'}`}>
                         {remaining}g
                       </p>
                     </div>

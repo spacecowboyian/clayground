@@ -27,8 +27,8 @@ export function AppHeader({
   }
 
   const navItems: { id: AppPage; label: string; onPress: () => void }[] = [
-    { id: 'print-queue', label: 'Print Queue', onPress: onPrintQueue },
     { id: 'orders',      label: 'Orders',      onPress: onOrders     },
+    { id: 'print-queue', label: 'Print Queue', onPress: onPrintQueue },
     { id: 'models',      label: 'Models',      onPress: onModels     },
     { id: 'filaments',   label: 'Filaments',   onPress: onFilaments  },
     { id: 'settings',    label: 'Settings',    onPress: onSettings   },

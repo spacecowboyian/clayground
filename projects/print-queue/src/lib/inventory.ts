@@ -107,9 +107,11 @@ const COMPLETE_STATUSES = new Set<string>(['complete'])
  * Compute per-filament inventory stats (consumed, reserved, remaining) based
  * on the current list of work orders and models.
  *
- * For orders with order_items that have filament_id set, filament is matched
- * directly by ID. For legacy orders or items without filament_id, falls back
- * to color-name matching.
+ * For multi-item orders, consumed/reserved is determined by each item's own
+ * status ('complete' = consumed, 'queue'/'printing' = reserved). For legacy
+ * single-item orders the order-level status is used instead.
+ *
+ * Cancelled orders are excluded entirely.
  */
 export function computeFilamentStats(
   filaments: Filament[],
@@ -123,12 +125,14 @@ export function computeFilamentStats(
     let reserved_g = 0
 
     for (const order of orders) {
-      const isActive   = ACTIVE_STATUSES.has(order.status)
-      const isComplete = COMPLETE_STATUSES.has(order.status)
-      if (!isActive && !isComplete) continue
+      if (order.status === 'cancelled') continue
 
       if (order.order_items && order.order_items.length > 0) {
         for (const item of order.order_items) {
+          const isItemComplete = item.status === 'complete'
+          const isItemActive   = item.status === 'queue' || item.status === 'printing'
+          if (!isItemComplete && !isItemActive) continue
+
           const matches = item.filament_id
             ? item.filament_id === f.id
             : item.color.toLowerCase() === f.color.toLowerCase()
@@ -137,19 +141,33 @@ export function computeFilamentStats(
           const model = item.model_id ? modelMap.get(item.model_id) : null
           if (!model) continue
 
-          const reqG = model.filament_requirements
-            .filter(r => item.filament_id
-              ? r.filament_id === f.id
-              : (r.filament_id === null || r.filament_id === f.id)
-            )
-            .reduce((sum, r) => sum + r.quantity_g, 0)
+          let reqG: number
+          if (item.filament_id) {
+            // New-style item: match requirement by filament ID
+            reqG = model.filament_requirements
+              .filter(r => r.filament_id === f.id)
+              .reduce((sum, r) => sum + r.quantity_g, 0)
+          } else {
+            // Legacy item: prefer null-filament_id requirements (color-agnostic).
+            // If none exist, fall back to total model usage so that models whose
+            // requirements were calibrated to a specific filament still contribute
+            // a correct gram estimate for any color-matched order.
+            const nullReqs = model.filament_requirements.filter(r => r.filament_id === null)
+            reqG = nullReqs.length > 0
+              ? nullReqs.reduce((sum, r) => sum + r.quantity_g, 0)
+              : model.filament_requirements.reduce((sum, r) => sum + r.quantity_g, 0)
+          }
           const totalG = reqG * (item.quantity ?? 1)
 
-          if (isComplete) consumed_g += totalG
-          else            reserved_g += totalG
+          if (isItemComplete) consumed_g += totalG
+          else                reserved_g += totalG
         }
       } else {
-        // Legacy single-item order
+        // Legacy single-item order — use order-level status
+        const isActive   = ACTIVE_STATUSES.has(order.status)
+        const isComplete = COMPLETE_STATUSES.has(order.status)
+        if (!isActive && !isComplete) continue
+
         if (order.color.toLowerCase() !== f.color.toLowerCase()) continue
         const model = order.model_id ? modelMap.get(order.model_id) : null
         const totalG = model

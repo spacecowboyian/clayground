@@ -14,7 +14,7 @@ interface ModelFormProps {
 
 export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormProps) {
   const [name, setName]                     = useState(initial?.name                ?? '')
-  const [number, setNumber]                 = useState(initial?.number              ?? '')
+  const [number, setNumber]                 = useState(initial?.number != null ? String(initial.number) : '')
   const [description, setDesc]              = useState(initial?.description         ?? '')
   const [modelUrl, setModelUrl]             = useState(initial?.model_url           ?? '')
   const [imageUrl, setImageUrl]             = useState(initial?.image_url           ?? '')
@@ -165,7 +165,7 @@ export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormPro
                   }}
                 />
               </div>
-              <div className="w-20 shrink-0">
+              <div className="shrink-0">
                 <NumberField
                   label="Qty (g)"
                   value={req.quantity_g}

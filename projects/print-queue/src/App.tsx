@@ -57,10 +57,10 @@ export function App() {
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
-  // Auto-redirect: if hitting the root and already authenticated, go to print queue
+  // Auto-redirect: if hitting the root and already authenticated, go to orders
   useEffect(() => {
     if (route.page === 'login' && isAuthenticated()) {
-      navigate('#/print-queue')
+      navigate('#/orders')
     }
   }, [route])
 
@@ -114,6 +114,6 @@ export function App() {
 
   // login
   return (
-    <LoginPage onSuccess={() => navigate('#/print-queue')} />
+    <LoginPage onSuccess={() => navigate('#/orders')} />
   )
 }

@@ -8,6 +8,7 @@ const config: Record<WorkOrderStatus | PrintItemStatus, { label: string; classNa
   waiting:     { label: 'Waiting',     className: 'bg-[var(--muted)] text-[var(--muted-foreground)]' },
   in_progress: { label: 'In Progress', className: 'bg-[var(--accent-blue-light)] text-[var(--accent-blue)]' },
   complete:    { label: 'Complete',    className: 'bg-[var(--accent-green-light)] text-[var(--accent-green)]' },
+  cancelled:   { label: 'Cancelled',   className: 'bg-[var(--accent-red-light)] text-[var(--destructive)]' },
   queue:       { label: 'Queue',       className: 'bg-[var(--muted)] text-[var(--muted-foreground)]' },
   printing:    { label: 'Printing',    className: 'bg-[var(--accent-blue-light)] text-[var(--accent-blue)]' },
 }

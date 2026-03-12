@@ -89,7 +89,18 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
   const settings = loadSettings()
 
   const modelOptions = models.map(m => ({ id: m.id, label: m.name }))
-  const inStockFilaments = filaments.filter(f => f.in_stock)
+  const allFilamentStats = useMemo(
+    () => computeFilamentStats(filaments, orders, models),
+    [filaments, orders, models]
+  )
+  const inStockFilaments = useMemo(
+    () => filaments.filter(f => {
+      if (!f.in_stock) return false
+      const s = allFilamentStats.find(st => st.filament_id === f.id)
+      return s ? s.remaining_g > 0 : f.current_quantity_g > 0
+    }),
+    [filaments, allFilamentStats]
+  )
   const filamentOptions = [
     ...inStockFilaments.map(f => ({ id: f.id, label: f.color })),
     { id: CUSTOM_COLOR_ID, label: '✦ Custom / Special Color (+$5)' },

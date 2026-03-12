@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { cn } from '../../utils/cn';
 
-export type PrintOrderStatus = 'Queue' | 'Printing' | 'Complete' | 'Cancelled';
+export type PrintOrderStatus = 'waiting' | 'in_progress' | 'complete' | 'cancelled';
 
 interface OrderStatusTimelineProps {
   status: PrintOrderStatus;
@@ -15,10 +15,10 @@ const STEPS: Array<{ label: string }> = [
 ];
 
 /** Maps a status value to the index of the active step (0-based). */
-const STEP_INDEX: Record<Exclude<PrintOrderStatus, 'Cancelled'>, number> = {
-  Queue: 0,
-  Printing: 1,
-  Complete: 2,
+const STEP_INDEX: Record<Exclude<PrintOrderStatus, 'cancelled'>, number> = {
+  waiting:     0,
+  in_progress: 1,
+  complete:    2,
 };
 
 /**
@@ -27,7 +27,7 @@ const STEP_INDEX: Record<Exclude<PrintOrderStatus, 'Cancelled'>, number> = {
  * "Cancelled" badge instead of the timeline.
  */
 export function OrderStatusTimeline({ status, className }: OrderStatusTimelineProps) {
-  if (status === 'Cancelled') {
+  if (status === 'cancelled') {
     return (
       <div className={cn('flex items-center', className)}>
         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-[var(--accent-red-light)] text-[var(--accent-red)]">
@@ -43,8 +43,8 @@ export function OrderStatusTimeline({ status, className }: OrderStatusTimelinePr
   return (
     <div className={cn('flex items-start', className)} aria-label={`Order status: ${status}`}>
       {STEPS.map((step, idx) => {
-        const isComplete = status === 'Complete' ? idx <= currentStep : idx < currentStep;
-        const isActive = status !== 'Complete' && idx === currentStep;
+        const isComplete = status === 'complete' ? idx <= currentStep : idx < currentStep;
+        const isActive = status !== 'complete' && idx === currentStep;
 
         const circleClass = cn(
           'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0',

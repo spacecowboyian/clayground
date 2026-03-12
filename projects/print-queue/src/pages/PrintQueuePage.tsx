@@ -11,6 +11,8 @@ import { fetchInventory, editFilament as editFilamentThunk, clearInventoryError 
 import type { WorkOrder, WorkOrderInput, OrderItem, PrintItemStatus, WorkOrderStatus } from '../types/WorkOrder'
 import type { Filament } from '../types/Inventory'
 
+const AMS_SLOTS = [1, 2, 3, 4] as const
+
 interface PrintQueuePageProps {
   onLogout: () => void
   onPrintQueue: () => void
@@ -172,6 +174,25 @@ export function PrintQueuePage({
     setEditOrder(null)
   }
 
+  async function handleAmsSlotAssign(slot: number, filamentId: string | null) {
+    const currentInSlot = filaments.find(f => f.ams_slot === slot)
+    if (currentInSlot && currentInSlot.id !== filamentId) {
+      await dispatch(editFilamentThunk({ id: currentInSlot.id, patch: { ams_slot: null } })).unwrap()
+    }
+    if (filamentId) {
+      await dispatch(editFilamentThunk({ id: filamentId, patch: { ams_slot: slot } })).unwrap()
+    }
+  }
+
+  async function handleAmsClear(slot: number) {
+    const current = filaments.find(f => f.ams_slot === slot)
+    if (current) {
+      await dispatch(editFilamentThunk({ id: current.id, patch: { ams_slot: null } })).unwrap()
+    }
+  }
+
+  const inStockFilaments = filaments.filter(f => f.in_stock)
+
   function getFilament(id: string | null): Filament | null {
     return id ? (filamentMap.get(id) ?? null) : null
   }
@@ -206,6 +227,29 @@ export function PrintQueuePage({
       />
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {/* ── AMS Slots ──────────────────────────────────────────────────── */}
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">AMS Slots</h2>
+          <p className="text-xs text-[var(--muted-foreground)]">
+            Select which filament is currently loaded in each AMS slot.
+          </p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {AMS_SLOTS.map(slot => {
+              const loaded = filaments.find(f => f.ams_slot === slot) ?? null
+              return (
+                <AmsSlotTile
+                  key={slot}
+                  slot={slot}
+                  loaded={loaded}
+                  filaments={inStockFilaments}
+                  onAssign={id => void handleAmsSlotAssign(slot, id)}
+                  onClear={() => void handleAmsClear(slot)}
+                />
+              )
+            })}
+          </div>
+        </section>
+
         {error && (
           <ErrorModal
             error={error}
@@ -429,6 +473,66 @@ export function PrintQueuePage({
           />
         </Dialog>
       )}
+    </div>
+  )
+}
+
+// ── AMS Slot Tile ──────────────────────────────────────────────────────────────
+
+interface AmsSlotTileProps {
+  slot: number
+  loaded: Filament | null
+  filaments: Filament[]
+  onAssign: (filamentId: string) => void
+  onClear: () => void
+}
+
+function AmsSlotTile({ slot, loaded, filaments, onAssign, onClear }: AmsSlotTileProps) {
+  return (
+    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
+          Slot {slot}
+        </span>
+        {loaded && (
+          <button
+            onClick={onClear}
+            className="text-xs text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+            title="Clear slot"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      {loaded ? (
+        <div className="flex items-center gap-2">
+          <span
+            className="w-4 h-4 rounded-full border border-[var(--border)] shrink-0"
+            style={{ background: loaded.color_hex || colorNameToHex(loaded.color) }}
+          />
+          <div>
+            <p className="text-sm font-medium text-[var(--foreground)]">{loaded.color}</p>
+            <p className="text-xs text-[var(--muted-foreground)]">{loaded.brand} {loaded.material}</p>
+          </div>
+        </div>
+      ) : (
+        <p className="text-sm text-[var(--muted-foreground)] italic">Empty</p>
+      )}
+
+      <select
+        value={loaded?.id ?? ''}
+        onChange={e => {
+          if (e.target.value) onAssign(e.target.value)
+          else onClear()
+        }}
+        className="w-full bg-[var(--input)] border border-[var(--border)] text-sm rounded px-2 py-1.5 text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-orange)]"
+      >
+        <option value="">- Empty -</option>
+        {filaments.map(f => (
+          <option key={f.id} value={f.id}>{f.color} ({f.material})</option>
+        ))}
+      </select>
     </div>
   )
 }
