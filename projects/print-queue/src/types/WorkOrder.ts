@@ -4,6 +4,15 @@ export type WorkOrderStatus = 'waiting' | 'in_progress' | 'complete' | 'cancelle
 /** Per-item print status within a work order */
 export type PrintItemStatus = 'queue' | 'printing' | 'complete'
 
+/**
+ * Payment lifecycle for an order.
+ * - unpaid            – customer has not sent payment
+ * - verifying_payment – customer clicked "I've Sent Payment"; awaiting
+ *                       operator confirmation via Venmo
+ * - paid              – operator has confirmed payment
+ */
+export type PaymentStatus = 'unpaid' | 'verifying_payment' | 'paid'
+
 /** A single item line within a multi-item work order */
 export interface OrderItem {
   model_id: string | null
@@ -39,6 +48,11 @@ export interface WorkOrder {
   model_url: string
   status: WorkOrderStatus
   paid: boolean
+  /**
+   * Dedicated payment state — authoritative for display.  Falls back to
+   * deriving from `paid` when absent (pre-migration 008 rows).
+   */
+  payment_status?: PaymentStatus
   notes: string
   price: number
   cost: number

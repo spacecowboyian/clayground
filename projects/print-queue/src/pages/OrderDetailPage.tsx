@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Button, OrderStatusTimeline } from '@gearhead/ui'
-import { getOrder } from '../lib/storage'
+import { getOrder, updatePaymentStatus } from '../lib/storage'
 import { listFilaments } from '../lib/inventory'
 import { ErrorModal } from '../components/ErrorModal/ErrorModal'
-import type { WorkOrder } from '../types/WorkOrder'
+import { extractMessage } from '../utils/errors'
+import type { WorkOrder, PaymentStatus } from '../types/WorkOrder'
 import type { PrintItemStatus } from '../types/WorkOrder'
 import type { Filament } from '../types/Inventory'
 
@@ -19,6 +20,8 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
   const [notFound, setNotFound] = useState(false)
   const [error, setError]     = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
+  const [paymentUpdating, setPaymentUpdating] = useState(false)
+  const [paymentError, setPaymentError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -76,8 +79,26 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
 
   const filamentMap = new Map(filaments.map(f => [f.id, f]))
 
+  /** Effective payment state — uses payment_status when present, falls back to paid bool */
+  const paymentStatus: PaymentStatus = order.payment_status ?? (order.paid ? 'paid' : 'unpaid')
+
+  const venmoUrl = `https://venmo.com/ian-jennings-17?txn=pay&amount=${(order.price ?? 5).toFixed(2)}&note=${encodeURIComponent(order.id)}`
+
   async function copyLink() {
     await navigator.clipboard.writeText(shareUrl)
+  }
+
+  async function handleSentPayment() {
+    setPaymentUpdating(true)
+    setPaymentError(null)
+    try {
+      const updated = await updatePaymentStatus(order.id, 'verifying_payment')
+      setOrder(updated)
+    } catch (err) {
+      setPaymentError(extractMessage(err, 'Failed to update payment status'))
+    } finally {
+      setPaymentUpdating(false)
+    }
   }
 
   return (
@@ -102,10 +123,50 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
           {/* Payment status */}
           <div className="px-6 py-3 border-b border-[var(--border)] flex items-center justify-between">
             <span className="text-sm text-[var(--muted-foreground)]">Payment</span>
-            <span className={`text-sm font-semibold ${order.paid ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]'}`}>
-              {order.paid ? '✓ Paid' : '✗ Not Paid'}
-            </span>
+            {paymentStatus === 'paid' && (
+              <span className="text-sm font-semibold text-[var(--accent-green)]">✓ Paid</span>
+            )}
+            {paymentStatus === 'verifying_payment' && (
+              <span className="text-sm font-semibold text-[var(--accent-orange)]">⏳ Verifying Payment</span>
+            )}
+            {paymentStatus === 'unpaid' && (
+              <span className="text-sm font-semibold text-[var(--accent-red)]">✗ Not Paid</span>
+            )}
           </div>
+
+          {/* Venmo + payment actions (unpaid orders only) */}
+          {paymentStatus === 'unpaid' && (
+            <div className="px-6 py-4 border-b border-[var(--border)] space-y-3">
+              <a
+                href={venmoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full rounded-lg px-4 py-2.5 text-sm font-semibold bg-[#3D95CE] text-white hover:bg-[#2d7ab8] transition-colors"
+              >
+                <span>💸</span>
+                Pay via Venmo
+              </a>
+              {paymentError && (
+                <p className="text-xs text-[var(--destructive)] text-center">{paymentError}</p>
+              )}
+              <button
+                onClick={() => void handleSentPayment()}
+                disabled={paymentUpdating}
+                className="w-full rounded-lg px-4 py-2 text-sm text-[var(--muted-foreground)] border border-[var(--border)] hover:bg-[var(--secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {paymentUpdating ? 'Updating…' : "I've Sent Payment"}
+              </button>
+            </div>
+          )}
+
+          {/* Verifying payment notice */}
+          {paymentStatus === 'verifying_payment' && (
+            <div className="px-6 py-3 border-b border-[var(--border)] bg-[var(--accent-orange-light)]">
+              <p className="text-sm text-[var(--accent-orange)]">
+                ⏳ Your payment is being verified. We'll update this page once confirmed.
+              </p>
+            </div>
+          )}
 
           {/* Fields */}
           <div className="divide-y divide-[var(--border)]">
