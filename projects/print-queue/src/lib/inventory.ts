@@ -182,7 +182,7 @@ export function computeFilamentStats(
       filament_id: f.id,
       consumed_g,
       reserved_g,
-      remaining_g: f.current_quantity_g - reserved_g,
+      remaining_g: f.current_quantity_g - reserved_g - consumed_g,
     }
   })
 }
