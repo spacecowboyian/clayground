@@ -41,7 +41,7 @@ export function TextField({
       <Input
         placeholder={placeholder}
         className={cn(
-          'px-3 py-2 bg-input rounded-lg border border-border text-foreground',
+          'h-10 px-3 bg-input rounded-lg border border-border text-foreground',
           'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-offset-0',
           focusColors[focusColor],
           inputClassName

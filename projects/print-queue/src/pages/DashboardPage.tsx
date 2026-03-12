@@ -258,7 +258,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                         <Th>Color</Th>
                         <Th>Status</Th>
                         <Th>Profit</Th>
-                        <Th>Notes</Th>
                         <Th align="right">Actions</Th>
                       </tr>
                     </thead>
@@ -304,9 +303,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                           </Td>
                           <Td>
                             <ProfitBadge profit={(order.price ?? 5) - (order.cost ?? 2)} />
-                          </Td>
-                          <Td>
-                            <span className="text-[var(--muted-foreground)] text-xs">{order.notes || '—'}</span>
                           </Td>
                           <Td align="right">
                             <OrderActions
@@ -359,7 +355,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                         <Th>Color</Th>
                         <Th>Status</Th>
                         <Th>Profit</Th>
-                        <Th>Notes</Th>
                         <Th align="right">Actions</Th>
                       </tr>
                     </thead>
@@ -394,9 +389,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                           </Td>
                           <Td>
                             <ProfitBadge profit={(order.price ?? 5) - (order.cost ?? 2)} />
-                          </Td>
-                          <Td>
-                            <span className="text-[var(--muted-foreground)] text-xs">{order.notes || '—'}</span>
                           </Td>
                           <Td align="right">
                             <OrderActions
