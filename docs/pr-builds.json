@@ -20,13 +20,5 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-31/"
     }
-  },
-  "33": {
-    "title": "[WIP] Add multiple items per order functionality to print-queue",
-    "url": "https://github.com/spacecowboyian/clayground/pull/33",
-    "builds": {
-      "gearhead": "https://spacecowboyian.github.io/clayground/gearhead/pr-33/",
-      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-33/"
-    }
   }
 }
