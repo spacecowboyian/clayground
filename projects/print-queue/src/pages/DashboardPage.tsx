@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Dialog, Switch, Accordion } from '@gearhead/ui'
-import { GripVertical, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Button, Dialog, Accordion } from '@gearhead/ui'
+import { DollarSign, GripVertical, Pencil, Plus, Trash2 } from 'lucide-react'
 import { StatusBadge } from '../components/StatusBadge/StatusBadge'
 import { WorkOrderForm } from '../components/WorkOrderForm/WorkOrderForm'
 import { ErrorModal } from '../components/ErrorModal/ErrorModal'
@@ -18,10 +18,10 @@ import {
 import { fetchInventory, clearInventoryError } from '../store/inventorySlice'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../types/WorkOrder'
 
-const STATUS_FILTERS: Array<WorkOrderStatus | 'All'> = ['All', 'Queue', 'Printing', 'Complete', 'Cancelled']
+const STATUS_FILTERS: Array<WorkOrderStatus | 'All'> = ['All', 'Queue', 'Printing', 'Complete']
 
 const ACTIVE_STATUSES   = new Set<WorkOrderStatus>(['Queue', 'Printing'])
-const COMPLETE_STATUSES = new Set<WorkOrderStatus>(['Complete', 'Cancelled'])
+const COMPLETE_STATUSES = new Set<WorkOrderStatus>(['Complete'])
 
 interface DashboardPageProps {
   onLogout: () => void
@@ -144,12 +144,11 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
   const hasAny = visibleActive.length > 0 || visibleComplete.length > 0
 
   // Stats
-  const total    = orders.length
-  const printing = orders.filter(o => o.status === 'Printing').length
-  const queued   = orders.filter(o => o.status === 'Queue').length
-  const unpaid   = orders.filter(o => !o.paid && o.status !== 'Cancelled').length
-  const profit   = orders
-    .filter(o => o.paid && o.status !== 'Cancelled')
+  const total  = orders.length
+  const unpaid = orders.filter(o => !o.paid).length
+  const due    = orders.filter(o => !o.paid).reduce((sum, o) => sum + (o.price ?? 5), 0)
+  const profit = orders
+    .filter(o => o.paid)
     .reduce((sum, o) => sum + ((o.price ?? 5) - (o.cost ?? 2)), 0)
 
   return (
@@ -165,11 +164,10 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Stats row */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard label="Total Orders"     value={total}    />
-          <StatCard label="Printing Now"     value={printing} accent="blue" />
-          <StatCard label="In Queue"         value={queued}   accent="muted" />
           <StatCard label="Awaiting Payment" value={unpaid}   accent="orange" />
+          <StatCard label="Due"              value={`$${due.toFixed(2)}`} accent="blue" />
           <StatCard label="Profit (paid)"    value={`$${profit.toFixed(2)}`} accent="green" />
         </div>
 
@@ -258,9 +256,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                         <Th>Item</Th>
                         <Th>Color</Th>
                         <Th>Status</Th>
-                        <Th>Paid</Th>
-                        <Th>Price</Th>
-                        <Th>Cost</Th>
                         <Th>Profit</Th>
                         <Th>Notes</Th>
                         <Th align="right">Actions</Th>
@@ -304,20 +299,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                             <StatusSelect order={order} onChange={handleStatusChange} />
                           </Td>
                           <Td>
-                            <Switch
-                              isSelected={order.paid}
-                              onChange={() => void handleTogglePaid(order)}
-                              color="green"
-                              aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
-                            />
-                          </Td>
-                          <Td>
-                            <span className="text-[var(--accent-green)] font-medium">${(order.price ?? 5).toFixed(2)}</span>
-                          </Td>
-                          <Td>
-                            <span className="text-[var(--muted-foreground)]">${(order.cost ?? 2).toFixed(2)}</span>
-                          </Td>
-                          <Td>
                             <ProfitBadge profit={(order.price ?? 5) - (order.cost ?? 2)} />
                           </Td>
                           <Td>
@@ -325,8 +306,10 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                           </Td>
                           <Td align="right">
                             <OrderActions
+                              order={order}
                               onEdit={() => setEditOrder(order)}
                               onDelete={() => setDeleteTarget(order)}
+                              onTogglePaid={() => void handleTogglePaid(order)}
                             />
                           </Td>
                         </tr>
@@ -351,10 +334,10 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
               </>
             )}
 
-            {/* ── Completed / Cancelled accordion ─── */}
+            {/* ── Completed accordion ─── */}
             {visibleComplete.length > 0 && (
               <Accordion
-                title="Completed & Cancelled"
+                title="Completed"
                 badge={
                   <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--secondary)] text-[var(--muted-foreground)]">
                     {visibleComplete.length}
@@ -370,9 +353,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                         <Th>Item</Th>
                         <Th>Color</Th>
                         <Th>Status</Th>
-                        <Th>Paid</Th>
-                        <Th>Price</Th>
-                        <Th>Cost</Th>
                         <Th>Profit</Th>
                         <Th>Notes</Th>
                         <Th align="right">Actions</Th>
@@ -405,20 +385,6 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                             <StatusSelect order={order} onChange={handleStatusChange} />
                           </Td>
                           <Td>
-                            <Switch
-                              isSelected={order.paid}
-                              onChange={() => void handleTogglePaid(order)}
-                              color="green"
-                              aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
-                            />
-                          </Td>
-                          <Td>
-                            <span className="text-[var(--accent-green)] font-medium">${(order.price ?? 5).toFixed(2)}</span>
-                          </Td>
-                          <Td>
-                            <span className="text-[var(--muted-foreground)]">${(order.cost ?? 2).toFixed(2)}</span>
-                          </Td>
-                          <Td>
                             <ProfitBadge profit={(order.price ?? 5) - (order.cost ?? 2)} />
                           </Td>
                           <Td>
@@ -426,8 +392,10 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
                           </Td>
                           <Td align="right">
                             <OrderActions
+                              order={order}
                               onEdit={() => setEditOrder(order)}
                               onDelete={() => setDeleteTarget(order)}
+                              onTogglePaid={() => void handleTogglePaid(order)}
                             />
                           </Td>
                         </tr>
@@ -535,32 +503,15 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
         <StatusBadge status={order.status} />
       </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5">
-          <ColorDot color={orderColorLabel(order)} />
-          {order.needs_filament && (
-            <span className="text-xs text-[var(--accent-orange)]" title="Requires new filament purchase">⚠ Special color</span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 ml-auto">
-          <span className="text-xs text-[var(--muted-foreground)]">Paid</span>
-          <Switch
-            isSelected={order.paid}
-            onChange={onTogglePaid}
-            color="green"
-            aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
-          />
-        </div>
+      <div className="flex items-center gap-1.5">
+        <ColorDot color={orderColorLabel(order)} />
+        {order.needs_filament && (
+          <span className="text-xs text-[var(--accent-orange)]" title="Requires new filament purchase">⚠ Special color</span>
+        )}
       </div>
 
-      {/* Price / Cost / Profit row */}
+      {/* Profit row */}
       <div className="flex items-center gap-4 text-xs">
-        <span className="text-[var(--muted-foreground)]">
-          Price <span className="text-[var(--accent-green)] font-medium">${(order.price ?? 5).toFixed(2)}</span>
-        </span>
-        <span className="text-[var(--muted-foreground)]">
-          Cost <span className="font-medium">${(order.cost ?? 2).toFixed(2)}</span>
-        </span>
         <span className="text-[var(--muted-foreground)]">
           Profit <ProfitBadge profit={profit} />
         </span>
@@ -571,6 +522,18 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
       )}
 
       <div className="flex items-center gap-2 pt-1 border-t border-[var(--border)]">
+        <button
+          onClick={onTogglePaid}
+          className={`p-1.5 rounded transition-colors ${
+            order.paid
+              ? 'text-[var(--accent-green)]'
+              : 'text-[var(--muted-foreground)] hover:text-[var(--accent-green)]'
+          }`}
+          title={order.paid ? 'Mark unpaid' : 'Mark paid'}
+          aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
+        >
+          <DollarSign className="w-4 h-4" />
+        </button>
         <Button variant="ghost" className="flex-1 justify-center text-xs py-1" onPress={onEdit}>
           Edit
         </Button>
@@ -588,13 +551,27 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
 // ── Desktop action buttons ─────────────────────────────────────────────────────
 
 interface OrderActionsProps {
+  order: WorkOrder
   onEdit: () => void
   onDelete: () => void
+  onTogglePaid: () => void
 }
 
-function OrderActions({ onEdit, onDelete }: OrderActionsProps) {
+function OrderActions({ order, onEdit, onDelete, onTogglePaid }: OrderActionsProps) {
   return (
     <div className="flex items-center justify-end gap-1">
+      <button
+        onClick={onTogglePaid}
+        className={`p-1.5 rounded transition-colors ${
+          order.paid
+            ? 'text-[var(--accent-green)] hover:bg-[var(--secondary)]'
+            : 'text-[var(--muted-foreground)] hover:text-[var(--accent-green)] hover:bg-[var(--secondary)]'
+        }`}
+        title={order.paid ? 'Mark unpaid' : 'Mark paid'}
+        aria-label={order.paid ? 'Mark unpaid' : 'Mark paid'}
+      >
+        <DollarSign className="w-4 h-4" />
+      </button>
       <button
         onClick={onEdit}
         className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
@@ -678,10 +655,9 @@ function orderColorLabel(order: WorkOrder): string {
 }
 
 const STATUS_OPTIONS_INLINE = [
-  { id: 'Queue',     label: 'Queue' },
-  { id: 'Printing',  label: 'Printing' },
-  { id: 'Complete',  label: 'Complete' },
-  { id: 'Cancelled', label: 'Cancelled' },
+  { id: 'Queue',    label: 'Queue' },
+  { id: 'Printing', label: 'Printing' },
+  { id: 'Complete', label: 'Complete' },
 ]
 
 function StatusSelect({ order, onChange }: { order: WorkOrder; onChange: (o: WorkOrder, s: WorkOrderStatus) => void }) {

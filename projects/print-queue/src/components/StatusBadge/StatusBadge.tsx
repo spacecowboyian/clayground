@@ -5,10 +5,9 @@ interface StatusBadgeProps {
 }
 
 const config: Record<WorkOrderStatus, { label: string; className: string }> = {
-  Queue:     { label: 'Queue',     className: 'bg-[var(--muted)] text-[var(--muted-foreground)]' },
-  Printing:  { label: 'Printing',  className: 'bg-[var(--accent-blue-light)] text-[var(--accent-blue)]' },
-  Complete:  { label: 'Complete',  className: 'bg-[var(--accent-green-light)] text-[var(--accent-green)]' },
-  Cancelled: { label: 'Cancelled', className: 'bg-[var(--accent-red-light)] text-[var(--accent-red)]' },
+  Queue:    { label: 'Queue',    className: 'bg-[var(--muted)] text-[var(--muted-foreground)]' },
+  Printing: { label: 'Printing', className: 'bg-[var(--accent-blue-light)] text-[var(--accent-blue)]' },
+  Complete: { label: 'Complete', className: 'bg-[var(--accent-green-light)] text-[var(--accent-green)]' },
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {

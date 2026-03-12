@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button, TextField, Select, Switch, TextArea, NumberField } from '@gearhead/ui'
 import { Plus, Trash2 } from 'lucide-react'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus, OrderItem } from '../../types/WorkOrder'
@@ -8,10 +8,9 @@ import { calculateItemCost } from '../../lib/costing'
 import { computeFilamentStats } from '../../lib/inventory'
 
 const STATUS_OPTIONS = [
-  { id: 'Queue',     label: 'Queue' },
-  { id: 'Printing',  label: 'Printing' },
-  { id: 'Complete',  label: 'Complete' },
-  { id: 'Cancelled', label: 'Cancelled' },
+  { id: 'Queue',    label: 'Queue' },
+  { id: 'Printing', label: 'Printing' },
+  { id: 'Complete', label: 'Complete' },
 ]
 
 const FILAMENT_SURCHARGE = 5
@@ -83,8 +82,6 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
   const [paid, setPaid]                 = useState(initial?.paid ?? false)
   const [notes, setNotes]               = useState(initial?.notes ?? '')
   const [price, setPrice]               = useState(initial?.price ?? 5)
-  const [cost, setCost]                 = useState(initial?.cost ?? 2)
-  const [costOverride, setCostOverride] = useState(false)
   const [saving, setSaving]             = useState(false)
   const [error, setError]               = useState<string | null>(null)
 
@@ -121,20 +118,13 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
     })
   }, [items, models, filaments, settings.labor_rate_per_hour])
 
-  // Total calculated cost across all items (× quantity)
+  // Total calculated cost across all items (× quantity) — used when saving
   const totalCalcCost = useMemo(() => {
     return resolvedItems.reduce((sum, r) => {
       if (r.calcCost === null) return sum
       return sum + r.unitCost * r.draft.quantity
     }, 0)
   }, [resolvedItems])
-
-  // Auto-sync cost when calculated cost changes (unless overridden)
-  useEffect(() => {
-    if (!costOverride && totalCalcCost > 0) {
-      setCost(totalCalcCost)
-    }
-  }, [totalCalcCost, costOverride])
 
   // Filament availability warnings (one per item)
   const filamentWarnings = useMemo(() => {
@@ -233,7 +223,7 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
         paid,
         notes:          notes.trim(),
         price,
-        cost,
+        cost:           totalCalcCost,
         sort_order:     initial?.sort_order ?? 0,
       })
     } catch {
@@ -390,41 +380,14 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
         onSelectionChange={(key) => { if (key != null) setStatus(key as WorkOrderStatus) }}
       />
 
-      {/* Price / Cost */}
-      <div className="grid grid-cols-2 gap-4">
-        <NumberField
-          label="Price ($)"
-          value={price}
-          onChange={setPrice}
-          minValue={0}
-          formatOptions={{ style: 'currency', currency: 'USD' }}
-        />
-        <div className="space-y-1">
-          <NumberField
-            label="Cost ($)"
-            value={cost}
-            onChange={v => { setCost(v); setCostOverride(true) }}
-            minValue={0}
-            formatOptions={{ style: 'currency', currency: 'USD' }}
-          />
-          {totalCalcCost > 0 && (
-            <div className="text-xs space-y-0.5 text-[var(--muted-foreground)]">
-              <p className="font-medium text-[var(--foreground)]">
-                Calculated: ${totalCalcCost.toFixed(2)}
-              </p>
-              {costOverride && (
-                <button
-                  type="button"
-                  onClick={() => { setCost(totalCalcCost); setCostOverride(false) }}
-                  className="text-[var(--accent-orange)] hover:underline"
-                >
-                  ↺ Reset to calculated
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Price */}
+      <NumberField
+        label="Price ($)"
+        value={price}
+        onChange={setPrice}
+        minValue={0}
+        formatOptions={{ style: 'currency', currency: 'USD' }}
+      />
 
       {/* Notes */}
       <TextArea
