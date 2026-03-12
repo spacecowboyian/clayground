@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS filaments (
   material            TEXT        NOT NULL DEFAULT 'PLA',
   color               TEXT        NOT NULL,
   color_hex           TEXT        NOT NULL DEFAULT '',
-  in_stock            BOOLEAN     NOT NULL DEFAULT true,
+  status              TEXT        NOT NULL DEFAULT 'in_stock',  -- 'in_stock' | 'out_of_stock' | 'on_order' (migration 007)
   roll_cost           NUMERIC     NOT NULL DEFAULT 0,
   roll_size_g         NUMERIC     NOT NULL DEFAULT 1000,
   current_quantity_g  NUMERIC     NOT NULL DEFAULT 0,

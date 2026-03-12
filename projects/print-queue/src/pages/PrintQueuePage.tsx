@@ -172,7 +172,7 @@ export function PrintQueuePage({
     setEditOrder(null)
   }
 
-  const inStockFilaments = filaments.filter(f => f.in_stock)
+  const inStockFilaments = filaments.filter(f => f.status === 'in_stock')
 
   function getFilament(id: string | null): Filament | null {
     return id ? (filamentMap.get(id) ?? null) : null
@@ -193,7 +193,7 @@ export function PrintQueuePage({
     }
   }
 
-  const inStock = filaments.filter(f => f.in_stock)
+  const inStock = filaments.filter(f => f.status === 'in_stock')
 
   return (
     <div className="min-h-screen bg-[var(--background)]">

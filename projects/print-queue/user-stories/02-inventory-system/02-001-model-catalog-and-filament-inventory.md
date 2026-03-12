@@ -85,10 +85,9 @@ So that I can track what I can print, what materials I have, and ensure orders r
 - Added filament availability warning in the order creation form when filament may be insufficient for the selected model + color combination
 
 ### 2026-03-12 — Requested by: @copilot
-- Added `number` (catalog/SKU) field to `PrintModel` — stored in DB via migration 003, editable in ModelForm
-- Added `order_number` (auto-increment integer) field to `WorkOrder` — assigned by DB sequence on insert, backfilled for existing rows
-- Model Catalog section header now shows an inline search box (magnifying glass) next to the title; removed static description text
-- Default model catalog view shows the 6 most recently added models as cards; when search has >1 character it switches to a ranked list view showing all matching models
-- Search covers model name, description/notes, catalog number, post-processing minutes, and filament quantities
-- Orders tables (active and completed) now show order_number as the first column, linked to the order detail page; customer name is now plain text (no link)
-- Mobile order cards updated to show order number as the detail link and customer name as plain text
+- Replaced `in_stock: boolean` on `Filament` with `status: FilamentStatus` ('in_stock' | 'out_of_stock' | 'on_order')
+- Added DB migration `007_filament_status.sql` to backfill new status column and drop the old boolean
+- FilamentForm now uses a three-option Select instead of a Switch for filament status
+- Filaments page now shows an "On Order" accordion section in addition to "Out of Stock"
+- The status dot in the filament table cycles through all three states on click (green → orange → red)
+- Items with filaments marked 'on_order' display bold text with "– filament on order" in red on the order detail page

@@ -95,7 +95,7 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
   )
   const inStockFilaments = useMemo(
     () => filaments.filter(f => {
-      if (!f.in_stock) return false
+      if (f.status !== 'in_stock') return false
       const s = allFilamentStats.find(st => st.filament_id === f.id)
       return s ? s.remaining_g > 0 : f.current_quantity_g > 0
     }),

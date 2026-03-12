@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Button, OrderStatusTimeline } from '@gearhead/ui'
 import { getOrder } from '../lib/storage'
+import { listFilaments } from '../lib/inventory'
 import { ErrorModal } from '../components/ErrorModal/ErrorModal'
 import type { WorkOrder } from '../types/WorkOrder'
+import type { PrintItemStatus } from '../types/WorkOrder'
+import type { Filament } from '../types/Inventory'
 
 interface OrderDetailPageProps {
   orderId: string
@@ -11,6 +14,7 @@ interface OrderDetailPageProps {
 
 export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
   const [order, setOrder]     = useState<WorkOrder | null>(null)
+  const [filaments, setFilaments] = useState<Filament[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [error, setError]     = useState<string | null>(null)
@@ -21,10 +25,11 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
     setLoading(true)
     setError(null)
     setNotFound(false)
-    getOrder(orderId).then(o => {
+    Promise.all([getOrder(orderId), listFilaments()]).then(([o, fs]) => {
       if (cancelled) return
       if (o) setOrder(o)
       else setNotFound(true)
+      setFilaments(fs)
       setLoading(false)
     }).catch(err => {
       if (cancelled) return
@@ -69,6 +74,8 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
 
   const shareUrl = `${window.location.origin}${window.location.pathname}#/order/${order.id}`
 
+  const filamentMap = new Map(filaments.map(f => [f.id, f]))
+
   async function copyLink() {
     await navigator.clipboard.writeText(shareUrl)
   }
@@ -103,28 +110,44 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
           {/* Fields */}
           <div className="divide-y divide-[var(--border)]">
             <Field label="Customer" value={order.customer} />
-            {/* Multiple items */}
-            {order.order_items && order.order_items.length > 1 ? (
+            {/* Items */}
+            {order.order_items && order.order_items.length > 0 ? (
               <div className="px-6 py-4">
-                <span className="text-sm text-[var(--muted-foreground)]">Items</span>
+                <span className="text-sm text-[var(--muted-foreground)]">
+                  {order.order_items.length === 1 ? 'Item' : 'Items'}
+                </span>
                 <div className="mt-2 space-y-2">
-                  {order.order_items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-start gap-4">
-                      <div className="flex items-center gap-2 text-sm text-[var(--foreground)]">
-                        {item.quantity > 1 && (
-                          <span className="font-medium text-[var(--muted-foreground)]">{item.quantity}×</span>
-                        )}
-                        <span>{item.item}</span>
-                      </div>
-                      <span className="text-sm text-[var(--muted-foreground)] text-right shrink-0">{item.color}</span>
-                    </div>
-                  ))}
+                  {[...order.order_items]
+                    .sort((a, b) => {
+                      if (a.status === 'complete' && b.status !== 'complete') return -1
+                      if (a.status !== 'complete' && b.status === 'complete') return 1
+                      return 0
+                    })
+                    .map((item, idx) => {
+                      const filament = item.filament_id ? filamentMap.get(item.filament_id) : null
+                      const filamentOnOrder = filament?.status === 'on_order'
+                      return (
+                        <div key={idx} className="flex justify-between items-center gap-4">
+                          <div className={`text-sm text-[var(--foreground)] min-w-0 ${filamentOnOrder ? 'font-bold' : ''}`}>
+                            {item.quantity > 1 && (
+                              <span className="text-[var(--muted-foreground)] mr-1">{item.quantity}×</span>
+                            )}
+                            <span>{item.item} – {item.color}</span>
+                            {filamentOnOrder && (
+                              <span className="ml-1 text-[var(--destructive)]"> – filament on order</span>
+                            )}
+                          </div>
+                          <ItemStatusBadge status={item.status ?? 'queue'} />
+                        </div>
+                      )
+                    })}
                 </div>
               </div>
             ) : (
+              /* Legacy orders (pre-migration 002) have null order_items — fall back to flat fields */
               <>
-                <Field label="Item" value={order.order_items?.[0]?.item ?? order.item} />
-                <Field label="Color" value={order.order_items?.[0]?.color ?? order.color} />
+                <Field label="Item" value={order.item} />
+                <Field label="Color" value={order.color} />
               </>
             )}
             <Field label="Price" value={`$${(order.price ?? 5).toFixed(2)}`} />
@@ -176,5 +199,17 @@ function Field({ label, value }: { label: string; value: string }) {
       <span className="text-sm text-[var(--muted-foreground)] shrink-0 pt-0.5">{label}</span>
       <span className="text-sm text-[var(--foreground)] text-right">{value}</span>
     </div>
+  )
+}
+
+function ItemStatusBadge({ status }: { status: PrintItemStatus }) {
+  const config: Record<PrintItemStatus, { label: string; className: string }> = {
+    queue:    { label: 'Queued',   className: 'text-[var(--muted-foreground)]' },
+    printing: { label: 'Printing', className: 'text-[var(--accent-orange)]' },
+    complete: { label: 'Complete', className: 'text-[var(--accent-green)]' },
+  }
+  const { label, className } = config[status]
+  return (
+    <span className={`text-xs font-medium shrink-0 ${className}`}>{label}</span>
   )
 }
