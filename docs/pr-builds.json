@@ -42,5 +42,12 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-38/"
     }
+  },
+  "40": {
+    "title": "[WIP] Fix edit work order saving issue",
+    "url": "https://github.com/spacecowboyian/clayground/pull/40",
+    "builds": {
+      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-40/"
+    }
   }
 }
