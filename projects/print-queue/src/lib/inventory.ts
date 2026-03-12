@@ -141,22 +141,17 @@ export function computeFilamentStats(
           const model = item.model_id ? modelMap.get(item.model_id) : null
           if (!model) continue
 
-          let reqG: number
-          if (item.filament_id) {
-            // New-style item: match requirement by filament ID
-            reqG = model.filament_requirements
-              .filter(r => r.filament_id === f.id)
-              .reduce((sum, r) => sum + r.quantity_g, 0)
-          } else {
-            // Legacy item: prefer null-filament_id requirements (color-agnostic).
-            // If none exist, fall back to total model usage so that models whose
-            // requirements were calibrated to a specific filament still contribute
-            // a correct gram estimate for any color-matched order.
-            const nullReqs = model.filament_requirements.filter(r => r.filament_id === null)
-            reqG = nullReqs.length > 0
-              ? nullReqs.reduce((sum, r) => sum + r.quantity_g, 0)
-              : model.filament_requirements.reduce((sum, r) => sum + r.quantity_g, 0)
-          }
+          // Compute grams attributed to this filament for the item.
+          // After migration 006 all model requirements have filament_id=null
+          // (colour-agnostic). For both new-style items (explicit filament_id)
+          // and legacy items (colour-string only) we therefore sum the
+          // null-filament_id requirements. If — for pre-migration models — some
+          // requirements still carry a specific filament_id, we fall back to
+          // the total across all requirements so the estimate is still useful.
+          const nullReqs = model.filament_requirements.filter(r => r.filament_id === null)
+          const reqG = nullReqs.length > 0
+            ? nullReqs.reduce((sum, r) => sum + r.quantity_g, 0)
+            : model.filament_requirements.reduce((sum, r) => sum + r.quantity_g, 0)
           const totalG = reqG * (item.quantity ?? 1)
 
           if (isItemComplete) consumed_g += totalG

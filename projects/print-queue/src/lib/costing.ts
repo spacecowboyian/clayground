@@ -15,17 +15,21 @@ export interface CostBreakdown {
  * labor_cost    = (post_processing_mins / 60) * labor_rate_per_hour
  * total_cost    = material_cost + labor_cost
  *
- * Requirements whose filament_id is null (not yet catalogued) are skipped.
+ * Requirements with a specific filament_id are priced using that filament.
+ * Requirements with filament_id=null (colour-agnostic, set by migration 006)
+ * are priced using `selectedFilament` when provided; otherwise skipped.
  */
 export function calculateItemCost(
   model: Pick<PrintModel, 'filament_requirements' | 'post_processing_mins'>,
   allFilaments: Pick<Filament, 'id' | 'roll_cost' | 'roll_size_g'>[],
   laborRatePerHour: number,
+  selectedFilament?: Pick<Filament, 'id' | 'roll_cost' | 'roll_size_g'> | null,
 ): CostBreakdown {
   let material_cost = 0
   for (const req of model.filament_requirements) {
-    if (req.filament_id === null) continue
-    const fil = allFilaments.find(f => f.id === req.filament_id)
+    const fil = req.filament_id
+      ? allFilaments.find(f => f.id === req.filament_id)
+      : (selectedFilament ?? null)
     if (!fil || fil.roll_size_g <= 0) continue
     material_cost += (req.quantity_g / fil.roll_size_g) * fil.roll_cost
   }
