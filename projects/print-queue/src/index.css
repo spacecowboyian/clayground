@@ -10,3 +10,10 @@
 @source './App.tsx';
 
 @import 'tw-animate-css';
+
+/* Reserve the scrollbar gutter on every page so centered content (`mx-auto`)
+   doesn't shift horizontally when a vertical scrollbar appears or disappears
+   while navigating between tabs. */
+html {
+  scrollbar-gutter: stable;
+}
