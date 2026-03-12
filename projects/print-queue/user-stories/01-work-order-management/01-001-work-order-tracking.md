@@ -21,6 +21,37 @@ So that I and my helpers can view and manage print jobs without needing individu
 - [x] A shareable per-order URL exists (#/order/:id)
 - [x] Password is client-side (env var) and protects the management dashboard
 
+## Additions
+### 2026-03-12 — Requested by: @copilot
+- Added a "Pay via Venmo" deeplink button on the order detail page (visible to unpaid orders) that pre-fills username `ian-jennings-17`, the order ID as the memo, and the order price as the amount.
+
+### 2026-03-12 — Requested by: @copilot (payment verification workflow)
+- Added a payment-verification workflow story where customers can mark payment as pending, and only the shop operator can verify and finalize payment in the dashboard.
+
+#### User Story
+As a 3D print customer,
+I want to see that my payment is "Verifying Payment" after I click "I've Sent Payment",
+So that I know my payment was submitted and is waiting for shop confirmation.
+
+As a 3D print shop operator,
+I want to review pending payments and confirm them only after checking Venmo,
+So that work orders are not incorrectly marked as paid.
+
+#### Acceptance Criteria
+- A public order detail page for unpaid orders shows a button: "I've Sent Payment".
+- When clicked, the order moves from "Not Paid" to "Verifying Payment" (pending state) and persists this state in the database.
+- The public order detail page clearly shows "Verifying Payment" until the operator confirms or rejects the payment.
+- The management dashboard includes a clear filter/indicator for orders in "Verifying Payment".
+- Only authenticated management users can change "Verifying Payment" to "Paid".
+- Marking as "Paid" updates the DB and immediately reflects in both the dashboard and public order detail page.
+- Optionally, the operator can revert a pending payment back to "Not Paid" if no Venmo payment is found.
+
+#### Technical Notes
+- Add a payment state field separate from print status (recommended enum: `unpaid | verifying_payment | paid`).
+- Keep existing print status workflow unchanged; this is a payment-state-only enhancement.
+- Public page can set `verifying_payment`, but cannot set `paid` directly.
+- Dashboard remains the single place to finalize payment after manual Venmo validation.
+
 ## Technical Notes
 - Project: `projects/print-queue`
 - Stack: React 19 + Vite + TypeScript + @gearhead/ui + Tailwind CSS v4
