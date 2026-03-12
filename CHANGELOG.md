@@ -13,6 +13,18 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.2.1] – 2026-03-12
+
+### fix(print-queue)
+- **Supabase configuration error message** — updated error text in `storage.ts` and `inventory.ts` to explain both the local-dev fix (`.env.local`) and the deployed-build fix (GitHub Actions secrets + re-run the *Print Queue — Build & Deploy* workflow), resolving confusion when secrets are set in GitHub but the stale build is still deployed
+
+### fix(ci)
+- **`storybook.yml`** — added a print-queue rebuild step (with Supabase secrets) before uploading `docs/`, preventing the storybook deployment from overwriting a correct print-queue production build with a stale one
+- **`deploy.yml`** — added a print-queue rebuild step that runs specifically on `workflow_run` triggers (PR preview / PR cleanup), ensuring `docs/print-queue/main/` always contains a fresh build with secrets even when the full project rebuild is skipped for performance
+- **`pr-preview.yml`** — added missing `VITE_PRINT_QUEUE_PASSWORD` env var to the PR preview build step
+
+---
+
 ## [1.2.0] – 2026-03-11
 
 ### feat(print-queue)
