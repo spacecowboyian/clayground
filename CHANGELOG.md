@@ -13,6 +13,14 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.5.0] – 2026-03-12
+
+### feat(print-queue)
+- **Order status is now derived automatically** — when any item in an order is set to `printing` the order status changes to `in_progress`; when all items are `complete` the order moves to `complete`. Order status can no longer be changed manually via the UI.
+- **AMS Slots section added to Print Queue page** — the four AMS slot tiles (previously only on the Filaments page) now appear at the top of the Print Queue page so users can see and manage loaded filaments without navigating away.
+
+---
+
 ## [1.4.1] – 2026-03-12
 
 ### fix(print-queue)
