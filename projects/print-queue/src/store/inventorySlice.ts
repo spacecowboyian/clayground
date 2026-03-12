@@ -10,6 +10,7 @@ import {
   deleteFilament,
 } from '../lib/inventory'
 import type { PrintModel, PrintModelInput, Filament, FilamentInput } from '../types/Inventory'
+import { extractMessage } from '../utils/errors'
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -40,7 +41,7 @@ export const fetchInventory = createAsyncThunk<
       const [models, filaments] = await Promise.all([listModels(), listFilaments()])
       return { models, filaments }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to load inventory'
+      const msg = extractMessage(err, 'Failed to load inventory')
       return rejectWithValue(msg)
     }
   }
@@ -54,7 +55,7 @@ export const addModel = createAsyncThunk<PrintModel, PrintModelInput, { rejectVa
     try {
       return await createModel(input)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to create model'
+      const msg = extractMessage(err, 'Failed to create model')
       return rejectWithValue(msg)
     }
   }
@@ -70,7 +71,7 @@ export const editModel = createAsyncThunk<
     try {
       return await updateModel(id, patch)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to update model'
+      const msg = extractMessage(err, 'Failed to update model')
       return rejectWithValue(msg)
     }
   }
@@ -83,7 +84,7 @@ export const removeModel = createAsyncThunk<string, string, { rejectValue: strin
       await deleteModel(id)
       return id
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to delete model'
+      const msg = extractMessage(err, 'Failed to delete model')
       return rejectWithValue(msg)
     }
   }
@@ -97,7 +98,7 @@ export const addFilament = createAsyncThunk<Filament, FilamentInput, { rejectVal
     try {
       return await createFilament(input)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to create filament'
+      const msg = extractMessage(err, 'Failed to create filament')
       return rejectWithValue(msg)
     }
   }
@@ -113,7 +114,7 @@ export const editFilament = createAsyncThunk<
     try {
       return await updateFilament(id, patch)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to update filament'
+      const msg = extractMessage(err, 'Failed to update filament')
       return rejectWithValue(msg)
     }
   }
@@ -126,7 +127,7 @@ export const removeFilament = createAsyncThunk<string, string, { rejectValue: st
       await deleteFilament(id)
       return id
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to delete filament'
+      const msg = extractMessage(err, 'Failed to delete filament')
       return rejectWithValue(msg)
     }
   }

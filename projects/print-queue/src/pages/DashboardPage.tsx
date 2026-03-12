@@ -65,8 +65,16 @@ export function DashboardPage({ onLogout, onViewOrder, onInventory, onSettings, 
 
   async function handleEdit(input: WorkOrderInput) {
     if (!editOrder) return
-    await dispatch(editOrderThunk({ id: editOrder.id, patch: input })).unwrap()
-    setEditOrder(null)
+    try {
+      await dispatch(editOrderThunk({ id: editOrder.id, patch: input })).unwrap()
+      setEditOrder(null)
+    } catch (err) {
+      // Clear the Redux error so the generic "Unable to load data" ErrorModal
+      // does not appear for save failures — the WorkOrderForm already shows
+      // an inline error message via its own catch block.
+      dispatch(clearOrdersError())
+      throw err
+    }
   }
 
   async function handleDelete() {
