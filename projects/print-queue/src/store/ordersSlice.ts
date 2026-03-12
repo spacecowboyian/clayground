@@ -7,6 +7,7 @@ import {
   reorderOrders,
 } from '../lib/storage'
 import type { WorkOrder, WorkOrderInput } from '../types/WorkOrder'
+import { extractMessage } from '../utils/errors'
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ export const fetchOrders = createAsyncThunk<WorkOrder[], void, { rejectValue: st
     try {
       return await listOrders()
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to load orders'
+      const msg = extractMessage(err, 'Failed to load orders')
       return rejectWithValue(msg)
     }
   }
@@ -42,7 +43,7 @@ export const addOrder = createAsyncThunk<WorkOrder, WorkOrderInput, { rejectValu
     try {
       return await createOrder(input)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to create order'
+      const msg = extractMessage(err, 'Failed to create order')
       return rejectWithValue(msg)
     }
   }
@@ -58,7 +59,7 @@ export const editOrder = createAsyncThunk<
     try {
       return await updateOrder(id, patch)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to update order'
+      const msg = extractMessage(err, 'Failed to update order')
       return rejectWithValue(msg)
     }
   }
@@ -71,7 +72,7 @@ export const removeOrder = createAsyncThunk<string, string, { rejectValue: strin
       await deleteOrder(id)
       return id
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to delete order'
+      const msg = extractMessage(err, 'Failed to delete order')
       return rejectWithValue(msg)
     }
   }
@@ -88,7 +89,7 @@ export const reorderOrdersThunk = createAsyncThunk<
       await reorderOrders(orderedIds)
       return orderedIds
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to reorder orders'
+      const msg = extractMessage(err, 'Failed to reorder orders')
       return rejectWithValue(msg)
     }
   }

@@ -6,6 +6,7 @@ import type { PrintModel, Filament } from '../../types/Inventory'
 import { loadSettings } from '../../lib/settings'
 import { calculateItemCost } from '../../lib/costing'
 import { computeFilamentStats } from '../../lib/inventory'
+import { extractMessage } from '../../utils/errors'
 
 const STATUS_OPTIONS = [
   { id: 'Queue',    label: 'Queue' },
@@ -226,8 +227,9 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
         cost:           totalCalcCost,
         sort_order:     initial?.sort_order ?? 0,
       })
-    } catch {
-      setError('Failed to save. Please try again.')
+    } catch (err) {
+      const detail = extractMessage(err, '')
+      setError(detail ? `Failed to save: ${detail}` : 'Failed to save. Please try again.')
       setSaving(false)
     }
   }

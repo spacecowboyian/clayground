@@ -75,3 +75,7 @@ So that I and my helpers can view and manage print jobs without needing individu
 - Orders tables (active and completed) now show order_number as the first column, linked to the order detail page
 - Customer name in order tables is now plain text (no longer a link)
 - Mobile order cards updated to display order number as the navigation link and customer as plain text
+
+### 2026-03-12 — Requested by: @copilot (edit save bug fix)
+- Fixed: saving an edited work order no longer shows the misleading "Unable to load data" ErrorModal; the inline form error is shown instead with the actual Supabase error message.
+- Fixed: Supabase `PostgrestError` message is now properly extracted in all Redux thunks via a shared `extractMessage` utility, so the real DB error (e.g. missing column) is surfaced to the user.

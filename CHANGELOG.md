@@ -13,6 +13,15 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.4.1] – 2026-03-12
+
+### fix(print-queue)
+- **Edit work order no longer triggers misleading "Unable to load data" modal** — save failures now show an inline error inside the form instead of the full-screen ErrorModal that is intended for data-load failures. `handleEdit` catches the rejected thunk, clears the Redux error state, and re-throws so the form's catch block displays the message in context.
+- **Actual Supabase error now shown to user** — all Redux thunks previously discarded the real database error message because `PostgrestError` objects (returned by `@supabase/supabase-js`) are not `Error` instances. A shared `extractMessage` utility (`src/utils/errors.ts`) now correctly extracts `.message` from both `Error` and plain-object errors, making the displayed message actionable (e.g. "column order_items does not exist — run migration 002").
+- **WorkOrderForm save error shows error detail** — the form's catch block now uses the same `extractMessage` helper and surfaces the specific error rather than a static fallback string.
+
+---
+
 ## [1.4.0] – 2026-03-12
 
 ### feat(print-queue)
