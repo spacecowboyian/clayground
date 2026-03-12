@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" width="200" height="220">
+  <!-- Shadow / base -->
+  <ellipse cx="100" cy="208" rx="52" ry="10" fill="#111" opacity="0.35"/>
+
+  <!-- Printer base platform -->
+  <rect x="54" y="188" width="92" height="16" rx="8" fill="#1a1a2e"/>
+  <rect x="58" y="192" width="84" height="10" rx="5" fill="#22223b"/>
+
+  <!-- Printer body -->
+  <rect x="46" y="30" width="108" height="165" rx="16" fill="#1e1e2e"/>
+  <rect x="48" y="32" width="104" height="161" rx="14" fill="#22223b"/>
+
+  <!-- Top panel -->
+  <rect x="48" y="32" width="104" height="28" rx="12" fill="#1a1a2e"/>
+  <rect x="50" y="34" width="100" height="24" rx="10" fill="#252540"/>
+
+  <!-- LCD screen on top -->
+  <rect x="120" y="39" width="22" height="14" rx="3" fill="#4fc3f7" opacity="0.8"/>
+  <rect x="122" y="41" width="18" height="10" rx="2" fill="#87e0ff" opacity="0.6"/>
+
+  <!-- Top panel dots -->
+  <circle cx="148" cy="46" r="3" fill="#4a4a6a"/>
+  <circle cx="156" cy="46" r="3" fill="#4a4a6a"/>
+
+  <!-- Printer window frame -->
+  <rect x="55" y="66" width="90" height="90" rx="8" fill="#111122"/>
+  <rect x="57" y="68" width="86" height="86" rx="6" fill="#0a0a1a"/>
+
+  <!-- Window glass effect -->
+  <rect x="59" y="70" width="82" height="82" rx="5" fill="#12122a"/>
+  <rect x="59" y="70" width="82" height="20" rx="5" fill="#1a1a3a" opacity="0.5"/>
+
+  <!-- Print rails (horizontal) -->
+  <rect x="61" y="78" width="78" height="4" rx="2" fill="#3a3a5a"/>
+  <rect x="61" y="78" width="78" height="2" rx="1" fill="#5a5a7a" opacity="0.6"/>
+
+  <!-- Print head / carriage -->
+  <rect x="88" y="73" width="24" height="14" rx="3" fill="#2a2a4a"/>
+  <rect x="93" y="85" width="14" height="5" rx="2" fill="#1a1a3a"/>
+  <rect x="98" y="87" width="4" height="8" rx="1" fill="#f59e0b"/>
+
+  <!-- Print bed -->
+  <rect x="66" y="136" width="68" height="8" rx="3" fill="#2a2a4a"/>
+  <rect x="68" y="136" width="64" height="5" rx="2" fill="#3a3a5a"/>
+  <rect x="68" y="139" width="64" height="2" rx="1" fill="#5a5a7a" opacity="0.4"/>
+
+  <!-- Heart being printed - shadow -->
+  <path d="M100 132 C100 132 76 118 76 105 C76 97 83 91 91 93 C95 94 98 97 100 100 C102 97 105 94 109 93 C117 91 124 97 124 105 C124 118 100 132 100 132Z"
+        fill="#1a0010" opacity="0.4" transform="translate(2,4)"/>
+
+  <!-- Heart being printed -->
+  <path d="M100 132 C100 132 76 118 76 105 C76 97 83 91 91 93 C95 94 98 97 100 100 C102 97 105 94 109 93 C117 91 124 97 124 105 C124 118 100 132 100 132Z"
+        fill="#e91e63"/>
+
+  <!-- Heart highlight -->
+  <path d="M88 97 C86 98 84 101 84 104" stroke="#f48fb1" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8"/>
+
+  <!-- Door handle -->
+  <rect x="141" y="95" width="5" height="20" rx="2.5" fill="#3a3a5a"/>
+  <rect x="142" y="97" width="3" height="16" rx="1.5" fill="#5a5a7a"/>
+
+  <!-- Label area on lower body -->
+  <rect x="50" y="163" width="100" height="48" rx="0" fill="#1e1e2e"/>
+  <rect x="50" y="163" width="100" height="2" fill="#111122"/>
+
+  <!-- "TINY" text -->
+  <text x="100" y="192" font-family="Arial Black, Arial, sans-serif" font-weight="900"
+        font-size="28" fill="white" text-anchor="middle" letter-spacing="2">TINY</text>
+
+  <!-- "PRINTS" text -->
+  <text x="100" y="215" font-family="Arial Black, Arial, sans-serif" font-weight="900"
+        font-size="22" fill="#87ceeb" text-anchor="middle" letter-spacing="2">PRINTS</text>
+</svg>
