@@ -220,53 +220,19 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
 
             {/* Add Order button — desktop (sm+) */}
             <div className="ml-auto hidden sm:block">
-              <Dialog
-                isOpen={addOpen}
-                onOpenChange={setAddOpen}
-                size="xl"
-                trigger={
-                  <Button variant="primary" color="orange" onPress={() => setAddOpen(true)}>
-                    <Plus className="w-4 h-4" />
-                    Add Order
-                  </Button>
-                }
-                title="New Work Order"
-              >
-                <WorkOrderForm
-                  onSave={handleCreate}
-                  onCancel={() => setAddOpen(false)}
-                  onGoToInventory={() => { setAddOpen(false); onModels() }}
-                  models={models}
-                  filaments={filaments}
-                  orders={orders}
-                />
-              </Dialog>
+              <Button variant="primary" color="orange" onPress={() => setAddOpen(true)}>
+                <Plus className="w-4 h-4" />
+                Add Order
+              </Button>
             </div>
           </div>
 
           {/* Add Order button — mobile full width */}
           <div className="sm:hidden">
-            <Dialog
-              isOpen={addOpen}
-              onOpenChange={setAddOpen}
-              size="xl"
-              trigger={
-                <Button variant="primary" color="orange" className="w-full justify-center" onPress={() => setAddOpen(true)}>
-                  <Plus className="w-4 h-4" />
-                  Add Order
-                </Button>
-              }
-              title="New Work Order"
-            >
-              <WorkOrderForm
-                onSave={handleCreate}
-                onCancel={() => setAddOpen(false)}
-                onGoToInventory={() => { setAddOpen(false); onModels() }}
-                models={models}
-                filaments={filaments}
-                orders={orders}
-              />
-            </Dialog>
+            <Button variant="primary" color="orange" className="w-full justify-center" onPress={() => setAddOpen(true)}>
+              <Plus className="w-4 h-4" />
+              Add Order
+            </Button>
           </div>
         </div>
 
@@ -484,6 +450,26 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
           {statusFilter !== 'All' && ` · filtered by "${STATUS_FILTER_LABELS[statusFilter]}"`}
         </p>
       </main>
+
+      {/* Add Order Dialog */}
+      {addOpen && (
+        <Dialog
+          isOpen
+          size="xl"
+          onOpenChange={open => { if (!open) setAddOpen(false) }}
+          trigger={<span />}
+          title="New Work Order"
+        >
+          <WorkOrderForm
+            onSave={handleCreate}
+            onCancel={() => setAddOpen(false)}
+            onGoToInventory={() => { setAddOpen(false); onModels() }}
+            models={models}
+            filaments={filaments}
+            orders={orders}
+          />
+        </Dialog>
+      )}
 
       {/* Edit Dialog */}
       {editOrder && (
