@@ -13,6 +13,7 @@ _Changes not yet pushed to `main` go here._
 
 ### fix(print-queue)
 - Remove duplicate AMS Slots section from the Print Queue page so the AMS block is shown only once.
+- Fix "Add Order" modal being unresponsive to clicks and keyboard input: two `Dialog` portals were opening simultaneously (one desktop, one mobile) because both shared the same `addOpen` state; replaced the dual-Dialog approach with plain trigger buttons and a single conditional Dialog rendered outside the toolbar, matching the Edit/Delete dialog pattern.
 
 ### docs(somethings-happening)
 - Append a user-story addition noting the AMS duplicate-rendering fix request.
