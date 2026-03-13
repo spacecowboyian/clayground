@@ -31,9 +31,15 @@ export async function listModels(): Promise<PrintModel[]> {
 
 export async function createModel(input: PrintModelInput): Promise<PrintModel> {
   const db = requireSupabase()
+  // When the catalog number is empty, omit the field entirely so the database
+  // column default applies.  This prevents "invalid input syntax for type
+  // integer" on databases where models.number is still INTEGER (pre-migration
+  // 009); the primary fix is migration 009 which changes the column to TEXT.
+  const { number, ...rest } = input
+  const row = number !== '' ? { ...rest, number } : rest
   const { data, error } = await db
     .from('models')
-    .insert([input])
+    .insert([row])
     .select()
     .single()
   if (error) throw error
@@ -42,9 +48,17 @@ export async function createModel(input: PrintModelInput): Promise<PrintModel> {
 
 export async function updateModel(id: string, patch: Partial<PrintModelInput>): Promise<PrintModel> {
   const db = requireSupabase()
+  // Same guard as createModel: omit an empty number so the existing column
+  // value is preserved on databases where the column is still INTEGER.
+  const { number, ...fields } = patch
+  const payload: Record<string, unknown> = {
+    ...fields,
+    updated_at: now(),
+    ...(number !== undefined && number !== '' ? { number } : {}),
+  }
   const { data, error } = await db
     .from('models')
-    .update({ ...patch, updated_at: now() })
+    .update(payload)
     .eq('id', id)
     .select()
     .single()

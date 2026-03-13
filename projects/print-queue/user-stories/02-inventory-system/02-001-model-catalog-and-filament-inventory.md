@@ -91,3 +91,6 @@ So that I can track what I can print, what materials I have, and ensure orders r
 - Filaments page now shows an "On Order" accordion section in addition to "Out of Stock"
 - The status dot in the filament table cycles through all three states on click (green → orange → red)
 - Items with filaments marked 'on_order' display bold text with "– filament on order" in red on the order detail page
+
+### 2026-03-13 — Requested by: @copilot
+- Fixed: saving a new model with an empty catalog number no longer fails with "invalid input syntax for type integer: """. Migration 009 changes `models.number` from INTEGER to TEXT (the intended type from migration 003, which was a no-op for databases where the column already existed as INTEGER). `createModel` and `updateModel` also omit an empty number field from the Supabase payload as a belt-and-suspenders guard.
