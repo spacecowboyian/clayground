@@ -164,6 +164,14 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
 
   const hasFilamentWarning = filamentWarnings.some(w => w !== null)
 
+  // Pre-computed AMS slot → filament lookup for the summary panel
+  const amsSlotMap = useMemo(
+    () => Object.fromEntries(
+      filaments.filter(f => f.ams_slot !== null).map(f => [f.ams_slot as number, f])
+    ),
+    [filaments]
+  )
+
   // ── Item draft helpers ─────────────────────────────────────────────────────
 
   function updateItem(idx: number, patch: Partial<ItemDraft>) {
@@ -267,6 +275,35 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
         isRequired
         placeholder="e.g. Karen coworker"
       />
+
+      {/* AMS Summary – shown when at least one slot is loaded */}
+      {Object.keys(amsSlotMap).length > 0 && (
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] p-3 space-y-2">
+          <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Current AMS</p>
+          <div className="grid grid-cols-4 gap-2">
+            {([1, 2, 3, 4] as const).map(slot => {
+              const loaded = amsSlotMap[slot] ?? null
+              return (
+                <div key={slot} className="space-y-1">
+                  <span className="text-[10px] font-medium text-[var(--muted-foreground)]">Slot {slot}</span>
+                  {loaded ? (
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span
+                        className="w-3 h-3 rounded-full border border-[var(--border)] shrink-0"
+                        style={{ background: loaded.color_hex || '#888' }}
+                        aria-hidden="true"
+                      />
+                      <span className="text-xs text-[var(--foreground)] truncate">{loaded.color}</span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-[var(--muted-foreground)]">—</span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Items */}
       <div className="space-y-3">
