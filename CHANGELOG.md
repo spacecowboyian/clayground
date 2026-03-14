@@ -12,6 +12,7 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### fix(print-queue)
+- Fix "can't save a new model" error (`invalid input syntax for type integer: ""`): migration 009 changes `models.number` from INTEGER to TEXT (the intended type; migration 003 was a no-op for databases where the column already existed as INTEGER). `createModel` and `updateModel` in `inventory.ts` now omit an empty catalog number from the payload so the DB column default applies when the migration has not yet been run.
 - Remove duplicate AMS Slots section from the Print Queue page so the AMS block is shown only once.
 - Fix "Add Order" modal being unresponsive to clicks and keyboard input: two `Dialog` portals were opening simultaneously (one desktop, one mobile) because both shared the same `addOpen` state; replaced the dual-Dialog approach with plain trigger buttons and a single conditional Dialog rendered outside the toolbar, matching the Edit/Delete dialog pattern.
 
