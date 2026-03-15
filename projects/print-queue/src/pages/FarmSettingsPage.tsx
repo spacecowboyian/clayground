@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Button, NumberField } from '@gearhead/ui'
+import { Button, NumberField, TextField } from '@gearhead/ui'
 import { DEFAULT_FARM_SETTINGS } from '../types/FarmSettings'
 import { useAppDispatch, useAppSelector } from '../store'
 import { updateSettings } from '../store/settingsSlice'
 import { AppHeader } from '../components/AppHeader/AppHeader'
+import { fetchBambuTasks } from '../lib/bambu'
 
 interface FarmSettingsPageProps {
   onLogout?: () => void
@@ -20,14 +21,52 @@ export function FarmSettingsPage({ onLogout, onPrintQueue, onOrders, onModels, o
   const [saved, setSaved]         = useState(false)
   const [laborRate, setLaborRate] = useState(settings.labor_rate_per_hour)
 
+  // Bambu settings state
+  const [bambuToken, setBambuToken]       = useState(settings.bambu_access_token ?? '')
+  const [bambuProxy, setBambuProxy]       = useState(settings.bambu_cors_proxy ?? '')
+  const [bambuTesting, setBambuTesting]   = useState(false)
+  const [bambuTestResult, setBambuTestResult] = useState<{ ok: boolean; msg: string } | null>(null)
+
   function handleSave() {
-    dispatch(updateSettings({ ...settings, labor_rate_per_hour: laborRate }))
+    dispatch(updateSettings({
+      ...settings,
+      labor_rate_per_hour: laborRate,
+      bambu_access_token: bambuToken,
+      bambu_cors_proxy: bambuProxy,
+    }))
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
 
   function handleReset() {
     setLaborRate(DEFAULT_FARM_SETTINGS.labor_rate_per_hour)
+  }
+
+  async function handleTestBambu() {
+    if (!bambuToken.trim()) {
+      setBambuTestResult({ ok: false, msg: 'Enter an access token first.' })
+      return
+    }
+    setBambuTesting(true)
+    setBambuTestResult(null)
+    try {
+      const tasks = await fetchBambuTasks(bambuToken.trim(), { corsProxy: bambuProxy.trim(), limit: 1 })
+      setBambuTestResult({ ok: true, msg: `Connection successful — ${tasks.length} recent print(s) found.` })
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      const isCors =
+        msg.includes('Failed to fetch') ||
+        msg.includes('NetworkError') ||
+        msg.includes('CORS')
+      setBambuTestResult({
+        ok: false,
+        msg: isCors
+          ? 'CORS error — the Bambu API blocked the browser request. Configure a CORS proxy URL below and try again.'
+          : msg,
+      })
+    } finally {
+      setBambuTesting(false)
+    }
   }
 
   return (
@@ -97,6 +136,67 @@ export function FarmSettingsPage({ onLogout, onPrintQueue, onOrders, onModels, o
                 Filament usage and post-processing time are set per model in the Inventory page.
                 Roll cost and roll size are set per filament.
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Bambu Integration */}
+        <section className="max-w-md space-y-6">
+          <div>
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">Bambu Integration</h2>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">
+              Connect your Bambu Lab account to import recent print jobs directly as new orders.
+            </p>
+          </div>
+
+          <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-5 space-y-5">
+            <div className="space-y-2">
+              <TextField
+                label="Access Token"
+                type="password"
+                value={bambuToken}
+                onChange={setBambuToken}
+                placeholder="Paste your Bambu Lab API token"
+              />
+              <p className="text-xs text-[var(--muted-foreground)]">
+                Find your token in the Bambu Handy app under{' '}
+                <span className="font-medium text-[var(--foreground)]">Profile → Developer</span>.
+                It is stored locally and never sent to Supabase.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <TextField
+                label="CORS Proxy URL (optional)"
+                value={bambuProxy}
+                onChange={setBambuProxy}
+                placeholder="e.g. https://corsproxy.io/?"
+              />
+              <p className="text-xs text-[var(--muted-foreground)]">
+                The Bambu API blocks direct browser requests (CORS). Add a proxy prefix if you see
+                a network error. Leave empty to attempt a direct connection.
+              </p>
+            </div>
+
+            {bambuTestResult && (
+              <div
+                className={`rounded-lg border p-3 text-sm ${
+                  bambuTestResult.ok
+                    ? 'border-[var(--accent-green)] bg-[var(--secondary)] text-[var(--accent-green)]'
+                    : 'border-[var(--destructive)] bg-[var(--accent-red-light)] text-[var(--destructive)]'
+                }`}
+              >
+                {bambuTestResult.msg}
+              </div>
+            )}
+
+            <div className="flex items-center gap-3 pt-1 flex-wrap">
+              <Button variant="outline" onPress={() => void handleTestBambu()} isDisabled={bambuTesting}>
+                {bambuTesting ? 'Testing…' : 'Test Connection'}
+              </Button>
+              <Button variant="primary" color="orange" onPress={handleSave}>
+                {saved ? '✓ Saved' : 'Save Settings'}
+              </Button>
             </div>
           </div>
         </section>

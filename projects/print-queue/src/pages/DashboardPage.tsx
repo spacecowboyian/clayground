@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Dialog, Accordion } from '@gearhead/ui'
-import { DollarSign, GripVertical, Pencil, Plus, Trash2 } from 'lucide-react'
+import { DollarSign, GripVertical, Pencil, Plus, Printer, Trash2 } from 'lucide-react'
 import { StatusBadge } from '../components/StatusBadge/StatusBadge'
 import { WorkOrderForm } from '../components/WorkOrderForm/WorkOrderForm'
+import { BambuImportDialog, type BambuPrefillData } from '../components/BambuImportDialog/BambuImportDialog'
 import { ErrorModal } from '../components/ErrorModal/ErrorModal'
 import { AppHeader } from '../components/AppHeader/AppHeader'
 import { useAppDispatch, useAppSelector } from '../store'
@@ -50,6 +51,12 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
   const [addOpen, setAddOpen]       = useState(false)
   const [editOrder, setEditOrder]   = useState<WorkOrder | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<WorkOrder | null>(null)
+
+  // Bambu import state
+  const settings = useAppSelector(state => state.settings.settings)
+  const hasBambuToken = Boolean(settings.bambu_access_token?.trim())
+  const [bambuOpen, setBambuOpen]       = useState(false)
+  const [bambuPrefill, setBambuPrefill] = useState<BambuPrefillData | null>(null)
 
   // Drag-and-drop state
   const dragIdRef    = useRef<string | null>(null)
@@ -227,7 +234,13 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
             </div>
 
             {/* Add Order button — desktop (sm+) */}
-            <div className="ml-auto hidden sm:block">
+            <div className="ml-auto hidden sm:flex items-center gap-2">
+              {hasBambuToken && (
+                <Button variant="outline" onPress={() => setBambuOpen(true)}>
+                  <Printer className="w-4 h-4" />
+                  Import from Bambu
+                </Button>
+              )}
               <Button variant="primary" color="orange" onPress={() => setAddOpen(true)}>
                 <Plus className="w-4 h-4" />
                 Add Order
@@ -235,8 +248,14 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
             </div>
           </div>
 
-          {/* Add Order button — mobile full width */}
-          <div className="sm:hidden">
+          {/* Add Order / Import buttons — mobile full width */}
+          <div className="sm:hidden space-y-2">
+            {hasBambuToken && (
+              <Button variant="outline" className="w-full justify-center" onPress={() => setBambuOpen(true)}>
+                <Printer className="w-4 h-4" />
+                Import from Bambu
+              </Button>
+            )}
             <Button variant="primary" color="orange" className="w-full justify-center" onPress={() => setAddOpen(true)}>
               <Plus className="w-4 h-4" />
               Add Order
@@ -458,6 +477,76 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
           {statusFilter !== 'All' && ` · filtered by "${STATUS_FILTER_LABELS[statusFilter]}"`}
         </p>
       </main>
+
+      {/* Bambu Import Dialog */}
+      {bambuOpen && (
+        <Dialog
+          isOpen
+          size="xl"
+          onOpenChange={open => { if (!open) setBambuOpen(false) }}
+          trigger={<span />}
+          title="Import from Bambu"
+        >
+          <BambuImportDialog
+            accessToken={settings.bambu_access_token ?? ''}
+            corsProxy={settings.bambu_cors_proxy ?? ''}
+            onImport={(prefill) => {
+              setBambuOpen(false)
+              setBambuPrefill(prefill)
+            }}
+            onClose={() => setBambuOpen(false)}
+          />
+        </Dialog>
+      )}
+
+      {/* Bambu pre-fill → New Work Order Dialog */}
+      {bambuPrefill && (
+        <Dialog
+          isOpen
+          size="xl"
+          onOpenChange={open => { if (!open) setBambuPrefill(null) }}
+          trigger={<span />}
+          title={`New Order — ${bambuPrefill.item || 'New Print'}`}
+        >
+          <WorkOrderForm
+            initial={{
+              id: '',
+              order_number: 0,
+              customer: bambuPrefill.customer ?? 'New Print',
+              item: bambuPrefill.item ?? '',
+              color: bambuPrefill.color ?? '',
+              model_url: '',
+              status: bambuPrefill.status ?? 'waiting',
+              paid: false,
+              payment_status: 'unpaid',
+              notes: bambuPrefill.notes ?? '',
+              price: bambuPrefill.price ?? 0,
+              cost: 0,
+              sort_order: 0,
+              model_id: null,
+              needs_filament: false,
+              order_items: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }}
+            onSave={async (input) => {
+              const nextSort = orders.filter(o => ACTIVE_STATUSES.has(o.status)).length + 1
+              try {
+                await dispatch(addOrder({ ...input, sort_order: nextSort })).unwrap()
+                setBambuPrefill(null)
+              } catch (err) {
+                dispatch(clearOrdersError())
+                throw err
+              }
+            }}
+            onCancel={() => setBambuPrefill(null)}
+            onGoToInventory={() => { setBambuPrefill(null); onModels() }}
+            models={models}
+            filaments={filaments}
+            orders={orders}
+          />
+        </Dialog>
+      )}
 
       {/* Add Order Dialog */}
       {addOpen && (

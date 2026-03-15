@@ -11,6 +11,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### feat(print-queue)
+- **Bambu print import** — operators can now connect their Bambu Lab account and import recent print jobs directly as new work orders. A new "Bambu Integration" section in Farm Settings stores the access token and an optional CORS proxy URL locally (never sent to Supabase). An "Import from Bambu" button appears on the Orders dashboard when a token is configured; clicking it opens a dialog listing the 20 most recent successful print jobs (title, date, filament weight, print time, color swatch). Selecting a print pre-fills the New Work Order form with customer "New Print", model name derived from the print filename, filament color from the AMS slot, and a print-time/weight summary in Notes.
+
 ### fix(print-queue)
 - Fix "can't save a new model" error (`invalid input syntax for type integer: ""`): migration 009 changes `models.number` from INTEGER to TEXT (the intended type; migration 003 was a no-op for databases where the column already existed as INTEGER). `createModel` and `updateModel` in `inventory.ts` now omit an empty catalog number from the payload so the DB column default applies when the migration has not yet been run.
 - Remove duplicate AMS Slots section from the Print Queue page so the AMS block is shown only once.
