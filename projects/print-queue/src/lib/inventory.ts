@@ -147,29 +147,47 @@ export function computeFilamentStats(
           const isItemActive   = item.status === 'queue' || item.status === 'printing'
           if (!isItemComplete && !isItemActive) continue
 
-          const matches = item.filament_id
-            ? item.filament_id === f.id
-            : item.color.toLowerCase() === f.color.toLowerCase()
-          if (!matches) continue
-
           const model = item.model_id ? modelMap.get(item.model_id) : null
-          if (!model) continue
 
-          // Compute grams attributed to this filament for the item.
-          // After migration 006 all model requirements have filament_id=null
-          // (colour-agnostic). For both new-style items (explicit filament_id)
-          // and legacy items (colour-string only) we therefore sum the
-          // null-filament_id requirements. If — for pre-migration models — some
-          // requirements still carry a specific filament_id, we fall back to
-          // the total across all requirements so the estimate is still useful.
-          const nullReqs = model.filament_requirements.filter(r => r.filament_id === null)
-          const reqG = nullReqs.length > 0
-            ? nullReqs.reduce((sum, r) => sum + r.quantity_g, 0)
-            : model.filament_requirements.reduce((sum, r) => sum + r.quantity_g, 0)
-          const totalG = reqG * (item.quantity ?? 1)
+          if (item.filament_selections && item.filament_selections.length > 0 && model) {
+            // Multi-slot order: attribute grams per slot to the correct filament
+            for (let i = 0; i < item.filament_selections.length; i++) {
+              const sel = item.filament_selections[i]
+              const matches = sel.filament_id
+                ? sel.filament_id === f.id
+                : sel.color.toLowerCase() === f.color.toLowerCase()
+              if (!matches) continue
 
-          if (isItemComplete) consumed_g += totalG
-          else                reserved_g += totalG
+              const req = model.filament_requirements[i]
+              const grams = req ? req.quantity_g * (item.quantity ?? 1) : 0
+              if (isItemComplete) consumed_g += grams
+              else                reserved_g += grams
+            }
+          } else {
+            // Single-filament item (legacy or single-requirement model)
+            const matches = item.filament_id
+              ? item.filament_id === f.id
+              : item.color.toLowerCase() === f.color.toLowerCase()
+            if (!matches) continue
+
+            if (!model) continue
+
+            // Compute grams attributed to this filament for the item.
+            // After migration 006 all model requirements have filament_id=null
+            // (colour-agnostic). For both new-style items (explicit filament_id)
+            // and legacy items (colour-string only) we therefore sum the
+            // null-filament_id requirements. If — for pre-migration models — some
+            // requirements still carry a specific filament_id, we fall back to
+            // the total across all requirements so the estimate is still useful.
+            const nullReqs = model.filament_requirements.filter(r => r.filament_id === null)
+            const reqG = nullReqs.length > 0
+              ? nullReqs.reduce((sum, r) => sum + r.quantity_g, 0)
+              : model.filament_requirements.reduce((sum, r) => sum + r.quantity_g, 0)
+            const totalG = reqG * (item.quantity ?? 1)
+
+            if (isItemComplete) consumed_g += totalG
+            else                reserved_g += totalG
+          }
         }
       } else {
         // Legacy single-item order — use order-level status

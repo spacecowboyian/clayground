@@ -17,19 +17,24 @@ export interface CostBreakdown {
  *
  * Requirements with a specific filament_id are priced using that filament.
  * Requirements with filament_id=null (colour-agnostic, set by migration 006)
- * are priced using `selectedFilament` when provided; otherwise skipped.
+ * are priced using the corresponding entry in `selectedFilaments` (indexed by
+ * requirement position) when provided; otherwise that requirement is skipped.
+ *
+ * For backward compatibility, a single filament can be passed as a one-element
+ * array (or wrapped externally) when all requirements share one colour.
  */
 export function calculateItemCost(
   model: Pick<PrintModel, 'filament_requirements' | 'post_processing_mins'>,
   allFilaments: Pick<Filament, 'id' | 'roll_cost' | 'roll_size_g'>[],
   laborRatePerHour: number,
-  selectedFilament?: Pick<Filament, 'id' | 'roll_cost' | 'roll_size_g'> | null,
+  selectedFilaments?: (Pick<Filament, 'id' | 'roll_cost' | 'roll_size_g'> | null)[] | null,
 ): CostBreakdown {
   let material_cost = 0
-  for (const req of model.filament_requirements) {
+  for (let i = 0; i < model.filament_requirements.length; i++) {
+    const req = model.filament_requirements[i]
     const fil = req.filament_id
       ? allFilaments.find(f => f.id === req.filament_id)
-      : (selectedFilament ?? null)
+      : (selectedFilaments?.[i] ?? null)
     if (!fil || fil.roll_size_g <= 0) continue
     material_cost += (req.quantity_g / fil.roll_size_g) * fil.roll_cost
   }

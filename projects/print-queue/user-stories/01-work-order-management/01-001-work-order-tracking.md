@@ -113,3 +113,8 @@ So that work orders are not incorrectly marked as paid.
 ### 2026-03-12 — Requested by: @copilot (edit save bug fix)
 - Fixed: saving an edited work order no longer shows the misleading "Unable to load data" ErrorModal; the inline form error is shown instead with the actual Supabase error message.
 - Fixed: Supabase `PostgrestError` message is now properly extracted in all Redux thunks via a shared `extractMessage` utility, so the real DB error (e.g. missing column) is surfaced to the user.
+
+### 2026-03-15 — Requested by: @copilot (cost column + multi-filament)
+- Fixed: "Could not find the 'cost' column" save error — migration 010 ensures `cost` and other potentially missing `work_orders` columns are present using `ADD COLUMN IF NOT EXISTS`.
+- Fixed: creating a new order now clears the Redux error on failure (same as edit), preventing the misleading "Unable to load data" modal from appearing on save errors.
+- Feature: WorkOrderForm now shows one filament dropdown per requirement slot when a model has multiple filament requirements (e.g. a two-color BB gun shows two separate "Color" dropdowns). Each slot defaults to the model's assigned filament (if any). If the selected filament has insufficient remaining stock, that dropdown shows an error state (red border + message) and saving is blocked until a valid filament is chosen.
