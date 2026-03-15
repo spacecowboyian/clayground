@@ -97,6 +97,11 @@ export function BambuImportDialog({ accessToken, corsProxy, onImport, onClose }:
               'Could not reach the Bambu API — this is usually a CORS restriction. ' +
               'Configure a CORS proxy URL in Farm Settings (e.g. https://corsproxy.io/?) and try again.',
             )
+          } else if (msg.includes('No compatible Bambu task endpoint')) {
+            setError(
+              'Bambu cloud task endpoints were not available for this account/token. ' +
+              'This can happen if Bambu changed cloud API access for your account or app version.',
+            )
           } else {
             setError(msg)
           }

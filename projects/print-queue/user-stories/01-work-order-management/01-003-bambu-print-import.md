@@ -50,3 +50,7 @@ So that I can quickly create work orders pre-filled with model name, filament co
 - [ ] Medium (3-5 days)
 - [ ] Large (1-2 weeks)
 - [ ] X-Large (2+ weeks)
+
+## Additions
+### 2026-03-15 — Requested by: @copilot
+- Added compatibility scope to support Bambu cloud task endpoint fallback and clearer messaging when token or endpoint access is unavailable.

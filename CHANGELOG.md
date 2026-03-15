@@ -12,6 +12,14 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(print-queue)
+- **LAN-to-cloud bridge planning epic** — added a new user-story epic at `projects/print-queue/user-stories/04-lan-cloud-bridge/` with eight sequenced implementation stories and a runbook so a future coding agent can execute LAN ingestion, cloud sync, UI integration, and hardening in atomic phases.
+
+### fix(print-queue)
+- **Bambu import endpoint compatibility fallback** — `fetchBambuTasks` now attempts both `v1/iot-service/api/user/task` and `v1/user-service/my/tasks`, supports multiple response shapes (`hits`, `tasks`, and nested `data.*`), and gracefully handles endpoint `404` drift before failing.
+- **Improved Bambu import failure messaging** — import dialog now shows a specific explanation when no compatible cloud task endpoint is available for the provided token/account.
+- **Settings copy updated for current Bambu policy reality** — Farm Settings token field now labels this as a cloud token flow and removes the outdated, hardcoded `Profile → Developer` token-location instruction.
+
+### feat(print-queue)
 - **Bambu print import** — operators can now connect their Bambu Lab account and import recent print jobs directly as new work orders. A new "Bambu Integration" section in Farm Settings stores the access token and an optional CORS proxy URL locally (never sent to Supabase). An "Import from Bambu" button appears on the Orders dashboard when a token is configured; clicking it opens a dialog listing the 20 most recent successful print jobs (title, date, filament weight, print time, color swatch). Selecting a print pre-fills the New Work Order form with customer "New Print", model name derived from the print filename, filament color from the AMS slot, and a print-time/weight summary in Notes.
 
 ### fix(print-queue)
