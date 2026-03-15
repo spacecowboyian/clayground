@@ -26,7 +26,7 @@ export interface BambuTask {
    *  5 = failed
    *  Others = in progress / cancelled / etc.
    */
-  status: number
+  status: number | string
   /** ISO-like start timestamp: "2024-01-15 10:30:00" */
   startTime: string
   /** ISO-like end timestamp: "2024-01-15 12:45:00" */
@@ -43,8 +43,13 @@ export interface BambuTask {
 }
 
 interface BambuTasksResponse {
-  total: number
-  hits: BambuTask[]
+  total?: number
+  hits?: BambuTask[]
+  tasks?: BambuTask[]
+  data?: {
+    hits?: BambuTask[]
+    tasks?: BambuTask[]
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -78,7 +83,16 @@ export function formatPrintTime(seconds: number): string {
 
 // ── API calls ─────────────────────────────────────────────────────────────────
 
-const BAMBU_TASK_URL = 'https://api.bambulab.com/v1/iot-service/api/user/task'
+const BAMBU_TASK_URLS = [
+  'https://api.bambulab.com/v1/iot-service/api/user/task',
+  'https://api.bambulab.com/v1/user-service/my/tasks',
+]
+
+function isCompletedTask(status: number | string): boolean {
+  if (typeof status === 'number') return status === 4
+  const normalized = status.toLowerCase()
+  return normalized === 'completed' || normalized === 'success' || normalized === 'succeeded'
+}
 
 /**
  * Fetch recent print tasks from the Bambu Cloud API.
@@ -97,17 +111,40 @@ export async function fetchBambuTasks(
   opts: { limit?: number; corsProxy?: string } = {},
 ): Promise<BambuTask[]> {
   const { limit = 20, corsProxy = '' } = opts
-  const apiUrl = `${BAMBU_TASK_URL}?limit=${limit}`
-  const url = corsProxy ? `${corsProxy}${encodeURIComponent(apiUrl)}` : apiUrl
+  let notFoundCount = 0
+  let lastError: Error | null = null
 
-  const resp = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+  for (const baseUrl of BAMBU_TASK_URLS) {
+    const apiUrl = `${baseUrl}?limit=${limit}`
+    const url = corsProxy ? `${corsProxy}${encodeURIComponent(apiUrl)}` : apiUrl
 
-  if (!resp.ok) {
-    throw new Error(`Bambu API returned ${resp.status}: ${resp.statusText}`)
+    const resp = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+
+    if (resp.status === 404) {
+      notFoundCount += 1
+      continue
+    }
+
+    if (!resp.ok) {
+      throw new Error(`Bambu API returned ${resp.status}: ${resp.statusText}`)
+    }
+
+    const data = (await resp.json()) as BambuTasksResponse
+    const tasks = data.hits ?? data.tasks ?? data.data?.hits ?? data.data?.tasks ?? []
+
+    if (tasks.length > 0 && tasks.some((t) => typeof t.status !== 'undefined')) {
+      return tasks.filter((t) => isCompletedTask(t.status))
+    }
+    return tasks
   }
 
-  const data = (await resp.json()) as BambuTasksResponse
-  return (data.hits ?? []).filter((t) => t.status === 4)
+  if (notFoundCount === BAMBU_TASK_URLS.length) {
+    lastError = new Error(
+      'No compatible Bambu task endpoint was found. The cloud task API may have changed or your account may not have cloud task access.',
+    )
+  }
+
+  throw lastError ?? new Error('Unable to fetch Bambu tasks.')
 }

@@ -152,15 +152,15 @@ export function FarmSettingsPage({ onLogout, onPrintQueue, onOrders, onModels, o
           <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-5 space-y-5">
             <div className="space-y-2">
               <TextField
-                label="Access Token"
+                label="Cloud Access Token"
                 type="password"
                 value={bambuToken}
                 onChange={setBambuToken}
-                placeholder="Paste your Bambu Lab API token"
+                placeholder="Paste your Bambu cloud token"
               />
               <p className="text-xs text-[var(--muted-foreground)]">
-                Find your token in the Bambu Handy app under{' '}
-                <span className="font-medium text-[var(--foreground)]">Profile → Developer</span>.
+                This integration uses Bambu cloud APIs with bearer-token auth.
+                Token availability can vary by app version/account policy.
                 It is stored locally and never sent to Supabase.
               </p>
             </div>
