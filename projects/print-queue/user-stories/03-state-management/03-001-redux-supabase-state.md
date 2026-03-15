@@ -2,8 +2,8 @@
 
 ## Status
 - [ ] Not Started
-- [x] In Progress
-- [ ] Completed
+- [ ] In Progress
+- [x] Completed
 
 ## User Story
 As a print shop operator,
@@ -35,7 +35,13 @@ So that all sections of the app show consistent real data and I receive a clear 
 - Supabase project with `work_orders`, `models`, and `filaments` tables (schema in `supabase/migrations/001_initial_schema.sql`)
 
 ## Priority
-High
+- [ ] Critical (MVP)
+- [x] High
+- [ ] Medium
+- [ ] Low
 
 ## Estimated Complexity
-Medium
+- [ ] Small (1-2 days)
+- [x] Medium (3-5 days)
+- [ ] Large (1-2 weeks)
+- [ ] X-Large (2+ weeks)

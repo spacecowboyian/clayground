@@ -24,6 +24,9 @@ _Changes not yet pushed to `main` go here._
 ### docs(somethings-happening)
 - Append a user-story addition noting the AMS duplicate-rendering fix request.
 
+### docs(print-queue)
+- Clean up `projects/print-queue/user-stories/*` status tracking: set implemented stories to Completed, set new add-on/freemium stories to Not Started, and normalize metadata formatting so all stories use consistent checkbox sections for Status, Priority, and Estimated Complexity.
+
 ### feat(print-queue)
 - **Payment verification workflow on order detail page** — unpaid orders now show a "Pay via Venmo" deeplink button (pre-filled with username `ian-jennings-17`, the order ID as memo, and the order price as amount) plus a separate "I've Sent Payment" button that moves the order into a new `verifying_payment` state.  The order detail page displays a contextual banner while payment is being verified.
 - **Management dashboard payment indicators** — the DollarSign toggle in the orders table and mobile cards now shows an orange "⏳ Verifying" badge and orange DollarSign icon when an order's payment is in the `verifying_payment` state, allowing operators to quickly spot and confirm pending Venmo payments.

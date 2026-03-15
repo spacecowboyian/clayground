@@ -2,8 +2,8 @@
 
 ## Status
 - [ ] Not Started
-- [x] In Progress
-- [ ] Completed
+- [ ] In Progress
+- [x] Completed
 
 ## User Story
 As a 3D print shop operator,
