@@ -15,6 +15,8 @@ _Changes not yet pushed to `main` go here._
 - Fix "can't save a new model" error (`invalid input syntax for type integer: ""`): migration 009 changes `models.number` from INTEGER to TEXT (the intended type; migration 003 was a no-op for databases where the column already existed as INTEGER). `createModel` and `updateModel` in `inventory.ts` now omit an empty catalog number from the payload so the DB column default applies when the migration has not yet been run.
 - Remove duplicate AMS Slots section from the Print Queue page so the AMS block is shown only once.
 - Fix "Add Order" modal being unresponsive to clicks and keyboard input: two `Dialog` portals were opening simultaneously (one desktop, one mobile) because both shared the same `addOpen` state; replaced the dual-Dialog approach with plain trigger buttons and a single conditional Dialog rendered outside the toolbar, matching the Edit/Delete dialog pattern.
+- **Fix "Could not find the 'cost' column" save error** — migration 010 idempotently adds `cost`, `price`, and other potentially-missing `work_orders` columns via `ADD COLUMN IF NOT EXISTS`, covering databases that were created from an older schema.
+- **Fix misleading "Unable to load data" modal on create-order failure** — `DashboardPage.handleCreate` now clears the Redux error on failure (matching the existing edit-order pattern), so save errors show only the inline form message instead of the global error modal.
 
 ### docs(somethings-happening)
 - Append a user-story addition noting the AMS duplicate-rendering fix request.
@@ -23,6 +25,7 @@ _Changes not yet pushed to `main` go here._
 - **Payment verification workflow on order detail page** — unpaid orders now show a "Pay via Venmo" deeplink button (pre-filled with username `ian-jennings-17`, the order ID as memo, and the order price as amount) plus a separate "I've Sent Payment" button that moves the order into a new `verifying_payment` state.  The order detail page displays a contextual banner while payment is being verified.
 - **Management dashboard payment indicators** — the DollarSign toggle in the orders table and mobile cards now shows an orange "⏳ Verifying" badge and orange DollarSign icon when an order's payment is in the `verifying_payment` state, allowing operators to quickly spot and confirm pending Venmo payments.
 - **Migration 008** — adds a `payment_status` column to `work_orders` with enum `unpaid | verifying_payment | paid`, backfilled from the existing `paid` boolean.
+- **Multi-filament order form** — when a model has more than one filament requirement (e.g. a two-color BB gun), the order form now renders one "Color" dropdown per requirement slot rather than a single dropdown. Each slot auto-populates with the model's assigned default filament (if any). If the selected filament has insufficient remaining stock the dropdown shows an error state (red border + message reading "must change") and saving is blocked until all slots have adequate stock. `OrderItem` gains a `filament_selections` array for per-slot persistence; `computeFilamentStats` attributes grams per slot for accurate inventory tracking; `calculateItemCost` now accepts a per-slot filaments array for accurate multi-filament costing. Gearhead `Select` gains an `errorMessage` prop and `isInvalid` red-border styling.
 
 ---
 

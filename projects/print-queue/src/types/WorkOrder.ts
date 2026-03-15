@@ -18,9 +18,9 @@ export interface OrderItem {
   model_id: string | null
   /** Model/item name */
   item: string
-  /** Selected filament color */
+  /** Selected filament color for slot 0 (kept for backward compat) */
   color: string
-  /** FK to filaments.id — captured at save time. Null for custom/special colors or pre-migration items. */
+  /** FK to filaments.id for slot 0 — captured at save time. Null for custom/special colors or pre-migration items. */
   filament_id: string | null
   /** External model URL */
   model_url: string
@@ -34,6 +34,12 @@ export interface OrderItem {
   cost: number
   /** Per-item print status. Defaults to 'queue' for new items. */
   status: PrintItemStatus
+  /**
+   * Per-slot filament selections for models with multiple filament requirements.
+   * Index i corresponds to model.filament_requirements[i].
+   * Null for legacy single-filament items (fall back to filament_id + color).
+   */
+  filament_selections: Array<{ filament_id: string | null; color: string }> | null
 }
 
 export interface WorkOrder {

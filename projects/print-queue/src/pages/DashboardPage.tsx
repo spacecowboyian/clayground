@@ -64,8 +64,16 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
 
   async function handleCreate(input: WorkOrderInput) {
     const nextSort = orders.filter(o => ACTIVE_STATUSES.has(o.status)).length + 1
-    await dispatch(addOrder({ ...input, sort_order: nextSort })).unwrap()
-    setAddOpen(false)
+    try {
+      await dispatch(addOrder({ ...input, sort_order: nextSort })).unwrap()
+      setAddOpen(false)
+    } catch (err) {
+      // Clear the Redux error so the generic "Unable to load data" ErrorModal
+      // does not appear for save failures — the WorkOrderForm already shows
+      // an inline error message via its own catch block.
+      dispatch(clearOrdersError())
+      throw err
+    }
   }
 
   async function handleEdit(input: WorkOrderInput) {

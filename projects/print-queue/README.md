@@ -161,7 +161,10 @@ ALTER TABLE work_orders
   ADD COLUMN IF NOT EXISTS cost           NUMERIC  NOT NULL DEFAULT 2.00,
   ADD COLUMN IF NOT EXISTS sort_order     INTEGER  NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS model_id       UUID,
-  ADD COLUMN IF NOT EXISTS needs_filament BOOLEAN  NOT NULL DEFAULT false;
+  ADD COLUMN IF NOT EXISTS needs_filament BOOLEAN  NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS order_items    JSONB    NULL,
+  ADD COLUMN IF NOT EXISTS order_number   INTEGER,
+  ADD COLUMN IF NOT EXISTS payment_status TEXT     NOT NULL DEFAULT 'unpaid';
 ```
 
 ### Step 3 — Seed the Initial Data (Optional)

@@ -22,6 +22,7 @@ interface SelectOption {
 interface SelectComponentProps<T extends object> extends Omit<SelectProps<T>, 'children'> {
   label?: string;
   description?: string;
+  errorMessage?: string;
   placeholder?: string;
   options: SelectOption[];
   hoverColor?: 'orange' | 'blue' | 'green' | 'purple';
@@ -42,17 +43,22 @@ export function Select<T extends object>({
   options,
   hoverColor = 'blue',
   className,
+  errorMessage,
   ...props
 }: SelectComponentProps<T>) {
+  const isInvalid = props.isInvalid
   return (
     <AriaSelect className={cn('flex flex-col gap-2', className)} {...props}>
       {label && <Label className="text-sm text-foreground">{label}</Label>}
-      <Button className="h-10 flex items-center justify-between px-3 bg-input rounded-lg border border-border text-foreground hover:bg-secondary transition-colors outline-none focus:ring-2 focus:ring-ring">
+      <Button className={cn(
+        'h-10 flex items-center justify-between px-3 bg-input rounded-lg border border-border text-foreground hover:bg-secondary transition-colors outline-none focus:ring-2 focus:ring-ring',
+        isInvalid && 'border-destructive'
+      )}>
         <SelectValue placeholder={placeholder} className="text-sm" />
         <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
       </Button>
       {description && <Text slot="description" className="text-xs text-muted-foreground">{description}</Text>}
-      <FieldError className="text-xs text-destructive" />
+      <FieldError className="text-xs text-destructive">{errorMessage}</FieldError>
       <Popover className="w-[--trigger-width] bg-popover rounded-lg border border-border shadow-lg overflow-hidden">
         <ListBox className="max-h-60 overflow-auto p-1">
           {options.map((option) => (
