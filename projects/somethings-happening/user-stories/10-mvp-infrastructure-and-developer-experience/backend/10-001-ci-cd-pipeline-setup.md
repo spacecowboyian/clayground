@@ -69,3 +69,7 @@ To be filled during implementation
 - Test branch protection enforcement
 - Test database migrations
 - Verify environment configuration across environments
+
+## Additions
+### 2026-03-15 - Requested by: @copilot
+- Ensure all pending migrations for `print-queue` are applied against the configured database environment.
