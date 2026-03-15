@@ -105,10 +105,30 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
     }),
     [filaments, allFilamentStats]
   )
-  const filamentOptions = [
-    ...inStockFilaments.map(f => ({ id: f.id, label: f.color })),
-    { id: CUSTOM_COLOR_ID, label: '✦ Custom / Special Color (+$5)' },
-  ]
+  const filamentStatsMap = useMemo(
+    () => new Map(allFilamentStats.map(s => [s.filament_id, s])),
+    [allFilamentStats]
+  )
+  const filamentOptions = useMemo(() => {
+    // AMS-loaded filaments first (sorted by slot), then the rest (sorted by color)
+    const sorted = [...inStockFilaments].sort((a, b) => {
+      const aInAms = a.ams_slot !== null
+      const bInAms = b.ams_slot !== null
+      if (aInAms && !bInAms) return -1
+      if (!aInAms && bInAms) return 1
+      if (aInAms && bInAms) return (a.ams_slot as number) - (b.ams_slot as number)
+      return a.color.localeCompare(b.color)
+    })
+    return [
+      ...sorted.map(f => {
+        const stat = filamentStatsMap.get(f.id)
+        const remaining = stat ? stat.remaining_g : f.current_quantity_g
+        const amsTag = f.ams_slot !== null ? ` · AMS ${f.ams_slot}` : ''
+        return { id: f.id, label: `${f.color}${amsTag} — ${remaining.toFixed(0)}g` }
+      }),
+      { id: CUSTOM_COLOR_ID, label: '✦ Custom / Special Color (+$5)' },
+    ]
+  }, [inStockFilaments, filamentStatsMap])
 
   // ── Derived per-item values ────────────────────────────────────────────────
 
