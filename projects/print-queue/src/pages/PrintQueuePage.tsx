@@ -145,6 +145,12 @@ export function PrintQueuePage({
       patch.status = derivedStatus
     }
 
+    // $0 orders are automatically considered paid once all items finish printing
+    if (derivedStatus === 'complete' && (order.price ?? 0) === 0 && !order.paid) {
+      patch.paid = true
+      patch.payment_status = 'paid'
+    }
+
     await dispatch(editOrderThunk({ id: order.id, patch })).unwrap()
   }
 
