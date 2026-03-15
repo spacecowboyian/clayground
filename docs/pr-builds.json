@@ -42,5 +42,12 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-38/"
     }
+  },
+  "55": {
+    "title": "feat(print-queue): plan lan-cloud bridge and harden bambu import",
+    "url": "https://github.com/spacecowboyian/clayground/pull/55",
+    "builds": {
+      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-55/"
+    }
   }
 }
