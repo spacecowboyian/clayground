@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '../store'
 import { fetchInventory, addFilament, editFilament as editFilamentThunk, removeFilament, clearInventoryError } from '../store/inventorySlice'
 import { fetchOrders } from '../store/ordersSlice'
 import type { Filament, FilamentInput, FilamentStats, FilamentStatus } from '../types/Inventory'
+import { colorNameToHex } from '../utils/colors'
 import { useState } from 'react'
 
 const AMS_SLOTS = [1, 2, 3, 4] as const
@@ -471,16 +472,6 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
-
-function colorNameToHex(name: string): string {
-  const map: Record<string, string> = {
-    pink: '#f472b6', purple: '#a855f7', 'light blue': '#7dd3fc',
-    yellow: '#fde047', blue: '#3b82f6', 'dark blue': '#1e40af',
-    red: '#ef4444', green: '#22c55e', orange: '#f97316',
-    white: '#f5f5f5', black: '#1a1a1a', gray: '#9ca3af', tbd: '#6b7280',
-  }
-  return map[name.toLowerCase()] ?? '#9ca3af'
-}
 
 function ColorChip({ color, hex }: { color: string; hex?: string }) {
   const bg = hex || colorNameToHex(color)
