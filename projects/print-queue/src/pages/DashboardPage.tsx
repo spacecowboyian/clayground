@@ -27,6 +27,11 @@ const STATUS_FILTER_LABELS: Record<WorkOrderStatus | 'All', string> = {
 const ACTIVE_STATUSES   = new Set<WorkOrderStatus>(['waiting', 'in_progress'])
 const COMPLETE_STATUSES = new Set<WorkOrderStatus>(['complete'])
 
+/** An order is considered paid if `paid` is true or the price was $0 (free prints). */
+function isOrderPaid(order: WorkOrder): boolean {
+  return order.paid || (order.price ?? 0) === 0
+}
+
 interface DashboardPageProps {
   onLogout: () => void
   onViewOrder: (id: string) => void
@@ -160,19 +165,29 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
     .filter(o => ACTIVE_STATUSES.has(o.status))
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
 
+  /** Complete orders awaiting payment (not paid and price > $0) */
+  const allAwaitingPayment = orders
+    .filter(o => COMPLETE_STATUSES.has(o.status) && !isOrderPaid(o))
+    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+
+  /** Complete orders that are fully settled (paid or free) */
   const allComplete = orders
-    .filter(o => COMPLETE_STATUSES.has(o.status))
+    .filter(o => COMPLETE_STATUSES.has(o.status) && isOrderPaid(o))
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
 
   const visibleActive = statusFilter === 'All' || ACTIVE_STATUSES.has(statusFilter as WorkOrderStatus)
     ? (statusFilter === 'All' ? allActive : allActive.filter(o => o.status === statusFilter))
     : []
 
-  const visibleComplete = statusFilter === 'All' || COMPLETE_STATUSES.has(statusFilter as WorkOrderStatus)
-    ? (statusFilter === 'All' ? allComplete : allComplete.filter(o => o.status === statusFilter))
+  const visibleAwaitingPayment = statusFilter === 'All' || COMPLETE_STATUSES.has(statusFilter as WorkOrderStatus)
+    ? allAwaitingPayment
     : []
 
-  const hasAny = visibleActive.length > 0 || visibleComplete.length > 0
+  const visibleComplete = statusFilter === 'All' || COMPLETE_STATUSES.has(statusFilter as WorkOrderStatus)
+    ? allComplete
+    : []
+
+  const hasAny = visibleActive.length > 0 || visibleAwaitingPayment.length > 0 || visibleComplete.length > 0
 
   // Stats
   const total          = orders.length
@@ -382,6 +397,93 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
               </>
             )}
 
+            {/* ── Awaiting Payment accordion ─── */}
+            {visibleAwaitingPayment.length > 0 && (
+              <Accordion
+                title="Awaiting Payment"
+                badge={
+                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--accent-orange-light)] text-[var(--accent-orange)]">
+                    {visibleAwaitingPayment.length}
+                  </span>
+                }
+              >
+                {/* Desktop table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-[var(--border)]">
+                        <Th>#</Th>
+                        <Th>Customer</Th>
+                        <Th>Item</Th>
+                        <Th>Color</Th>
+                        <Th>Status</Th>
+                        <Th>Due / Profit</Th>
+                        <Th align="right">Actions</Th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {visibleAwaitingPayment.map(order => (
+                        <tr
+                          key={order.id}
+                          className="border-b border-[var(--border)] bg-[var(--card)] hover:bg-[var(--secondary)] transition-colors"
+                        >
+                          <Td>
+                            <button
+                              onClick={() => onViewOrder(order.id)}
+                              className="font-medium text-[var(--accent-blue)] hover:underline text-left tabular-nums"
+                            >
+                              #{order.order_number}
+                            </button>
+                          </Td>
+                          <Td>
+                            <span className="font-medium text-[var(--foreground)]">{order.customer}</span>
+                          </Td>
+                          <Td>{orderItemLabel(order)}</Td>
+                          <Td>
+                            <div className="flex items-center gap-1.5">
+                              <ColorDot color={orderColorLabel(order)} />
+                              {order.needs_filament && (
+                                <span className="text-xs text-[var(--accent-orange)]" title="Requires new filament purchase">⚠</span>
+                              )}
+                            </div>
+                          </Td>
+                          <Td>
+                            <StatusBadge status={order.status} />
+                          </Td>
+                          <Td>
+                            <DueProfitCell order={order} />
+                          </Td>
+                          <Td align="right">
+                            <OrderActions
+                              order={order}
+                              onEdit={() => setEditOrder(order)}
+                              onDelete={() => setDeleteTarget(order)}
+                              onTogglePaid={() => void handleTogglePaid(order)}
+                            />
+                          </Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile cards */}
+                <div className="md:hidden divide-y divide-[var(--border)]">
+                  {visibleAwaitingPayment.map(order => (
+                    <div key={order.id} className="p-2">
+                      <MobileCard
+                        order={order}
+                        onView={() => onViewOrder(order.id)}
+                        onEdit={() => setEditOrder(order)}
+                        onDelete={() => setDeleteTarget(order)}
+                        onTogglePaid={() => void handleTogglePaid(order)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </Accordion>
+            )}
+
             {/* ── Completed accordion ─── */}
             {visibleComplete.length > 0 && (
               <Accordion
@@ -473,7 +575,7 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
         )}
 
         <p className="text-xs text-center text-[var(--muted-foreground)]">
-          {visibleActive.length + visibleComplete.length} order{(visibleActive.length + visibleComplete.length) !== 1 ? 's' : ''} shown
+          {visibleActive.length + visibleAwaitingPayment.length + visibleComplete.length} order{(visibleActive.length + visibleAwaitingPayment.length + visibleComplete.length) !== 1 ? 's' : ''} shown
           {statusFilter !== 'All' && ` · filtered by "${STATUS_FILTER_LABELS[statusFilter]}"`}
         </p>
       </main>
