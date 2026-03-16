@@ -18,6 +18,7 @@ import {
 } from '../store/ordersSlice'
 import { fetchInventory, clearInventoryError } from '../store/inventorySlice'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../types/WorkOrder'
+import { colorNameToHex } from '../utils/colors'
 
 const STATUS_FILTERS: Array<WorkOrderStatus | 'All'> = ['All', 'waiting', 'in_progress', 'complete']
 const STATUS_FILTER_LABELS: Record<WorkOrderStatus | 'All', string> = {
@@ -923,20 +924,10 @@ function DueProfitCell({ order }: { order: WorkOrder }) {
 function ColorDot({ color }: { color: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-sm text-[var(--foreground)]">
-      <span className="w-2.5 h-2.5 rounded-full border border-[var(--border)] shrink-0" style={{ background: colorToCSS(color) }} />
+      <span className="w-2.5 h-2.5 rounded-full border border-[var(--border)] shrink-0" style={{ background: colorNameToHex(color) }} />
       {color}
     </span>
   )
-}
-
-function colorToCSS(name: string): string {
-  const map: Record<string, string> = {
-    pink: '#f472b6', purple: '#a855f7', 'light blue': '#7dd3fc',
-    yellow: '#fde047', blue: '#3b82f6', 'dark blue': '#1e40af',
-    red: '#ef4444', green: '#22c55e', orange: '#f97316',
-    white: '#f5f5f5', black: '#1a1a1a', gray: '#9ca3af', tbd: '#6b7280',
-  }
-  return map[name.toLowerCase()] ?? '#9ca3af'
 }
 
 /** Returns a display label for the item(s) in an order */
