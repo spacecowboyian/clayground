@@ -276,16 +276,10 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
       setError('Customer is required.')
       return
     }
-    for (let i = 0; i < resolvedItems.length; i++) {
-      const r = resolvedItems[i]
-      if (!r.model) {
-        setError(`Item ${i + 1}: please select a model.`)
-        return
-      }
-      if (!r.color) {
-        setError(`Item ${i + 1}: please select a color or enter a custom color.`)
-        return
-      }
+    const hasFilamentSelected = resolvedItems.some(r => r.filament !== null || r.isCustom)
+    if (!hasFilamentSelected) {
+      setError('At least one item must have a filament selected.')
+      return
     }
     if (hasFilamentError) {
       setError('One or more filament selections have insufficient stock — please change them before saving.')

@@ -14,7 +14,6 @@ interface ModelFormProps {
 
 export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormProps) {
   const [name, setName]                     = useState(initial?.name                ?? '')
-  const [number, setNumber]                 = useState(initial?.number != null ? String(initial.number) : '')
   const [description, setDesc]              = useState(initial?.description         ?? '')
   const [modelUrl, setModelUrl]             = useState(initial?.model_url           ?? '')
   const [imageUrl, setImageUrl]             = useState(initial?.image_url           ?? '')
@@ -54,17 +53,20 @@ export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormPro
       setError('Name is required.')
       return
     }
-    // Validate requirements: every row must have a positive quantity
+    // Validate that at least one row has a positive quantity
     const validReqs = requirements.filter(r => r.quantity_g > 0)
     if (validReqs.length === 0) {
       setError('Add at least one filament requirement with a quantity greater than 0.')
+      return
+    }
+    if (!validReqs.some(r => r.filament_id !== null)) {
+      setError('Please select a filament for at least one requirement.')
       return
     }
     setSaving(true)
     setError(null)
     try {
       await onSave({
-        number: number.trim(),
         name: name.trim(),
         description: description.trim(),
         model_url: modelUrl.trim(),
@@ -87,12 +89,6 @@ export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormPro
         onChange={setName}
         isRequired
         placeholder="e.g. Heart curio shelf"
-      />
-      <TextField
-        label="Catalog Number (optional)"
-        value={number}
-        onChange={setNumber}
-        placeholder="e.g. MOD-001"
       />
       <TextArea
         label="Description"
