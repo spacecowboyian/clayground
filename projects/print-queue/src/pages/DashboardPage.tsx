@@ -65,6 +65,20 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
   const [bambuOpen, setBambuOpen]       = useState(false)
   const [bambuPrefill, setBambuPrefill] = useState<BambuPrefillData | null>(null)
 
+  // Accordion expansion state — auto-expand all sections when searching
+  const [awaitingPaymentOpen, setAwaitingPaymentOpen] = useState(false)
+  const [completedOpen, setCompletedOpen]             = useState(false)
+
+  useEffect(() => {
+    if (searchQuery) {
+      setAwaitingPaymentOpen(true)
+      setCompletedOpen(true)
+    } else {
+      setAwaitingPaymentOpen(false)
+      setCompletedOpen(false)
+    }
+  }, [searchQuery])
+
   // Drag-and-drop state
   const dragIdRef    = useRef<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
@@ -429,6 +443,8 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
             {visibleAwaitingPayment.length > 0 && (
               <Accordion
                 title="Awaiting Payment"
+                isExpanded={awaitingPaymentOpen}
+                onExpandedChange={setAwaitingPaymentOpen}
                 badge={
                   <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--accent-orange-light)] text-[var(--accent-orange)]">
                     {visibleAwaitingPayment.length}
@@ -516,6 +532,8 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
             {visibleComplete.length > 0 && (
               <Accordion
                 title="Completed"
+                isExpanded={completedOpen}
+                onExpandedChange={setCompletedOpen}
                 badge={
                   <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--secondary)] text-[var(--muted-foreground)]">
                     {visibleComplete.length}
