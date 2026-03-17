@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Dialog, Accordion } from '@gearhead/ui'
-import { DollarSign, GripVertical, Pencil, Plus, Printer, Trash2 } from 'lucide-react'
+import { DollarSign, GripVertical, Pencil, Plus, Printer, Search, Trash2, X } from 'lucide-react'
 import { StatusBadge } from '../components/StatusBadge/StatusBadge'
 import { WorkOrderForm } from '../components/WorkOrderForm/WorkOrderForm'
 import { BambuImportDialog, type BambuPrefillData } from '../components/BambuImportDialog/BambuImportDialog'
@@ -54,6 +54,7 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
   const error = ordersError ?? inventoryError
 
   const [statusFilter, setFilter]   = useState<WorkOrderStatus | 'All'>('All')
+  const [searchQuery, setSearchQuery] = useState('')
   const [addOpen, setAddOpen]       = useState(false)
   const [editOrder, setEditOrder]   = useState<WorkOrder | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<WorkOrder | null>(null)
@@ -176,17 +177,17 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
     .filter(o => COMPLETE_STATUSES.has(o.status) && isOrderPaid(o))
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
 
-  const visibleActive = statusFilter === 'All' || ACTIVE_STATUSES.has(statusFilter as WorkOrderStatus)
+  const visibleActive = (statusFilter === 'All' || ACTIVE_STATUSES.has(statusFilter as WorkOrderStatus)
     ? (statusFilter === 'All' ? allActive : allActive.filter(o => o.status === statusFilter))
-    : []
+    : []).filter(o => orderMatchesSearch(o, searchQuery))
 
-  const visibleAwaitingPayment = statusFilter === 'All' || COMPLETE_STATUSES.has(statusFilter as WorkOrderStatus)
+  const visibleAwaitingPayment = (statusFilter === 'All' || COMPLETE_STATUSES.has(statusFilter as WorkOrderStatus)
     ? allAwaitingPayment
-    : []
+    : []).filter(o => orderMatchesSearch(o, searchQuery))
 
-  const visibleComplete = statusFilter === 'All' || COMPLETE_STATUSES.has(statusFilter as WorkOrderStatus)
+  const visibleComplete = (statusFilter === 'All' || COMPLETE_STATUSES.has(statusFilter as WorkOrderStatus)
     ? allComplete
-    : []
+    : []).filter(o => orderMatchesSearch(o, searchQuery))
 
   const hasAny = visibleActive.length > 0 || visibleAwaitingPayment.length > 0 || visibleComplete.length > 0
 
@@ -249,6 +250,28 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
               ))}
             </div>
 
+            {/* Search input */}
+            <div className="relative flex items-center">
+              <Search className="absolute left-2.5 w-3.5 h-3.5 text-[var(--muted-foreground)] pointer-events-none" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search orders…"
+                aria-label="Search orders by customer or item"
+                className="pl-8 pr-7 py-1.5 rounded-lg text-sm bg-[var(--secondary)] border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-orange)] w-44 sm:w-52"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
+                  className="absolute right-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
             {/* Add Order button — desktop (sm+) */}
             <div className="ml-auto hidden sm:flex items-center gap-2">
               {hasBambuToken && (
@@ -302,7 +325,11 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
           <div className="text-center py-12 space-y-2">
             <p className="text-4xl">📋</p>
             <p className="text-[var(--muted-foreground)]">
-              No orders {statusFilter !== 'All' ? `with status "${statusFilter}"` : 'yet'}.
+              {searchQuery.trim()
+                ? `No orders matching "${searchQuery.trim()}".`
+                : statusFilter !== 'All'
+                  ? `No orders with status "${statusFilter}".`
+                  : 'No orders yet.'}
             </p>
           </div>
         ) : (
@@ -578,6 +605,7 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
         <p className="text-xs text-center text-[var(--muted-foreground)]">
           {visibleActive.length + visibleAwaitingPayment.length + visibleComplete.length} order{(visibleActive.length + visibleAwaitingPayment.length + visibleComplete.length) !== 1 ? 's' : ''} shown
           {statusFilter !== 'All' && ` · filtered by "${STATUS_FILTER_LABELS[statusFilter]}"`}
+          {searchQuery.trim() && ` · search "${searchQuery.trim()}"`}
         </p>
       </main>
 
@@ -936,6 +964,16 @@ function orderItemLabel(order: WorkOrder): string {
     return `${order.order_items[0].item} +${order.order_items.length - 1} more`
   }
   return order.order_items?.[0]?.item ?? order.item
+}
+
+/** Returns true when the order matches the search query (customer or any item name) */
+function orderMatchesSearch(order: WorkOrder, query: string): boolean {
+  const q = query.toLowerCase().trim()
+  if (!q) return true
+  if ((order.customer ?? '').toLowerCase().includes(q)) return true
+  if (order.order_items?.some(i => i.item.toLowerCase().includes(q))) return true
+  if ((order.item ?? '').toLowerCase().includes(q)) return true
+  return false
 }
 
 /** Returns a display label for the color(s) in an order */
