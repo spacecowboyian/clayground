@@ -85,7 +85,6 @@ export function ModelsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilam
       else if (name.startsWith(modelQuery)) s += 80
       else if (name.includes(modelQuery))   s += 60
       if (model.description.toLowerCase().includes(modelQuery)) s += 40
-      if (model.number.toLowerCase().includes(modelQuery))      s += 50
       if (String(model.post_processing_mins).includes(modelQuery)) s += 10
       model.filament_requirements?.forEach(req => {
         if (String(req.quantity_g).includes(modelQuery)) s += 10
@@ -163,7 +162,6 @@ export function ModelsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilam
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-[var(--border)]">
-                            <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">#</th>
                             <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Name</th>
                             <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Notes</th>
                             <th className="px-4 py-3 text-left text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Filament</th>
@@ -173,7 +171,6 @@ export function ModelsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilam
                         <tbody>
                           {searchResults.map(model => (
                             <tr key={model.id} className="border-b border-[var(--border)] hover:bg-[var(--secondary)] transition-colors">
-                              <td className="px-4 py-3 text-[var(--muted-foreground)] text-xs">{model.number || '—'}</td>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="font-medium text-[var(--foreground)]">{model.name}</span>
@@ -203,7 +200,6 @@ export function ModelsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilam
                                   <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--accent-orange-light)] text-[var(--accent-orange)]">Self-created</span>
                                 )}
                               </div>
-                              {model.number && <p className="text-xs text-[var(--muted-foreground)]">#{model.number}</p>}
                               {model.description && <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{model.description}</p>}
                             </div>
                             <ModelActions model={model} onEdit={setEditModel} onDelete={setDeleteModelTarget} />
@@ -252,7 +248,6 @@ export function ModelsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilam
                         )}
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            {model.number && <span className="text-xs text-[var(--muted-foreground)]">#{model.number}</span>}
                             <p className="font-medium text-[var(--foreground)]">{model.name}</p>
                             {model.self_created && (
                               <span className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--accent-orange-light)] text-[var(--accent-orange)] font-medium shrink-0">Self-created</span>
