@@ -246,7 +246,7 @@ async function loadLibrary() {
   const grid = document.getElementById('libraryGrid');
   const loading = document.getElementById('libraryLoading');
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/photos?order=created_at.desc&limit=100`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/photos?limit=100`, {
       headers: {
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
         'apikey': SUPABASE_ANON_KEY
