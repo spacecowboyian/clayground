@@ -54,6 +54,18 @@
   .success p { font-size: 15px; color: var(--accent-green); font-weight: 500; }
   .success span { font-size: 12px; color: var(--muted-foreground); display: block; margin-top: 6px; }
   .error { background: var(--accent-red-light); border: 1px solid var(--accent-red); border-radius: calc(var(--radius) * 1.25); padding: 14px; font-size: 13px; color: var(--destructive); display: none; margin-bottom: 12px; }
+
+  /* Library */
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 28px 0 20px; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+  .library-loading { font-size: 13px; color: var(--muted-foreground); text-align: center; padding: 24px 0; }
+  .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; margin-bottom: 16px; }
+  .lib-photo { position: relative; aspect-ratio: 1; border-radius: calc(var(--radius) * 1.25); overflow: hidden; background: var(--secondary); cursor: pointer; outline: 3px solid transparent; transition: outline-color 0.15s; }
+  .lib-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .lib-photo.selected { outline-color: var(--accent-orange); }
+  .lib-photo .check-badge { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; background: var(--accent-orange); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 11px; color: #fff; font-weight: 700; }
+  .lib-photo.selected .check-badge { display: flex; }
+  .prompt-box { background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.25); padding: 14px; font-size: 12px; color: var(--muted-foreground); font-family: monospace; white-space: pre-wrap; word-break: break-all; margin-bottom: 12px; display: none; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -85,6 +97,14 @@
 
 <button class="btn btn-primary" id="uploadBtn" disabled onclick="upload()">Upload photos</button>
 <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+
+<hr class="section-divider">
+<p class="section-title">Library — tap to select for post</p>
+<div class="library-loading" id="libraryLoading">Loading photos...</div>
+<div class="library-grid" id="libraryGrid"></div>
+
+<div class="prompt-box" id="promptBox"></div>
+<button class="btn btn-primary" id="copyBtn" style="display:none" onclick="copyPrompt()">Copy prompt for Claude</button>
 
 <script>
 const SUPABASE_URL = 'https://zdjughkxryhabduhsdgg.supabase.co';
@@ -202,6 +222,11 @@ async function upload() {
     document.getElementById('successMsg').textContent = `${uploaded} photo${uploaded > 1 ? 's' : ''} uploaded!`;
     successDiv.style.display = 'block';
     clearAll();
+    // Refresh library so new photos appear
+    document.getElementById('libraryGrid').innerHTML = '';
+    document.getElementById('libraryLoading').style.display = 'block';
+    document.getElementById('libraryLoading').textContent = 'Loading photos...';
+    loadLibrary();
   } else {
     uploadBtn.disabled = false;
   }
@@ -213,6 +238,83 @@ function uuid() {
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
 }
+
+// ── Library ──────────────────────────────────────────────
+let selectedUrls = new Set();
+
+async function loadLibrary() {
+  const grid = document.getElementById('libraryGrid');
+  const loading = document.getElementById('libraryLoading');
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/photos?order=created_at.desc&limit=100`, {
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY
+      }
+    });
+    if (!res.ok) throw new Error();
+    const photos = await res.json();
+    loading.style.display = 'none';
+    if (!photos.length) {
+      loading.textContent = 'No photos uploaded yet.';
+      loading.style.display = 'block';
+      return;
+    }
+    photos.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'lib-photo';
+      div.dataset.url = p.url;
+      const img = document.createElement('img');
+      img.src = p.url;
+      img.alt = p.filename || '';
+      const badge = document.createElement('span');
+      badge.className = 'check-badge';
+      badge.textContent = '✓';
+      div.appendChild(img);
+      div.appendChild(badge);
+      div.addEventListener('click', () => toggleSelect(div, p.url));
+      grid.appendChild(div);
+    });
+  } catch {
+    loading.textContent = 'Failed to load library.';
+  }
+}
+
+function toggleSelect(el, url) {
+  if (selectedUrls.has(url)) {
+    selectedUrls.delete(url);
+    el.classList.remove('selected');
+  } else {
+    selectedUrls.add(url);
+    el.classList.add('selected');
+  }
+  updatePrompt();
+}
+
+function updatePrompt() {
+  const promptBox = document.getElementById('promptBox');
+  const copyBtn = document.getElementById('copyBtn');
+  if (!selectedUrls.size) {
+    promptBox.style.display = 'none';
+    copyBtn.style.display = 'none';
+    return;
+  }
+  const urlList = [...selectedUrls].map(u => `- ${u}`).join('\n');
+  promptBox.textContent = `Here are the image URLs for the next OIO Racing Instagram post:\n\n${urlList}\n\nPlease create the post and send it via the post bridge.`;
+  promptBox.style.display = 'block';
+  copyBtn.style.display = 'block';
+}
+
+async function copyPrompt() {
+  const text = document.getElementById('promptBox').textContent;
+  await navigator.clipboard.writeText(text);
+  const btn = document.getElementById('copyBtn');
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => { btn.textContent = orig; }, 1800);
+}
+
+loadLibrary();
 </script>
 </body>
 </html>
