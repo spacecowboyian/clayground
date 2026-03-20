@@ -133,10 +133,8 @@
       <span class="sel-count" id="selCount">0 selected</span>
     </div>
     <div class="picker-grid" id="pickerGrid"></div>
-    <input class="context-input" type="text" id="contextInput" placeholder="Context for caption (e.g. KCR autocross, March 2026)" />
-    <button class="btn btn-primary" id="buildBtn" disabled onclick="buildPrompt()">Build post prompt</button>
-    <div class="prompt-box" id="promptBox"></div>
-    <button class="btn btn-secondary" id="copyBtn" style="display:none;" onclick="copyPrompt()">Copy prompt to clipboard</button>
+    <button class="btn btn-primary" id="buildBtn" disabled onclick="buildPrompt()">Copy image URLs</button>
+
   </div>
   <div class="state-msg" id="pickEmpty" style="display:none;">No staged photos yet.<br>Upload some first.</div>
 </div>
@@ -361,15 +359,13 @@ function updateSelCount() {
   document.getElementById('copyBtn').style.display = 'none';
 }
 
-function buildPrompt() {
-  const context = document.getElementById('contextInput').value.trim();
-  const urlList = [...selected].map(u => `- ${u}`).join('\n');
-  const ctx = context ? `\nContext: ${context}` : '';
-  const text = `Here are the image URLs for the next OIO Racing Instagram post:${ctx}\n\n${urlList}\n\nPlease write a caption and send the post via the post bridge.`;
-  const box = document.getElementById('promptBox');
-  box.textContent = text;
-  box.style.display = 'block';
-  document.getElementById('copyBtn').style.display = 'block';
+async function buildPrompt() {
+  const text = [...selected].join('\n');
+  await navigator.clipboard.writeText(text);
+  const btn = document.getElementById('buildBtn');
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => { btn.textContent = orig; }, 1800);
 }
 
 async function copyPrompt() {
