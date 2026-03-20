@@ -267,6 +267,7 @@ async function loadLibrary() {
       const img = document.createElement('img');
       img.src = p.url;
       img.alt = p.filename || '';
+      img.onerror = () => { div.style.display = 'none'; };
       const badge = document.createElement('span');
       badge.className = 'check-badge';
       badge.textContent = '✓';
