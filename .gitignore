@@ -23,4 +23,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Claude worktrees / internal agent state
+.claude/
 docs/print-queue/main/

@@ -11,6 +11,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### feat(oio-uploader)
+- **New project scaffold** — adds `projects/oio-uploader/index.html` (single static HTML page) and the corresponding `docs/oio-uploader/main/index.html` GitHub Pages output; registers the project in `docs/projects.json`.
+
 ### feat(print-queue)
 - **Bambu print import** — operators can now connect their Bambu Lab account and import recent print jobs directly as new work orders. A new "Bambu Integration" section in Farm Settings stores the access token and an optional CORS proxy URL locally (never sent to Supabase). An "Import from Bambu" button appears on the Orders dashboard when a token is configured; clicking it opens a dialog listing the 20 most recent successful print jobs (title, date, filament weight, print time, color swatch). Selecting a print pre-fills the New Work Order form with customer "New Print", model name derived from the print filename, filament color from the AMS slot, and a print-time/weight summary in Notes.
 

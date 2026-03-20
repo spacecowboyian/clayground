@@ -1,5 +1,14 @@
 [
   {
+    "id": "oio-uploader",
+    "title": "OIO Uploader",
+    "description": "A simple file uploader.",
+    "tags": ["upload", "static"],
+    "url": "oio-uploader/main/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/oio-uploader",
+    "date": "2026-03-20"
+  },
+  {
     "id": "print-queue",
     "title": "Tiny Prints — Print Queue",
     "description": "A 3-D print work-order tracker for Tiny Prints. Password-protected management dashboard with full CRUD, shareable public per-order links (no login needed), inline status updates, paid toggles, and Supabase or localStorage backend.",
