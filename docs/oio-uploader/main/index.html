@@ -178,4 +178,214 @@ function addUploadFiles(newFiles) {
 
 function renderUploadPreviews() {
   const c = document.getElementById('uploadPreviews');
-  c.innerHTML =
+  c.innerHTML = '';
+  uploadFiles.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'preview';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    const btn = document.createElement('button');
+    btn.className = 'remove';
+    btn.innerHTML = '&times;';
+    btn.onclick = e => { e.stopPropagation(); uploadFiles.splice(i, 1); renderUploadPreviews(); document.getElementById('uploadBtn').disabled = uploadFiles.length === 0; };
+    div.appendChild(img);
+    div.appendChild(btn);
+    c.appendChild(div);
+  });
+}
+
+function clearUpload() {
+  uploadFiles = [];
+  renderUploadPreviews();
+  document.getElementById('uploadBtn').disabled = true;
+  document.getElementById('uploadSuccess').style.display = 'none';
+  document.getElementById('uploadError').style.display = 'none';
+  fileInput.value = '';
+}
+
+async function upload() {
+  if (!uploadFiles.length) return;
+  document.getElementById('uploadBtn').disabled = true;
+  const progress = document.getElementById('uploadProgress');
+  const bar = document.getElementById('uploadBar');
+  const progressText = document.getElementById('uploadProgressText');
+  progress.style.display = 'block';
+  document.getElementById('uploadSuccess').style.display = 'none';
+  document.getElementById('uploadError').style.display = 'none';
+
+  let done = 0, errors = 0;
+  for (const file of uploadFiles) {
+    progressText.textContent = `Uploading ${done + 1} of ${uploadFiles.length}...`;
+    try {
+      const ext = file.name.split('.').pop().toLowerCase() || 'jpg';
+      const filename = `${uuid()}.${ext}`;
+      const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'Content-Type': file.type, 'x-upsert': 'false' },
+        body: file
+      });
+      if (!uploadRes.ok) { errors++; continue; }
+      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${filename}`;
+      await fetch(`${SUPABASE_URL}/rest/v1/photos`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ filename, url: publicUrl, size_bytes: file.size })
+      });
+    } catch { errors++; }
+    done++;
+    bar.style.width = Math.round(done / uploadFiles.length * 100) + '%';
+  }
+
+  progress.style.display = 'none';
+  const uploaded = done - errors;
+  if (errors > 0) {
+    const eb = document.getElementById('uploadError');
+    eb.textContent = `${errors} photo${errors > 1 ? 's' : ''} failed. Check your connection and try again.`;
+    eb.style.display = 'block';
+  }
+  if (uploaded > 0) {
+    document.getElementById('uploadSuccessMsg').textContent = `${uploaded} photo${uploaded > 1 ? 's' : ''} uploaded!`;
+    document.getElementById('uploadSuccess').style.display = 'block';
+    clearUpload();
+  } else {
+    document.getElementById('uploadBtn').disabled = false;
+  }
+}
+
+// PICK
+async function loadPhotos() {
+  document.getElementById('pickLoading').style.display = 'block';
+  document.getElementById('pickContent').style.display = 'none';
+  document.getElementById('pickEmpty').style.display = 'none';
+  selected.clear();
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/photos?limit=200`, {
+      headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY }
+    });
+    if (!res.ok) throw new Error();
+    stagedPhotos = await res.json();
+  } catch {
+    document.getElementById('pickLoading').textContent = 'Failed to load photos.';
+    return;
+  }
+
+  document.getElementById('pickLoading').style.display = 'none';
+  if (!stagedPhotos.length) {
+    document.getElementById('pickEmpty').style.display = 'block';
+    return;
+  }
+  document.getElementById('pickContent').style.display = 'block';
+  renderPickerGrid();
+}
+
+function renderPickerGrid() {
+  const grid = document.getElementById('pickerGrid');
+  grid.innerHTML = '';
+  stagedPhotos.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'photo-card' + (selected.has(p.url) ? ' selected' : '');
+    card.dataset.url = p.url;
+
+    const img = document.createElement('img');
+    img.src = p.url;
+    img.alt = p.filename || '';
+    img.onerror = () => { card.style.display = 'none'; };
+
+    const check = document.createElement('div');
+    check.className = 'check';
+    check.textContent = '✓';
+
+    const num = document.createElement('div');
+    num.className = 'num';
+    num.textContent = i + 1;
+
+    const del = document.createElement('button');
+    del.className = 'del';
+    del.innerHTML = '&times;';
+    del.title = 'Delete from library';
+    del.onclick = async e => {
+      e.stopPropagation();
+      if (!confirm('Delete this photo from the library?')) return;
+      await deletePhoto(p);
+      stagedPhotos.splice(i, 1);
+      selected.delete(p.url);
+      renderPickerGrid();
+      updateSelCount();
+    };
+
+    card.appendChild(img);
+    card.appendChild(check);
+    card.appendChild(num);
+    card.appendChild(del);
+    card.addEventListener('click', () => togglePick(card, p.url));
+    grid.appendChild(card);
+  });
+  updateSelCount();
+}
+
+async function deletePhoto(p) {
+  const filename = p.filename || p.url.split('/').pop();
+  await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${ANON_KEY}` }
+  });
+  await fetch(`${SUPABASE_URL}/rest/v1/photos?url=eq.${encodeURIComponent(p.url)}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY }
+  });
+}
+
+function togglePick(card, url) {
+  if (selected.has(url)) { selected.delete(url); card.classList.remove('selected'); }
+  else { selected.add(url); card.classList.add('selected'); }
+  updateSelCount();
+}
+
+function selectAll() {
+  stagedPhotos.forEach(p => selected.add(p.url));
+  document.querySelectorAll('.photo-card').forEach(c => c.classList.add('selected'));
+  updateSelCount();
+}
+
+function clearSel() {
+  selected.clear();
+  document.querySelectorAll('.photo-card').forEach(c => c.classList.remove('selected'));
+  updateSelCount();
+}
+
+function updateSelCount() {
+  document.getElementById('selCount').textContent = `${selected.size} selected`;
+  document.getElementById('buildBtn').disabled = selected.size === 0;
+  document.getElementById('promptBox').style.display = 'none';
+  document.getElementById('copyBtn').style.display = 'none';
+}
+
+function buildPrompt() {
+  const context = document.getElementById('contextInput').value.trim();
+  const urlList = [...selected].map(u => `- ${u}`).join('\n');
+  const ctx = context ? `\nContext: ${context}` : '';
+  const text = `Here are the image URLs for the next OIO Racing Instagram post:${ctx}\n\n${urlList}\n\nPlease write a caption and send the post via the post bridge.`;
+  const box = document.getElementById('promptBox');
+  box.textContent = text;
+  box.style.display = 'block';
+  document.getElementById('copyBtn').style.display = 'block';
+}
+
+async function copyPrompt() {
+  await navigator.clipboard.writeText(document.getElementById('promptBox').textContent);
+  const btn = document.getElementById('copyBtn');
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => { btn.textContent = orig; }, 1800);
+}
+
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+</script>
+</body>
+</html>
