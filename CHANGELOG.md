@@ -12,6 +12,7 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(oio-uploader)
+- **GitHub-backed storage** — the uploader now stores photos in a GitHub repository via the GitHub Contents API instead of Supabase. Images are base64-encoded and committed directly from the browser. A new ⚙ Settings tab lets users enter their GitHub Personal Access Token, target repository (`owner/repo`), branch, and folder path; all values are saved to `localStorage` and never sent anywhere except GitHub's own API. The "Pick & post" tab lists photos by querying the GitHub Contents API and serves them from `raw.githubusercontent.com`. Deleting a photo removes it via the GitHub API (using the file SHA). The Scheduled posts tab (previously Supabase-only) has been removed.
 - **New project scaffold** — adds `projects/oio-uploader/index.html` (single static HTML page) and the corresponding `docs/oio-uploader/main/index.html` GitHub Pages output; registers the project in `docs/projects.json`.
 
 ### feat(print-queue)

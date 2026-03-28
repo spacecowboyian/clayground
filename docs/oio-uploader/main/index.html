@@ -89,14 +89,14 @@
   .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--muted-foreground); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .schedule-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-  .schedule-table th { text-align: left; font-size: 11px; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-  .schedule-table td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  .schedule-table tr:last-child td { border-bottom: none; }
-  .schedule-table tbody tr:hover td { background: var(--card); }
-  .sched-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: var(--radius); display: block; background: var(--secondary); flex-shrink: 0; }
-  .sched-caption { font-size: 13px; color: var(--muted-foreground); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .sched-date { font-size: 12px; color: var(--muted-foreground); white-space: nowrap; }
+  /* Settings form */
+  .settings-form { display: flex; flex-direction: column; gap: 16px; }
+  .settings-form label { font-size: 12px; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px; }
+  .settings-form .field { display: flex; flex-direction: column; }
+  .settings-form .hint { font-size: 11px; color: var(--muted-foreground); opacity: 0.7; margin-top: 5px; line-height: 1.5; }
+  .settings-saved { background: var(--accent-green-light); border: 1px solid var(--accent-green); border-radius: calc(var(--radius) * 1.25); padding: 12px 16px; font-size: 13px; color: var(--accent-green); display: none; margin-bottom: 12px; }
+  .setup-banner { background: var(--accent-orange-light); border: 1px solid var(--accent-orange); border-radius: calc(var(--radius) * 1.25); padding: 14px 16px; font-size: 13px; color: var(--accent-orange); margin-bottom: 20px; line-height: 1.6; }
+  .setup-banner strong { display: block; margin-bottom: 4px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -107,11 +107,15 @@
 <div class="tabs">
   <div class="tab active" id="tabUpload" onclick="showTab('upload')">Upload</div>
   <div class="tab" id="tabPick" onclick="showTab('pick')">Pick &amp; post</div>
-  <div class="tab" id="tabScheduled" onclick="showTab('scheduled')">Scheduled</div>
+  <div class="tab" id="tabSettings" onclick="showTab('settings')">⚙ Settings</div>
 </div>
 
 <!-- UPLOAD -->
 <div id="paneUpload">
+  <div id="uploadSetupBanner" class="setup-banner" style="display:none;">
+    <strong>GitHub storage not configured</strong>
+    Open the ⚙ Settings tab and enter your GitHub token and repository before uploading.
+  </div>
   <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
     <div class="icon">📷</div>
     <p>Tap to select photos</p>
@@ -126,7 +130,7 @@
   <div class="toast error" id="uploadError"></div>
   <div class="toast success" id="uploadSuccess">
     <p id="uploadSuccessMsg">Photos uploaded!</p>
-    <span>Switch to "Pick &amp; post" to build your post</span>
+    <span>Switch to "Pick &amp; post" to view your library</span>
   </div>
   <button class="btn btn-primary" id="uploadBtn" disabled onclick="upload()">Upload photos</button>
   <button class="btn btn-secondary" onclick="clearUpload()">Clear</button>
@@ -134,7 +138,11 @@
 
 <!-- PICK -->
 <div id="panePick" style="display:none;">
-  <div class="state-msg" id="pickLoading"><span class="spinner"></span>Loading staged photos...</div>
+  <div id="pickSetupBanner" class="setup-banner" style="display:none;">
+    <strong>GitHub storage not configured</strong>
+    Open the ⚙ Settings tab and enter your GitHub token and repository first.
+  </div>
+  <div class="state-msg" id="pickLoading" style="display:none;"><span class="spinner"></span>Loading photos from GitHub...</div>
   <div id="pickContent" style="display:none;">
     <div class="toolbar">
       <button onclick="selectAll()">Select all</button>
@@ -144,54 +152,109 @@
     </div>
     <div class="picker-grid" id="pickerGrid"></div>
     <button class="btn btn-primary" id="buildBtn" disabled onclick="buildPrompt()">Copy image URLs</button>
-
   </div>
-  <div class="state-msg" id="pickEmpty" style="display:none;">No staged photos yet.<br>Upload some first.</div>
+  <div class="state-msg" id="pickEmpty" style="display:none;">No photos yet.<br>Upload some first.</div>
 </div>
 
-<!-- SCHEDULED -->
-<div id="paneScheduled" style="display:none;">
-  <div class="toolbar">
-    <button onclick="loadScheduled()" aria-label="Refresh scheduled posts">Refresh</button>
+<!-- SETTINGS -->
+<div id="paneSettings" style="display:none;">
+  <div class="settings-saved" id="settingsSaved">Settings saved.</div>
+  <div class="settings-form">
+    <div class="field">
+      <label for="cfgToken">GitHub Personal Access Token</label>
+      <input class="context-input" type="password" id="cfgToken" placeholder="ghp_…" autocomplete="off">
+      <span class="hint">Needs <code>repo</code> scope (or <code>public_repo</code> for public repos). Your token is stored only in this browser's localStorage — it is never sent anywhere except GitHub's API.</span>
+    </div>
+    <div class="field">
+      <label for="cfgRepo">Repository</label>
+      <input class="context-input" type="text" id="cfgRepo" placeholder="spacecowboyian/oio-brain">
+      <span class="hint">e.g. <code>spacecowboyian/oio-brain</code></span>
+    </div>
+    <div class="field">
+      <label for="cfgBranch">Branch</label>
+      <input class="context-input" type="text" id="cfgBranch" placeholder="main">
+    </div>
+    <div class="field">
+      <label for="cfgPath">Photos folder path</label>
+      <input class="context-input" type="text" id="cfgPath" placeholder="oio-photos">
+      <span class="hint">Folder inside the repo where photos will be committed. e.g. <code>oio-photos</code></span>
+    </div>
+    <button class="btn btn-primary" onclick="saveSettings()">Save settings</button>
   </div>
-  <div class="state-msg" id="schedLoading"><span class="spinner"></span>Loading scheduled posts...</div>
-  <div class="state-msg toast error" id="schedError" style="display:none;"></div>
-  <div id="schedContent" style="display:none;">
-    <table class="schedule-table">
-      <thead>
-        <tr>
-          <th>Photo</th>
-          <th>Caption</th>
-          <th>Scheduled for</th>
-        </tr>
-      </thead>
-      <tbody id="schedBody"></tbody>
-    </table>
-  </div>
-  <div class="state-msg" id="schedEmpty" style="display:none;">No scheduled posts yet.</div>
 </div>
 
 <script>
-const SUPABASE_URL = 'https://zdjughkxryhabduhsdgg.supabase.co';
-const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkanVnaGt4cnloYWJkdWhzZGdnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3OTI0OTksImV4cCI6MjA4OTM2ODQ5OX0.9mXN--D-e-0MNE6cGxlYOefTiZk8nHp12BpVx0mm7lY';
-const BUCKET = 'oio-photos';
+// ── Config ──────────────────────────────────────────────────────────────────
+
+function sanitizePath(p) {
+  return (p || '').replace(/^\/|\/$/g, '');
+}
+
+function loadConfig() {
+  return {
+    token:  localStorage.getItem('oio_gh_token')  || '',
+    repo:   localStorage.getItem('oio_gh_repo')   || 'spacecowboyian/oio-brain',
+    branch: localStorage.getItem('oio_gh_branch') || 'main',
+    path:   sanitizePath(localStorage.getItem('oio_gh_path') || 'oio-photos'),
+  };
+}
+
+function isConfigured() {
+  const c = loadConfig();
+  return c.token.length > 0 && c.repo.length > 0;
+}
+
+// ── Tab navigation ───────────────────────────────────────────────────────────
 
 let uploadFiles = [];
 let stagedPhotos = [];
 let selected = new Set();
 
 function showTab(tab) {
-  document.getElementById('paneUpload').style.display = tab === 'upload' ? 'block' : 'none';
-  document.getElementById('panePick').style.display = tab === 'pick' ? 'block' : 'none';
-  document.getElementById('paneScheduled').style.display = tab === 'scheduled' ? 'block' : 'none';
-  document.getElementById('tabUpload').classList.toggle('active', tab === 'upload');
-  document.getElementById('tabPick').classList.toggle('active', tab === 'pick');
-  document.getElementById('tabScheduled').classList.toggle('active', tab === 'scheduled');
-  if (tab === 'pick') loadPhotos();
-  if (tab === 'scheduled') loadScheduled();
+  document.getElementById('paneUpload').style.display   = tab === 'upload'   ? 'block' : 'none';
+  document.getElementById('panePick').style.display     = tab === 'pick'     ? 'block' : 'none';
+  document.getElementById('paneSettings').style.display = tab === 'settings' ? 'block' : 'none';
+  document.getElementById('tabUpload').classList.toggle('active',   tab === 'upload');
+  document.getElementById('tabPick').classList.toggle('active',     tab === 'pick');
+  document.getElementById('tabSettings').classList.toggle('active', tab === 'settings');
+
+  if (tab === 'upload')   renderUploadBanner();
+  if (tab === 'pick')     loadPhotos();
+  if (tab === 'settings') populateSettingsForm();
 }
 
-// UPLOAD
+// ── Settings ─────────────────────────────────────────────────────────────────
+
+function populateSettingsForm() {
+  const c = loadConfig();
+  document.getElementById('cfgToken').value  = c.token;
+  document.getElementById('cfgRepo').value   = c.repo;
+  document.getElementById('cfgBranch').value = c.branch;
+  document.getElementById('cfgPath').value   = c.path;
+}
+
+function saveSettings() {
+  const token  = document.getElementById('cfgToken').value.trim();
+  const repo   = document.getElementById('cfgRepo').value.trim();
+  const branch = document.getElementById('cfgBranch').value.trim() || 'main';
+  const path   = sanitizePath(document.getElementById('cfgPath').value.trim()) || 'oio-photos';
+
+  localStorage.setItem('oio_gh_token',  token);
+  localStorage.setItem('oio_gh_repo',   repo);
+  localStorage.setItem('oio_gh_branch', branch);
+  localStorage.setItem('oio_gh_path',   path);
+
+  const saved = document.getElementById('settingsSaved');
+  saved.style.display = 'block';
+  setTimeout(() => { saved.style.display = 'none'; }, 2500);
+}
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+
+function renderUploadBanner() {
+  document.getElementById('uploadSetupBanner').style.display = isConfigured() ? 'none' : 'block';
+}
+
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -206,7 +269,7 @@ function addUploadFiles(newFiles) {
   renderUploadPreviews();
   document.getElementById('uploadBtn').disabled = uploadFiles.length === 0;
   document.getElementById('uploadSuccess').style.display = 'none';
-  document.getElementById('uploadError').style.display = 'none';
+  document.getElementById('uploadError').style.display   = 'none';
 }
 
 function renderUploadPreviews() {
@@ -232,39 +295,69 @@ function clearUpload() {
   renderUploadPreviews();
   document.getElementById('uploadBtn').disabled = true;
   document.getElementById('uploadSuccess').style.display = 'none';
-  document.getElementById('uploadError').style.display = 'none';
+  document.getElementById('uploadError').style.display   = 'none';
   fileInput.value = '';
+}
+
+async function fileToBase64(file) {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += Array.from(bytes.subarray(i, i + chunkSize), b => String.fromCharCode(b)).join('');
+  }
+  return btoa(binary);
 }
 
 async function upload() {
   if (!uploadFiles.length) return;
+  if (!isConfigured()) {
+    renderUploadBanner();
+    return;
+  }
+
+  const cfg = loadConfig();
   document.getElementById('uploadBtn').disabled = true;
-  const progress = document.getElementById('uploadProgress');
-  const bar = document.getElementById('uploadBar');
+  const progress     = document.getElementById('uploadProgress');
+  const bar          = document.getElementById('uploadBar');
   const progressText = document.getElementById('uploadProgressText');
   progress.style.display = 'block';
   document.getElementById('uploadSuccess').style.display = 'none';
-  document.getElementById('uploadError').style.display = 'none';
+  document.getElementById('uploadError').style.display   = 'none';
 
   let done = 0, errors = 0;
   for (const file of uploadFiles) {
-    progressText.textContent = `Uploading ${done + 1} of ${uploadFiles.length}...`;
+    progressText.textContent = `Uploading ${done + 1} of ${uploadFiles.length}…`;
     try {
-      const ext = file.name.split('.').pop().toLowerCase() || 'jpg';
+      const ext      = file.name.split('.').pop().toLowerCase() || 'jpg';
       const filename = `${uuid()}.${ext}`;
-      const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'Content-Type': file.type, 'x-upsert': 'false' },
-        body: file
+      const filePath = `${cfg.path}/${filename}`;
+      const content  = await fileToBase64(file);
+
+      const res = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/${filePath}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${cfg.token}`,
+          'Content-Type':  'application/json',
+          'Accept':        'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+        body: JSON.stringify({
+          message: `Add photo ${filename}`,
+          content,
+          branch: cfg.branch,
+        }),
       });
-      if (!uploadRes.ok) { errors++; continue; }
-      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${filename}`;
-      await fetch(`${SUPABASE_URL}/rest/v1/photos`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ filename, url: publicUrl, size_bytes: file.size })
-      });
-    } catch { errors++; }
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || `HTTP ${res.status}`);
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+      errors++;
+    }
     done++;
     bar.style.width = Math.round(done / uploadFiles.length * 100) + '%';
   }
@@ -273,7 +366,7 @@ async function upload() {
   const uploaded = done - errors;
   if (errors > 0) {
     const eb = document.getElementById('uploadError');
-    eb.textContent = `${errors} photo${errors > 1 ? 's' : ''} failed. Check your connection and try again.`;
+    eb.textContent = `${errors} photo${errors > 1 ? 's' : ''} failed. Check your token, repo, and try again.`;
     eb.style.display = 'block';
   }
   if (uploaded > 0) {
@@ -285,30 +378,63 @@ async function upload() {
   }
 }
 
-// PICK
+// ── Pick & Post ───────────────────────────────────────────────────────────────
+
 async function loadPhotos() {
-  document.getElementById('pickLoading').style.display = 'block';
-  document.getElementById('pickContent').style.display = 'none';
-  document.getElementById('pickEmpty').style.display = 'none';
+  const setupBanner = document.getElementById('pickSetupBanner');
+  const loading     = document.getElementById('pickLoading');
+  const content     = document.getElementById('pickContent');
+  const empty       = document.getElementById('pickEmpty');
+
+  if (!isConfigured()) {
+    setupBanner.style.display = 'block';
+    loading.style.display     = 'none';
+    content.style.display     = 'none';
+    empty.style.display       = 'none';
+    return;
+  }
+  setupBanner.style.display = 'none';
+  loading.style.display     = 'block';
+  content.style.display     = 'none';
+  empty.style.display       = 'none';
   selected.clear();
 
+  const cfg = loadConfig();
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/photos?limit=200`, {
-      headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY }
-    });
-    if (!res.ok) throw new Error();
-    stagedPhotos = await res.json();
-  } catch {
-    document.getElementById('pickLoading').textContent = 'Failed to load photos.';
+    const res = await fetch(
+      `https://api.github.com/repos/${cfg.repo}/contents/${cfg.path}?ref=${encodeURIComponent(cfg.branch)}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${cfg.token}`,
+          'Accept':        'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      }
+    );
+
+    if (res.status === 404) {
+      // Folder doesn't exist yet — treat as empty
+      stagedPhotos = [];
+    } else if (!res.ok) {
+      throw new Error(`GitHub API error: ${res.status}`);
+    } else {
+      const files = await res.json();
+      stagedPhotos = files
+        .filter(f => f.type === 'file' && /\.(jpe?g|png|gif|webp|heic|heif|avif)$/i.test(f.name))
+        .map(f => ({ filename: f.name, url: f.download_url, sha: f.sha, path: f.path }));
+    }
+  } catch (err) {
+    console.error('Load error:', err);
+    loading.textContent = 'Failed to load photos from GitHub.';
     return;
   }
 
-  document.getElementById('pickLoading').style.display = 'none';
+  loading.style.display = 'none';
   if (!stagedPhotos.length) {
-    document.getElementById('pickEmpty').style.display = 'block';
+    empty.style.display = 'block';
     return;
   }
-  document.getElementById('pickContent').style.display = 'block';
+  content.style.display = 'block';
   renderPickerGrid();
 }
 
@@ -321,8 +447,8 @@ function renderPickerGrid() {
     card.dataset.url = p.url;
 
     const img = document.createElement('img');
-    img.src = p.url;
-    img.alt = p.filename || '';
+    img.src  = p.url;
+    img.alt  = p.filename;
     img.onerror = () => { card.style.display = 'none'; };
 
     const check = document.createElement('div');
@@ -339,12 +465,16 @@ function renderPickerGrid() {
     del.title = 'Delete from library';
     del.onclick = async e => {
       e.stopPropagation();
-      if (!confirm('Delete this photo from the library?')) return;
-      await deletePhoto(p);
-      stagedPhotos.splice(i, 1);
-      selected.delete(p.url);
-      renderPickerGrid();
-      updateSelCount();
+      if (!confirm('Delete this photo from the GitHub repo?')) return;
+      try {
+        await deletePhoto(p);
+        stagedPhotos.splice(i, 1);
+        selected.delete(p.url);
+        renderPickerGrid();
+        updateSelCount();
+      } catch (err) {
+        alert('Delete failed: ' + (err.message || 'unknown error'));
+      }
     };
 
     card.appendChild(img);
@@ -358,15 +488,25 @@ function renderPickerGrid() {
 }
 
 async function deletePhoto(p) {
-  const filename = p.filename || p.url.split('/').pop();
-  await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`, {
+  const cfg = loadConfig();
+  const res = await fetch(`https://api.github.com/repos/${cfg.repo}/contents/${p.path}`, {
     method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${ANON_KEY}` }
+    headers: {
+      'Authorization': `Bearer ${cfg.token}`,
+      'Content-Type':  'application/json',
+      'Accept':        'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+    body: JSON.stringify({
+      message: `Delete photo ${p.filename}`,
+      sha:     p.sha,
+      branch:  cfg.branch,
+    }),
   });
-  await fetch(`${SUPABASE_URL}/rest/v1/photos?url=eq.${encodeURIComponent(p.url)}`, {
-    method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY }
-  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.message || `HTTP ${res.status}`);
+  }
 }
 
 function togglePick(card, url) {
@@ -390,8 +530,6 @@ function clearSel() {
 function updateSelCount() {
   document.getElementById('selCount').textContent = `${selected.size} selected`;
   document.getElementById('buildBtn').disabled = selected.size === 0;
-  document.getElementById('promptBox').style.display = 'none';
-  document.getElementById('copyBtn').style.display = 'none';
 }
 
 async function buildPrompt() {
@@ -403,79 +541,7 @@ async function buildPrompt() {
   setTimeout(() => { btn.textContent = orig; }, 1800);
 }
 
-async function copyPrompt() {
-  await navigator.clipboard.writeText(document.getElementById('promptBox').textContent);
-  const btn = document.getElementById('copyBtn');
-  const orig = btn.textContent;
-  btn.textContent = 'Copied!';
-  setTimeout(() => { btn.textContent = orig; }, 1800);
-}
-
-// SCHEDULED
-async function loadScheduled() {
-  document.getElementById('schedLoading').style.display = 'block';
-  document.getElementById('schedContent').style.display = 'none';
-  document.getElementById('schedEmpty').style.display = 'none';
-  document.getElementById('schedError').style.display = 'none';
-
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/scheduled_posts?order=scheduled_at.asc&limit=100`, {
-      headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY }
-    });
-    if (!res.ok) throw new Error();
-    const posts = await res.json();
-    document.getElementById('schedLoading').style.display = 'none';
-    if (!posts.length) {
-      document.getElementById('schedEmpty').style.display = 'block';
-      return;
-    }
-    renderScheduledTable(posts);
-    document.getElementById('schedContent').style.display = 'block';
-  } catch {
-    document.getElementById('schedLoading').style.display = 'none';
-    const err = document.getElementById('schedError');
-    err.textContent = 'Failed to load scheduled posts.';
-    err.style.display = 'block';
-  }
-}
-
-function renderScheduledTable(posts) {
-  const tbody = document.getElementById('schedBody');
-  tbody.innerHTML = '';
-  posts.forEach(p => {
-    const tr = document.createElement('tr');
-
-    const tdImg = document.createElement('td');
-    const img = document.createElement('img');
-    img.className = 'sched-thumb';
-    img.src = p.image_url || p.url || '';
-    img.alt = p.caption || p.text || 'Scheduled post image';
-    img.onerror = () => { img.style.visibility = 'hidden'; };
-    tdImg.appendChild(img);
-
-    const tdCaption = document.createElement('td');
-    const caption = document.createElement('div');
-    caption.className = 'sched-caption';
-    caption.textContent = p.caption || p.text || '—';
-    tdCaption.appendChild(caption);
-
-    const tdDate = document.createElement('td');
-    tdDate.className = 'sched-date';
-    tdDate.textContent = p.scheduled_at ? formatScheduledDate(p.scheduled_at) : '—';
-
-    tr.appendChild(tdImg);
-    tr.appendChild(tdCaption);
-    tr.appendChild(tdDate);
-    tbody.appendChild(tr);
-  });
-}
-
-function formatScheduledDate(isoStr) {
-  const d = new Date(isoStr);
-  if (isNaN(d.getTime())) return isoStr;
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-    + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-}
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -483,6 +549,9 @@ function uuid() {
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
 }
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderUploadBanner();
 </script>
 </body>
 </html>
