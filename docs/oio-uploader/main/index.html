@@ -167,8 +167,8 @@
     </div>
     <div class="field">
       <label for="cfgRepo">Repository</label>
-      <input class="context-input" type="text" id="cfgRepo" placeholder="owner/repo">
-      <span class="hint">e.g. <code>spacecowboyian/clayground</code></span>
+      <input class="context-input" type="text" id="cfgRepo" placeholder="spacecowboyian/oio-brain">
+      <span class="hint">e.g. <code>spacecowboyian/oio-brain</code></span>
     </div>
     <div class="field">
       <label for="cfgBranch">Branch</label>
@@ -193,7 +193,7 @@ function sanitizePath(p) {
 function loadConfig() {
   return {
     token:  localStorage.getItem('oio_gh_token')  || '',
-    repo:   localStorage.getItem('oio_gh_repo')   || '',
+    repo:   localStorage.getItem('oio_gh_repo')   || 'spacecowboyian/oio-brain',
     branch: localStorage.getItem('oio_gh_branch') || 'main',
     path:   sanitizePath(localStorage.getItem('oio_gh_path') || 'oio-photos'),
   };
