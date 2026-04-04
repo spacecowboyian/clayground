@@ -12,6 +12,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(oio-uploader)
+- **Remove manual upload tab** — photos are now ingested automatically via the Google Photos → Supabase sync pipeline. The Upload tab and all associated JS have been removed. The remaining tab is renamed "Library" and is the default landing page.
+
+### feat(oio-uploader)
 - **New project scaffold** — adds `projects/oio-uploader/index.html` (single static HTML page) and the corresponding `docs/oio-uploader/main/index.html` GitHub Pages output; registers the project in `docs/projects.json`.
 
 ### feat(print-queue)
