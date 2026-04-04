@@ -42,5 +42,10 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-38/"
     }
+  },
+  "64": {
+    "title": "feat(oio-uploader): remove upload tab, photos now ingested via Google Photos sync",
+    "url": "https://github.com/spacecowboyian/clayground/pull/64",
+    "builds": {}
   }
 }
