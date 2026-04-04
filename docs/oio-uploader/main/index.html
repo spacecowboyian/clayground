@@ -34,17 +34,63 @@
   .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
   .tab { padding: 10px 20px; font-size: 13px; color: var(--muted-foreground); cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; }
   .tab.active { color: var(--foreground); border-bottom-color: var(--accent-orange); }
+  .tab-badge { display: inline-block; background: var(--accent-orange); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; margin-left: 6px; vertical-align: middle; line-height: 16px; }
 
+  /* Photo grids */
   .picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
   .photo-card { position: relative; aspect-ratio: 1; border-radius: calc(var(--radius) * 1.5); overflow: hidden; cursor: pointer; border: 3px solid transparent; background: var(--secondary); transition: border-color 0.15s, transform 0.1s; }
   .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .photo-card.selected { border-color: var(--accent-orange); transform: scale(0.97); }
+  .photo-card.active-triage { border-color: var(--accent-blue); }
+
+  /* Status badge on library cards */
+  .status-chip { position: absolute; bottom: 5px; right: 5px; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .status-chip.unknown { background: rgba(217,119,6,0.85); color: #fff; }
+  .status-chip.identified { background: rgba(5,150,105,0.85); color: #fff; }
+  .status-chip.skipped { background: rgba(60,60,60,0.85); color: var(--muted-foreground); }
+  .posted-chip { position: absolute; top: 5px; right: 5px; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(59,130,246,0.85); color: #fff; text-transform: uppercase; }
+
+  /* Description overlay on library cards */
+  .card-desc { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 20px 6px 6px; font-size: 10px; color: #fff; line-height: 1.3; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+  .photo-card:hover .card-desc { opacity: 1; }
+
   .photo-card .num { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.65); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
-  .photo-card .check { position: absolute; top: 5px; right: 5px; width: 22px; height: 22px; background: var(--accent-orange); border-radius: 50%; display: none; align-items: center; justify-content: center; }
+  .photo-card .check { position: absolute; top: 5px; right: 5px; width: 22px; height: 22px; background: var(--accent-orange); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; }
   .photo-card.selected .check { display: flex; }
   .photo-card .del { position: absolute; top: 5px; left: 5px; width: 22px; height: 22px; background: rgba(0,0,0,0.65); border-radius: 50%; border: none; color: var(--muted-foreground); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
   .photo-card .del:hover { background: rgba(180,30,30,0.85); color: #fff; }
 
+  /* Triage form */
+  .triage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .triage-card { border-radius: calc(var(--radius) * 1.5); overflow: hidden; background: var(--card); border: 2px solid var(--border); transition: border-color 0.15s; }
+  .triage-card.active { border-color: var(--accent-blue); }
+  .triage-card .thumb { position: relative; aspect-ratio: 1; cursor: pointer; }
+  .triage-card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .triage-card .thumb .tap-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); opacity: 0; transition: opacity 0.15s; font-size: 11px; color: #fff; text-align: center; padding: 8px; }
+  .triage-card .thumb:hover .tap-hint { opacity: 1; }
+
+  .triage-form { padding: 10px; border-top: 1px solid var(--border); display: none; }
+  .triage-card.active .triage-form { display: block; }
+
+  .form-label { font-size: 10px; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; display: block; }
+  .form-select { width: 100%; background: var(--secondary); border: 1px solid var(--border); border-radius: var(--radius); color: var(--foreground); padding: 7px 10px; font-size: 12px; margin-bottom: 8px; outline: none; appearance: none; transition: border-color 0.15s; }
+  .form-select:focus { border-color: var(--accent-orange); }
+  .form-textarea { width: 100%; background: var(--secondary); border: 1px solid var(--border); border-radius: var(--radius); color: var(--foreground); padding: 7px 10px; font-size: 12px; margin-bottom: 8px; outline: none; resize: vertical; min-height: 60px; line-height: 1.4; transition: border-color 0.15s; }
+  .form-textarea:focus { border-color: var(--accent-orange); }
+  .form-textarea::placeholder { color: var(--muted-foreground); opacity: 0.6; }
+  .form-actions { display: flex; gap: 6px; }
+  .btn-submit { flex: 1; padding: 8px; background: var(--accent-orange); color: var(--foreground); border: none; border-radius: var(--radius); font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .btn-submit:hover:not(:disabled) { background: var(--accent-orange-hover); }
+  .btn-submit:disabled { background: var(--accent-orange-light); color: var(--muted-foreground); cursor: default; }
+  .btn-skip { padding: 8px 10px; background: transparent; border: 1px solid var(--border); color: var(--muted-foreground); border-radius: var(--radius); font-size: 12px; cursor: pointer; transition: background 0.15s; }
+  .btn-skip:hover { background: var(--muted); }
+
+  /* Triage view toggle */
+  .view-toggle { display: flex; gap: 6px; margin-bottom: 16px; }
+  .toggle-btn { padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; color: var(--muted-foreground); font-size: 12px; cursor: pointer; transition: background 0.15s, color 0.15s; }
+  .toggle-btn.active { background: var(--card); color: var(--foreground); border-color: var(--accent-orange); }
+
+  /* Shared */
   .btn { display: block; width: 100%; padding: 15px; border: none; border-radius: calc(var(--radius) * 1.25); font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: background 0.15s; }
   .btn-primary { background: var(--accent-orange); color: var(--foreground); }
   .btn-primary:hover:not(:disabled) { background: var(--accent-orange-hover); }
@@ -61,14 +107,8 @@
   .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--muted-foreground); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .schedule-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-  .schedule-table th { text-align: left; font-size: 11px; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-  .schedule-table td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  .schedule-table tr:last-child td { border-bottom: none; }
-  .schedule-table tbody tr:hover td { background: var(--card); }
-  .sched-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: var(--radius); display: block; background: var(--secondary); flex-shrink: 0; }
-  .sched-caption { font-size: 13px; color: var(--muted-foreground); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .sched-date { font-size: 12px; color: var(--muted-foreground); white-space: nowrap; }
+  .save-flash { position: absolute; inset: 0; background: rgba(5,150,105,0.35); display: flex; align-items: center; justify-content: center; font-size: 22px; border-radius: calc(var(--radius) * 1.25); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .save-flash.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -77,95 +117,364 @@
 <p class="sub">OIO Racing photo library</p>
 
 <div class="tabs">
-  <div class="tab active" id="tabLibrary" onclick="showTab('library')">Library</div>
+  <div class="tab active" id="tabTriage" onclick="showTab('triage')">Triage <span class="tab-badge" id="triageBadge" style="display:none"></span></div>
+  <div class="tab" id="tabLibrary" onclick="showTab('library')">Library</div>
+</div>
+
+<!-- TRIAGE -->
+<div id="paneTriage">
+  <div class="view-toggle">
+    <button class="toggle-btn active" id="toggleUnknown" onclick="setTriageView('unknown')">Needs review</button>
+    <button class="toggle-btn" id="toggleAll" onclick="setTriageView('all')">All photos</button>
+  </div>
+  <div class="state-msg" id="triageLoading"><span class="spinner"></span>Loading...</div>
+  <div id="triageContent" style="display:none;">
+    <div class="triage-grid" id="triageGrid"></div>
+  </div>
+  <div class="state-msg" id="triageEmpty" style="display:none;">
+    All caught up — no photos need review.<br>
+    <button class="toolbar" style="margin:16px auto 0;display:inline-block;" onclick="loadTriage()">Refresh</button>
+  </div>
 </div>
 
 <!-- LIBRARY -->
-<div id="paneLibrary">
+<div id="paneLibrary" style="display:none;">
   <div class="state-msg" id="libLoading"><span class="spinner"></span>Loading photos...</div>
   <div id="libContent" style="display:none;">
     <div class="toolbar">
       <button onclick="selectAll()">Select all</button>
       <button onclick="clearSel()">Clear</button>
-      <button onclick="loadPhotos()">Refresh</button>
+      <button onclick="loadLibrary()">Refresh</button>
       <span class="sel-count" id="selCount">0 selected</span>
     </div>
     <div class="picker-grid" id="pickerGrid"></div>
-    <button class="btn btn-primary" id="buildBtn" disabled onclick="buildPrompt()">Copy image URLs</button>
+    <button class="btn btn-primary" id="buildBtn" disabled onclick="copyURLs()">Copy image URLs</button>
   </div>
   <div class="state-msg" id="libEmpty" style="display:none;">No photos in library yet.<br>Photos are synced from Google Photos.</div>
-</div>
-
-<!-- SCHEDULED -->
-<div id="paneScheduled" style="display:none;">
-  <div class="toolbar">
-    <button onclick="loadScheduled()" aria-label="Refresh scheduled posts">Refresh</button>
-  </div>
-  <div class="state-msg" id="schedLoading"><span class="spinner"></span>Loading scheduled posts...</div>
-  <div class="state-msg toast error" id="schedError" style="display:none;"></div>
-  <div id="schedContent" style="display:none;">
-    <table class="schedule-table">
-      <thead>
-        <tr>
-          <th>Photo</th>
-          <th>Caption</th>
-          <th>Scheduled for</th>
-        </tr>
-      </thead>
-      <tbody id="schedBody"></tbody>
-    </table>
-  </div>
-  <div class="state-msg" id="schedEmpty" style="display:none;">No scheduled posts yet.</div>
 </div>
 
 <script>
 const SUPABASE_URL = 'https://zdjughkxryhabduhsdgg.supabase.co';
 const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkanVnaGt4cnloYWJkdWhzZGdnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3OTI0OTksImV4cCI6MjA4OTM2ODQ5OX0.9mXN--D-e-0MNE6cGxlYOefTiZk8nHp12BpVx0mm7lY';
-const BUCKET = 'oio-photos';
 
-let stagedPhotos = [];
+const CARS = [
+  { value: 'other',           label: 'Other / Unknown' },
+  { value: 'goblin-mr2',      label: 'The Goblin — 1985 Toyota MR2 AW11' },
+  { value: 'dale-celica',     label: 'Dale — 1972 Toyota Celica' },
+  { value: 'fitty-cent',      label: 'Fitty Cent — 2009 Honda Fit GE8' },
+  { value: 'nessie-cressida', label: 'Nessie — 1982 Toyota Cressida Wagon' },
+  { value: 'killer-corolla',  label: 'Killer Corolla — 1977 Toyota Corolla' },
+  { value: 'geoffrey-dauphine', label: 'Geoffrey — 1962 Renault Dauphine' },
+  { value: 'ryans-ae86',      label: "Ryan's AE86" },
+  { value: 'ryans-mgb-gt',    label: "Ryan's MGB GT" },
+  { value: 'richards-st205',  label: "Richard's ST205" },
+];
+
+let triagePhotos = [];
+let triageView = 'unknown';
+let activeTriageId = null;
+let libraryPhotos = [];
 let selected = new Set();
 
+// ── Tab routing ──────────────────────────────────────────────────────────────
+
 function showTab(tab) {
+  document.getElementById('paneTriage').style.display  = tab === 'triage'  ? 'block' : 'none';
   document.getElementById('paneLibrary').style.display = tab === 'library' ? 'block' : 'none';
+  document.getElementById('tabTriage').classList.toggle('active',  tab === 'triage');
   document.getElementById('tabLibrary').classList.toggle('active', tab === 'library');
-  if (tab === 'library') loadPhotos();
+  if (tab === 'triage')  loadTriage();
+  if (tab === 'library') loadLibrary();
 }
 
-// Load photos on page load
-window.addEventListener('load', () => loadPhotos());
+window.addEventListener('load', () => { loadTriage(); updateTriageBadge(); });
 
-// LIBRARY
-async function loadPhotos() {
+// ── Triage badge count ───────────────────────────────────────────────────────
+
+async function updateTriageBadge() {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/photos?ai_status=eq.unknown&select=id`,
+      { headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY, 'Prefer': 'count=exact', 'Range': '0-0' } }
+    );
+    const range = res.headers.get('content-range');
+    const count = range ? parseInt(range.split('/')[1]) : 0;
+    const badge = document.getElementById('triageBadge');
+    if (count > 0) { badge.textContent = count; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  } catch { /* silent */ }
+}
+
+// ── Triage view toggle ───────────────────────────────────────────────────────
+
+function setTriageView(view) {
+  triageView = view;
+  activeTriageId = null;
+  document.getElementById('toggleUnknown').classList.toggle('active', view === 'unknown');
+  document.getElementById('toggleAll').classList.toggle('active',    view === 'all');
+  loadTriage();
+}
+
+// ── Load triage photos ───────────────────────────────────────────────────────
+
+async function loadTriage() {
+  document.getElementById('triageLoading').style.display = 'block';
+  document.getElementById('triageContent').style.display = 'none';
+  document.getElementById('triageEmpty').style.display   = 'none';
+
+  const filter = triageView === 'unknown'
+    ? `ai_status=eq.unknown`
+    : ``;
+  const url = `${SUPABASE_URL}/rest/v1/photos?${filter}&order=uploaded_at.desc&limit=200`;
+
+  try {
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY } });
+    if (!res.ok) throw new Error();
+    triagePhotos = await res.json();
+  } catch {
+    document.getElementById('triageLoading').textContent = 'Failed to load photos.';
+    return;
+  }
+
+  document.getElementById('triageLoading').style.display = 'none';
+  if (!triagePhotos.length) {
+    document.getElementById('triageEmpty').style.display = 'block';
+    return;
+  }
+  document.getElementById('triageContent').style.display = 'block';
+  renderTriageGrid();
+}
+
+// ── Render triage grid ───────────────────────────────────────────────────────
+
+function renderTriageGrid() {
+  const grid = document.getElementById('triageGrid');
+  grid.innerHTML = '';
+
+  triagePhotos.forEach(p => {
+    const isActive = p.id === activeTriageId;
+
+    const card = document.createElement('div');
+    card.className = 'triage-card' + (isActive ? ' active' : '');
+    card.id = `tcard-${p.id}`;
+
+    // Thumb
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb';
+    const img = document.createElement('img');
+    img.src = p.url;
+    img.alt = p.filename || '';
+    img.onerror = () => { card.style.display = 'none'; };
+
+    const hint = document.createElement('div');
+    hint.className = 'tap-hint';
+    hint.textContent = isActive ? 'Tap to collapse' : 'Tap to label';
+
+    thumb.appendChild(img);
+    thumb.appendChild(hint);
+    thumb.addEventListener('click', () => toggleTriageCard(p.id));
+
+    // Status chip (shown in "all" view)
+    if (triageView === 'all') {
+      const chip = document.createElement('div');
+      chip.className = `status-chip ${p.ai_status}`;
+      chip.textContent = p.ai_status;
+      thumb.appendChild(chip);
+    }
+
+    // Inline form
+    const form = document.createElement('div');
+    form.className = 'triage-form';
+    form.innerHTML = buildFormHTML(p);
+
+    card.appendChild(thumb);
+    card.appendChild(form);
+    grid.appendChild(card);
+
+    // Pre-fill existing values if any
+    if (isActive) {
+      const sel = card.querySelector('.car-select');
+      const txt = card.querySelector('.desc-textarea');
+      if (sel && p.car) sel.value = p.car;
+      if (txt && p.description) txt.value = p.description;
+    }
+  });
+}
+
+function buildFormHTML(p) {
+  const carOptions = CARS.map(c =>
+    `<option value="${c.value}">${c.label}</option>`
+  ).join('');
+
+  const descPlaceholder = p.google_description
+    ? `Google caption: "${p.google_description.slice(0, 60)}${p.google_description.length > 60 ? '…' : ''}"`
+    : 'Describe what\'s happening in this photo…';
+
+  return `
+    <label class="form-label">Car</label>
+    <select class="form-select car-select">
+      ${carOptions}
+    </select>
+    <label class="form-label">Description</label>
+    <textarea class="form-textarea desc-textarea" rows="3" placeholder="${descPlaceholder.replace(/"/g, '&quot;')}">${p.description || ''}</textarea>
+    <div class="form-actions">
+      <button class="btn-submit" onclick="submitTriage('${p.id}', this)">Save</button>
+      <button class="btn-skip"   onclick="skipTriage('${p.id}', this)">Skip</button>
+    </div>
+  `;
+}
+
+function toggleTriageCard(id) {
+  activeTriageId = (activeTriageId === id) ? null : id;
+  renderTriageGrid();
+  if (activeTriageId) {
+    const card = document.getElementById(`tcard-${activeTriageId}`);
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ── Submit / skip ────────────────────────────────────────────────────────────
+
+async function submitTriage(id, btn) {
+  const card = document.getElementById(`tcard-${id}`);
+  const car  = card.querySelector('.car-select').value;
+  const desc = card.querySelector('.desc-textarea').value.trim();
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/photos?id=eq.${id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${ANON_KEY}`,
+          'apikey': ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ car, description: desc || null, ai_status: 'identified' })
+      }
+    );
+    if (!res.ok) throw new Error();
+
+    // Flash green, then remove from needs-review or update badge in all view
+    flashCard(card, () => {
+      if (triageView === 'unknown') {
+        triagePhotos = triagePhotos.filter(p => p.id !== id);
+        activeTriageId = null;
+        if (!triagePhotos.length) {
+          document.getElementById('triageContent').style.display = 'none';
+          document.getElementById('triageEmpty').style.display   = 'block';
+        } else {
+          renderTriageGrid();
+        }
+      } else {
+        const photo = triagePhotos.find(p => p.id === id);
+        if (photo) { photo.car = car; photo.description = desc || null; photo.ai_status = 'identified'; }
+        activeTriageId = null;
+        renderTriageGrid();
+      }
+      updateTriageBadge();
+    });
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Save';
+    btn.style.background = 'var(--accent-red)';
+    setTimeout(() => { btn.style.background = ''; }, 2000);
+  }
+}
+
+async function skipTriage(id, btn) {
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/photos?id=eq.${id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${ANON_KEY}`,
+          'apikey': ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ ai_status: 'skipped' })
+      }
+    );
+    if (!res.ok) throw new Error();
+
+    const card = document.getElementById(`tcard-${id}`);
+    flashCard(card, () => {
+      if (triageView === 'unknown') {
+        triagePhotos = triagePhotos.filter(p => p.id !== id);
+        activeTriageId = null;
+        if (!triagePhotos.length) {
+          document.getElementById('triageContent').style.display = 'none';
+          document.getElementById('triageEmpty').style.display   = 'block';
+        } else {
+          renderTriageGrid();
+        }
+      } else {
+        const photo = triagePhotos.find(p => p.id === id);
+        if (photo) photo.ai_status = 'skipped';
+        activeTriageId = null;
+        renderTriageGrid();
+      }
+      updateTriageBadge();
+    });
+  } catch {
+    btn.disabled = false;
+  }
+}
+
+function flashCard(card, cb) {
+  const flash = document.createElement('div');
+  flash.className = 'save-flash';
+  flash.textContent = '✓';
+  card.style.position = 'relative';
+  card.appendChild(flash);
+  requestAnimationFrame(() => {
+    flash.classList.add('show');
+    setTimeout(() => { flash.classList.remove('show'); setTimeout(cb, 300); }, 600);
+  });
+}
+
+// ── Library tab ──────────────────────────────────────────────────────────────
+
+async function loadLibrary() {
   document.getElementById('libLoading').style.display = 'block';
   document.getElementById('libContent').style.display = 'none';
-  document.getElementById('libEmpty').style.display = 'none';
+  document.getElementById('libEmpty').style.display   = 'none';
   selected.clear();
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/photos?limit=200`, {
-      headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY }
-    });
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/photos?order=uploaded_at.desc&limit=200`,
+      { headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY } }
+    );
     if (!res.ok) throw new Error();
-    stagedPhotos = await res.json();
+    libraryPhotos = await res.json();
   } catch {
     document.getElementById('libLoading').textContent = 'Failed to load photos.';
     return;
   }
 
   document.getElementById('libLoading').style.display = 'none';
-  if (!stagedPhotos.length) {
+  if (!libraryPhotos.length) {
     document.getElementById('libEmpty').style.display = 'block';
     return;
   }
   document.getElementById('libContent').style.display = 'block';
-  renderPickerGrid();
+  renderLibraryGrid();
 }
 
-function renderPickerGrid() {
+function renderLibraryGrid() {
   const grid = document.getElementById('pickerGrid');
   grid.innerHTML = '';
-  stagedPhotos.forEach((p, i) => {
+
+  libraryPhotos.forEach((p, i) => {
     const card = document.createElement('div');
     card.className = 'photo-card' + (selected.has(p.url) ? ' selected' : '');
     card.dataset.url = p.url;
@@ -183,6 +492,27 @@ function renderPickerGrid() {
     num.className = 'num';
     num.textContent = i + 1;
 
+    // Status chip
+    const chip = document.createElement('div');
+    chip.className = `status-chip ${p.ai_status}`;
+    chip.textContent = p.ai_status;
+
+    // Posted badge
+    if (p.posted) {
+      const posted = document.createElement('div');
+      posted.className = 'posted-chip';
+      posted.textContent = 'Posted';
+      card.appendChild(posted);
+    }
+
+    // Description hover overlay
+    if (p.description || p.car) {
+      const desc = document.createElement('div');
+      desc.className = 'card-desc';
+      desc.textContent = [p.car, p.description].filter(Boolean).join(' · ');
+      card.appendChild(desc);
+    }
+
     const del = document.createElement('button');
     del.className = 'del';
     del.innerHTML = '&times;';
@@ -191,25 +521,27 @@ function renderPickerGrid() {
       e.stopPropagation();
       if (!confirm('Delete this photo from the library?')) return;
       await deletePhoto(p);
-      stagedPhotos.splice(i, 1);
+      libraryPhotos.splice(i, 1);
       selected.delete(p.url);
-      renderPickerGrid();
+      renderLibraryGrid();
       updateSelCount();
     };
 
     card.appendChild(img);
     card.appendChild(check);
     card.appendChild(num);
+    card.appendChild(chip);
     card.appendChild(del);
     card.addEventListener('click', () => togglePick(card, p.url));
     grid.appendChild(card);
   });
+
   updateSelCount();
 }
 
 async function deletePhoto(p) {
   const filename = p.filename || p.url.split('/').pop();
-  await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`, {
+  await fetch(`${SUPABASE_URL}/storage/v1/object/oio-photos/${filename}`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${ANON_KEY}` }
   });
@@ -226,7 +558,7 @@ function togglePick(card, url) {
 }
 
 function selectAll() {
-  stagedPhotos.forEach(p => selected.add(p.url));
+  libraryPhotos.forEach(p => selected.add(p.url));
   document.querySelectorAll('.photo-card').forEach(c => c.classList.add('selected'));
   updateSelCount();
 }
@@ -242,7 +574,7 @@ function updateSelCount() {
   document.getElementById('buildBtn').disabled = selected.size === 0;
 }
 
-async function buildPrompt() {
+async function copyURLs() {
   const text = [...selected].join('\n');
   await navigator.clipboard.writeText(text);
   const btn = document.getElementById('buildBtn');
