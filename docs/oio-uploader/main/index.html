@@ -60,6 +60,15 @@
   .state-msg { text-align: center; padding: 48px 20px; color: var(--muted-foreground); font-size: 14px; line-height: 1.8; }
   .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--muted-foreground); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  .schedule-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  .schedule-table th { text-align: left; font-size: 11px; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .schedule-table td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .schedule-table tr:last-child td { border-bottom: none; }
+  .schedule-table tbody tr:hover td { background: var(--card); }
+  .sched-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: var(--radius); display: block; background: var(--secondary); flex-shrink: 0; }
+  .sched-caption { font-size: 13px; color: var(--muted-foreground); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sched-date { font-size: 12px; color: var(--muted-foreground); white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -85,6 +94,28 @@
     <button class="btn btn-primary" id="buildBtn" disabled onclick="buildPrompt()">Copy image URLs</button>
   </div>
   <div class="state-msg" id="libEmpty" style="display:none;">No photos in library yet.<br>Photos are synced from Google Photos.</div>
+</div>
+
+<!-- SCHEDULED -->
+<div id="paneScheduled" style="display:none;">
+  <div class="toolbar">
+    <button onclick="loadScheduled()" aria-label="Refresh scheduled posts">Refresh</button>
+  </div>
+  <div class="state-msg" id="schedLoading"><span class="spinner"></span>Loading scheduled posts...</div>
+  <div class="state-msg toast error" id="schedError" style="display:none;"></div>
+  <div id="schedContent" style="display:none;">
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th>Photo</th>
+          <th>Caption</th>
+          <th>Scheduled for</th>
+        </tr>
+      </thead>
+      <tbody id="schedBody"></tbody>
+    </table>
+  </div>
+  <div class="state-msg" id="schedEmpty" style="display:none;">No scheduled posts yet.</div>
 </div>
 
 <script>
