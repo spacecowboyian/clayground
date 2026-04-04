@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OIO Racing - Photo Staging</title>
+<title>OIO Racing — Photo Library</title>
 <style>
   :root {
     --background: #222222;
@@ -35,17 +35,6 @@
   .tab { padding: 10px 20px; font-size: 13px; color: var(--muted-foreground); cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; }
   .tab.active { color: var(--foreground); border-bottom-color: var(--accent-orange); }
 
-  .drop-zone { border: 2px dashed var(--border); border-radius: calc(var(--radius) * 1.75); padding: 52px 24px; text-align: center; cursor: pointer; margin-bottom: 16px; transition: border-color 0.2s, background 0.2s; }
-  .drop-zone:active, .drop-zone.dragover { border-color: var(--accent-blue); background: var(--accent-blue-light); }
-  .drop-zone .icon { font-size: 32px; margin-bottom: 12px; }
-  .drop-zone p { font-size: 15px; color: var(--muted-foreground); margin-bottom: 6px; }
-  .drop-zone span { font-size: 12px; color: var(--muted-foreground); opacity: 0.6; }
-
-  .previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; margin-bottom: 16px; }
-  .preview { position: relative; aspect-ratio: 1; border-radius: calc(var(--radius) * 1.25); overflow: hidden; background: var(--secondary); }
-  .preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .preview .remove { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; background: rgba(0,0,0,0.75); border-radius: 50%; border: none; color: var(--foreground); font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
-
   .picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
   .photo-card { position: relative; aspect-ratio: 1; border-radius: calc(var(--radius) * 1.5); overflow: hidden; cursor: pointer; border: 3px solid transparent; background: var(--secondary); transition: border-color 0.15s, transform 0.1s; }
   .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -63,27 +52,10 @@
   .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--muted-foreground); font-size: 13px; padding: 10px; }
   .btn-secondary:hover { background: var(--card); }
 
-  .progress { background: var(--card); border-radius: calc(var(--radius) * 1.25); padding: 16px; margin-bottom: 12px; display: none; }
-  .progress p { font-size: 13px; color: var(--muted-foreground); margin-bottom: 8px; }
-  .bar-wrap { background: var(--secondary); border-radius: 4px; height: 4px; }
-  .bar { background: var(--accent-blue); height: 4px; border-radius: 4px; width: 0%; transition: width 0.25s; }
-
-  .toast { border-radius: calc(var(--radius) * 1.25); padding: 16px; margin-bottom: 12px; display: none; }
-  .toast.success { background: var(--accent-green-light); border: 1px solid var(--accent-green); }
-  .toast.success p { font-size: 15px; color: var(--accent-green); font-weight: 500; }
-  .toast.success span { font-size: 12px; color: var(--muted-foreground); display: block; margin-top: 4px; }
-  .toast.error { background: var(--accent-red-light); border: 1px solid var(--accent-red); font-size: 13px; color: var(--destructive); }
-
   .toolbar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
   .toolbar button { background: transparent; border: 1px solid var(--border); color: var(--muted-foreground); padding: 6px 14px; border-radius: var(--radius); cursor: pointer; font-size: 12px; transition: background 0.15s; }
   .toolbar button:hover { background: var(--card); }
   .sel-count { font-size: 12px; color: var(--muted-foreground); margin-left: auto; }
-
-  .context-input { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.25); color: var(--foreground); padding: 12px 14px; font-size: 14px; margin-bottom: 10px; outline: none; transition: border-color 0.15s; }
-  .context-input:focus { border-color: var(--accent-orange); }
-  .context-input::placeholder { color: var(--muted-foreground); opacity: 0.6; }
-
-  .prompt-box { background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.25); padding: 14px; margin-bottom: 10px; font-size: 12px; color: var(--muted-foreground); line-height: 1.6; word-break: break-all; display: none; }
 
   .state-msg { text-align: center; padding: 48px 20px; color: var(--muted-foreground); font-size: 14px; line-height: 1.8; }
   .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--muted-foreground); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
@@ -93,39 +65,16 @@
 <body>
 
 <h1>OIO Racing</h1>
-<p class="sub">Instagram photo staging</p>
+<p class="sub">OIO Racing photo library</p>
 
 <div class="tabs">
-  <div class="tab active" id="tabUpload" onclick="showTab('upload')">Upload</div>
-  <div class="tab" id="tabPick" onclick="showTab('pick')">Pick &amp; post</div>
+  <div class="tab active" id="tabLibrary" onclick="showTab('library')">Library</div>
 </div>
 
-<!-- UPLOAD -->
-<div id="paneUpload">
-  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-    <div class="icon">📷</div>
-    <p>Tap to select photos</p>
-    <span>JPG · PNG · HEIC · WebP</span>
-  </div>
-  <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
-  <div class="previews" id="uploadPreviews"></div>
-  <div class="progress" id="uploadProgress">
-    <p id="uploadProgressText">Uploading...</p>
-    <div class="bar-wrap"><div class="bar" id="uploadBar"></div></div>
-  </div>
-  <div class="toast error" id="uploadError"></div>
-  <div class="toast success" id="uploadSuccess">
-    <p id="uploadSuccessMsg">Photos uploaded!</p>
-    <span>Switch to "Pick &amp; post" to build your post</span>
-  </div>
-  <button class="btn btn-primary" id="uploadBtn" disabled onclick="upload()">Upload photos</button>
-  <button class="btn btn-secondary" onclick="clearUpload()">Clear</button>
-</div>
-
-<!-- PICK -->
-<div id="panePick" style="display:none;">
-  <div class="state-msg" id="pickLoading"><span class="spinner"></span>Loading staged photos...</div>
-  <div id="pickContent" style="display:none;">
+<!-- LIBRARY -->
+<div id="paneLibrary">
+  <div class="state-msg" id="libLoading"><span class="spinner"></span>Loading photos...</div>
+  <div id="libContent" style="display:none;">
     <div class="toolbar">
       <button onclick="selectAll()">Select all</button>
       <button onclick="clearSel()">Clear</button>
@@ -134,9 +83,8 @@
     </div>
     <div class="picker-grid" id="pickerGrid"></div>
     <button class="btn btn-primary" id="buildBtn" disabled onclick="buildPrompt()">Copy image URLs</button>
-
   </div>
-  <div class="state-msg" id="pickEmpty" style="display:none;">No staged photos yet.<br>Upload some first.</div>
+  <div class="state-msg" id="libEmpty" style="display:none;">No photos in library yet.<br>Photos are synced from Google Photos.</div>
 </div>
 
 <script>
@@ -144,117 +92,23 @@ const SUPABASE_URL = 'https://zdjughkxryhabduhsdgg.supabase.co';
 const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkanVnaGt4cnloYWJkdWhzZGdnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3OTI0OTksImV4cCI6MjA4OTM2ODQ5OX0.9mXN--D-e-0MNE6cGxlYOefTiZk8nHp12BpVx0mm7lY';
 const BUCKET = 'oio-photos';
 
-let uploadFiles = [];
 let stagedPhotos = [];
 let selected = new Set();
 
 function showTab(tab) {
-  document.getElementById('paneUpload').style.display = tab === 'upload' ? 'block' : 'none';
-  document.getElementById('panePick').style.display = tab === 'pick' ? 'block' : 'none';
-  document.getElementById('tabUpload').classList.toggle('active', tab === 'upload');
-  document.getElementById('tabPick').classList.toggle('active', tab === 'pick');
-  if (tab === 'pick') loadPhotos();
+  document.getElementById('paneLibrary').style.display = tab === 'library' ? 'block' : 'none';
+  document.getElementById('tabLibrary').classList.toggle('active', tab === 'library');
+  if (tab === 'library') loadPhotos();
 }
 
-// UPLOAD
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); addUploadFiles(e.dataTransfer.files); });
-fileInput.addEventListener('change', e => addUploadFiles(e.target.files));
+// Load photos on page load
+window.addEventListener('load', () => loadPhotos());
 
-function addUploadFiles(newFiles) {
-  for (const f of newFiles) {
-    if (!uploadFiles.find(x => x.name === f.name && x.size === f.size)) uploadFiles.push(f);
-  }
-  renderUploadPreviews();
-  document.getElementById('uploadBtn').disabled = uploadFiles.length === 0;
-  document.getElementById('uploadSuccess').style.display = 'none';
-  document.getElementById('uploadError').style.display = 'none';
-}
-
-function renderUploadPreviews() {
-  const c = document.getElementById('uploadPreviews');
-  c.innerHTML = '';
-  uploadFiles.forEach((f, i) => {
-    const div = document.createElement('div');
-    div.className = 'preview';
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(f);
-    const btn = document.createElement('button');
-    btn.className = 'remove';
-    btn.innerHTML = '&times;';
-    btn.onclick = e => { e.stopPropagation(); uploadFiles.splice(i, 1); renderUploadPreviews(); document.getElementById('uploadBtn').disabled = uploadFiles.length === 0; };
-    div.appendChild(img);
-    div.appendChild(btn);
-    c.appendChild(div);
-  });
-}
-
-function clearUpload() {
-  uploadFiles = [];
-  renderUploadPreviews();
-  document.getElementById('uploadBtn').disabled = true;
-  document.getElementById('uploadSuccess').style.display = 'none';
-  document.getElementById('uploadError').style.display = 'none';
-  fileInput.value = '';
-}
-
-async function upload() {
-  if (!uploadFiles.length) return;
-  document.getElementById('uploadBtn').disabled = true;
-  const progress = document.getElementById('uploadProgress');
-  const bar = document.getElementById('uploadBar');
-  const progressText = document.getElementById('uploadProgressText');
-  progress.style.display = 'block';
-  document.getElementById('uploadSuccess').style.display = 'none';
-  document.getElementById('uploadError').style.display = 'none';
-
-  let done = 0, errors = 0;
-  for (const file of uploadFiles) {
-    progressText.textContent = `Uploading ${done + 1} of ${uploadFiles.length}...`;
-    try {
-      const ext = file.name.split('.').pop().toLowerCase() || 'jpg';
-      const filename = `${uuid()}.${ext}`;
-      const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'Content-Type': file.type, 'x-upsert': 'false' },
-        body: file
-      });
-      if (!uploadRes.ok) { errors++; continue; }
-      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${filename}`;
-      await fetch(`${SUPABASE_URL}/rest/v1/photos`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${ANON_KEY}`, 'apikey': ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ filename, url: publicUrl, size_bytes: file.size })
-      });
-    } catch { errors++; }
-    done++;
-    bar.style.width = Math.round(done / uploadFiles.length * 100) + '%';
-  }
-
-  progress.style.display = 'none';
-  const uploaded = done - errors;
-  if (errors > 0) {
-    const eb = document.getElementById('uploadError');
-    eb.textContent = `${errors} photo${errors > 1 ? 's' : ''} failed. Check your connection and try again.`;
-    eb.style.display = 'block';
-  }
-  if (uploaded > 0) {
-    document.getElementById('uploadSuccessMsg').textContent = `${uploaded} photo${uploaded > 1 ? 's' : ''} uploaded!`;
-    document.getElementById('uploadSuccess').style.display = 'block';
-    clearUpload();
-  } else {
-    document.getElementById('uploadBtn').disabled = false;
-  }
-}
-
-// PICK
+// LIBRARY
 async function loadPhotos() {
-  document.getElementById('pickLoading').style.display = 'block';
-  document.getElementById('pickContent').style.display = 'none';
-  document.getElementById('pickEmpty').style.display = 'none';
+  document.getElementById('libLoading').style.display = 'block';
+  document.getElementById('libContent').style.display = 'none';
+  document.getElementById('libEmpty').style.display = 'none';
   selected.clear();
 
   try {
@@ -264,16 +118,16 @@ async function loadPhotos() {
     if (!res.ok) throw new Error();
     stagedPhotos = await res.json();
   } catch {
-    document.getElementById('pickLoading').textContent = 'Failed to load photos.';
+    document.getElementById('libLoading').textContent = 'Failed to load photos.';
     return;
   }
 
-  document.getElementById('pickLoading').style.display = 'none';
+  document.getElementById('libLoading').style.display = 'none';
   if (!stagedPhotos.length) {
-    document.getElementById('pickEmpty').style.display = 'block';
+    document.getElementById('libEmpty').style.display = 'block';
     return;
   }
-  document.getElementById('pickContent').style.display = 'block';
+  document.getElementById('libContent').style.display = 'block';
   renderPickerGrid();
 }
 
@@ -355,8 +209,6 @@ function clearSel() {
 function updateSelCount() {
   document.getElementById('selCount').textContent = `${selected.size} selected`;
   document.getElementById('buildBtn').disabled = selected.size === 0;
-  document.getElementById('promptBox').style.display = 'none';
-  document.getElementById('copyBtn').style.display = 'none';
 }
 
 async function buildPrompt() {
@@ -366,21 +218,6 @@ async function buildPrompt() {
   const orig = btn.textContent;
   btn.textContent = 'Copied!';
   setTimeout(() => { btn.textContent = orig; }, 1800);
-}
-
-async function copyPrompt() {
-  await navigator.clipboard.writeText(document.getElementById('promptBox').textContent);
-  const btn = document.getElementById('copyBtn');
-  const orig = btn.textContent;
-  btn.textContent = 'Copied!';
-  setTimeout(() => { btn.textContent = orig; }, 1800);
-}
-
-function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = Math.random() * 16 | 0;
-    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-  });
 }
 </script>
 </body>
