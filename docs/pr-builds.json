@@ -42,10 +42,5 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-38/"
     }
-  },
-  "65": {
-    "title": "feat(oio-uploader): add photo triage tab with car dropdown and description input",
-    "url": "https://github.com/spacecowboyian/clayground/pull/65",
-    "builds": {}
   }
 }
