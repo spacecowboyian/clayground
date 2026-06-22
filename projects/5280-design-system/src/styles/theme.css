@@ -1,0 +1,70 @@
+/* 5280 Creative — global theme. Fonts, tokens, keyframes, base reset. */
+
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Baloo+2:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400..500&display=swap');
+
+:root {
+  --teal: #184a4f; /* pine */
+  --jade: #096d61;
+  --red: #ff3b3b;
+  --peri: #5a70bb;
+  --gold: #fbba16;
+  --blush: #ffd0c7;
+  --sky: #8cb6f2;
+  --lime: #f0fc97;
+  --ink: #16211f;
+  --muted: #5c6b68;
+  --bg: #fbf9f5;
+  --surface: #ffffff;
+  --border: #e7e1d8;
+  --paper: #f4f1ea;
+  --display: 'Crumb', 'TAY Crumb', 'Baloo 2', system-ui, sans-serif;
+  --serif: 'Minion 3', 'Source Serif 4', Georgia, serif;
+  --ui: 'Owners Narrow', 'Acumin Pro Wide', 'Archivo', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: #fbba16;
+  color: #16211f;
+}
+
+@keyframes sc-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes sc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes sc-pop {
+  0% {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes sc-toastin {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

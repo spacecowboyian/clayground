@@ -12,7 +12,7 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(5280-design-system)
-- **New project** — adds the 5280 Creative design system as a single self-contained static page (`projects/5280-design-system/index.html` + `docs/5280-design-system/main/index.html`) and registers it in `docs/projects.json`. Imported from Claude Design (`5280 Design System.dc.html`) and translated from the design-canvas DSL to vanilla HTML/CSS/JS: scroll-spy sidebar, reveal-on-scroll, count-up stats, hover/focus states, mobile nav drawer, live newsletter signup, accordions, tabs, modal, and auto-dismissing toasts — no build step or framework runtime.
+- **New project** — adds the 5280 Creative design system as an interactive **Storybook** component library (Storybook 8 + Vite + React + TypeScript, same stack as Gearhead), imported from Claude Design (`5280 Design System.dc.html`). Foundations stories (color palette, typography, spacing & elevation) plus 18 React components: Button, Link, Navbar (+ mobile drawer), Field/Select/TextArea, NewsletterSignup, ContactForm, Card, StatBar (count-up), AwardBadge, LogoMarquee, Testimonial, SectionHeader, Accordion, Tabs, Modal, Toast, Footer — each with stories covering every variant/state. Shared design tokens in `src/tokens.ts` + `src/styles/theme.css`. `npm run build` outputs the static Storybook to `docs/5280-design-system/main`; registered in `docs/projects.json`.
 
 ### feat(oio-uploader)
 - **Remove manual upload tab** — photos are now ingested automatically via the Google Photos → Supabase sync pipeline. The Upload tab and all associated JS have been removed. The remaining tab is renamed "Library" and is the default landing page.

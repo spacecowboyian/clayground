@@ -1,0 +1,30 @@
+import{j as e}from"./jsx-runtime-Cf8x2fCZ.js";import{c as r,f as t}from"./tokens-PUChd5-i.js";import"./index-yBjzXJbu.js";function a({eyebrow:d,title:l,subtitle:j,variant:c="centered",tone:p,barColor:W=r.gold,label:M="Mile 5,280"}){return c==="divider"?e.jsxs("div",{style:{display:"flex",alignItems:"center",gap:16,padding:"8px 4px"},children:[e.jsx("span",{style:{width:11,height:11,borderRadius:"50%",background:r.pine,flex:"none"}}),e.jsx("span",{style:{flex:1,borderTop:"2px dashed #C9C2B6"}}),e.jsx("span",{style:{fontFamily:t.ui,fontSize:11,letterSpacing:".22em",textTransform:"uppercase",color:r.muted,flex:"none"},children:M}),e.jsx("span",{style:{flex:1,borderTop:"2px dashed #C9C2B6"}}),e.jsx("span",{style:{width:11,height:11,borderRadius:"50%",background:r.red,flex:"none"}})]}):c==="marker"?e.jsxs("div",{style:{background:"#fff",border:`1px solid ${r.border}`,borderRadius:16,padding:36,display:"flex",alignItems:"center",gap:18},children:[e.jsx("div",{style:{flex:"none",width:8,height:64,background:W,borderRadius:4}}),e.jsxs("div",{children:[e.jsx("div",{style:{fontFamily:t.ui,fontSize:12,letterSpacing:".24em",textTransform:"uppercase",color:p??r.pine,marginBottom:6},children:d}),e.jsx("h3",{style:{fontFamily:t.display,fontWeight:800,fontSize:28,margin:0,letterSpacing:"-.01em"},children:l})]})]}):e.jsxs("div",{style:{background:"#fff",border:`1px solid ${r.border}`,borderRadius:16,padding:40,textAlign:"center"},children:[e.jsx("div",{style:{fontFamily:t.ui,fontSize:12,letterSpacing:".24em",textTransform:"uppercase",color:p??r.red,marginBottom:12},children:d}),e.jsx("h3",{style:{fontFamily:t.display,fontWeight:800,fontSize:34,letterSpacing:"-.01em",margin:"0 0 12px"},children:l}),e.jsx("p",{style:{fontFamily:t.serif,fontSize:18,color:r.muted,maxWidth:"54ch",margin:"0 auto",lineHeight:1.5},children:j})]})}a.__docgenInfo={description:`Section header / eyebrow + title + subtitle blocks plus the dashed
+"mile marker" divider, ported pixel-for-pixel from the source.`,methods:[],displayName:"SectionHeader",props:{eyebrow:{required:!1,tsType:{name:"string"},description:"Small uppercase kicker above the title."},title:{required:!1,tsType:{name:"string"},description:"Main headline."},subtitle:{required:!1,tsType:{name:"string"},description:"Supporting lead paragraph (centered variant only)."},variant:{required:!1,tsType:{name:"union",raw:"'centered' | 'marker' | 'divider'",elements:[{name:"literal",value:"'centered'"},{name:"literal",value:"'marker'"},{name:"literal",value:"'divider'"}]},description:'Layout:\n- `centered` — white card, centered eyebrow + headline + lead.\n- `marker` — white card with a vertical bar, eyebrow + headline.\n- `divider` — the dashed "mile marker" rule (uses `label` for the center text).',defaultValue:{value:"'centered'",computed:!1}},tone:{required:!1,tsType:{name:"string"},description:"Eyebrow color override (centered defaults to red, marker to pine)."},barColor:{required:!1,tsType:{name:"string"},description:"Vertical bar color on the `marker` variant.",defaultValue:{value:"'#FBBA16'",computed:!1}},label:{required:!1,tsType:{name:"string"},description:"Center label on the `divider` variant.",defaultValue:{value:"'Mile 5,280'",computed:!1}}}};const q={title:"Components/Section Header",component:a,tags:["autodocs"],argTypes:{variant:{control:"inline-radio",options:["centered","marker","divider"]}}},i={args:{variant:"centered",eyebrow:"A brand-first approach",title:"We dig below the surface.",subtitle:"Most brands stop at safe messaging. We're more interested in the version that feels human, honest, and alive."}},n={args:{variant:"marker",eyebrow:"02 · Work people can feel",title:"Emotion creates connection."}},s={args:{variant:"divider",label:"Mile 5,280"}},o={render:()=>e.jsxs("div",{style:{display:"flex",flexDirection:"column",gap:18},children:[e.jsx(a,{variant:"centered",eyebrow:"A brand-first approach",title:"We dig below the surface.",subtitle:"Most brands stop at safe messaging. We're more interested in the version that feels human, honest, and alive."}),e.jsx(a,{variant:"marker",eyebrow:"02 · Work people can feel",title:"Emotion creates connection."}),e.jsx(a,{variant:"divider",label:"Mile 5,280"})]})};var m,u,f;i.parameters={...i.parameters,docs:{...(m=i.parameters)==null?void 0:m.docs,source:{originalSource:`{
+  args: {
+    variant: 'centered',
+    eyebrow: 'A brand-first approach',
+    title: 'We dig below the surface.',
+    subtitle: "Most brands stop at safe messaging. We're more interested in the version that feels human, honest, and alive."
+  }
+}`,...(f=(u=i.parameters)==null?void 0:u.docs)==null?void 0:f.source}}};var h,g,b;n.parameters={...n.parameters,docs:{...(h=n.parameters)==null?void 0:h.docs,source:{originalSource:`{
+  args: {
+    variant: 'marker',
+    eyebrow: '02 · Work people can feel',
+    title: 'Emotion creates connection.'
+  }
+}`,...(b=(g=n.parameters)==null?void 0:g.docs)==null?void 0:b.source}}};var v,y,x;s.parameters={...s.parameters,docs:{...(v=s.parameters)==null?void 0:v.docs,source:{originalSource:`{
+  args: {
+    variant: 'divider',
+    label: 'Mile 5,280'
+  }
+}`,...(x=(y=s.parameters)==null?void 0:y.docs)==null?void 0:x.source}}};var k,S,w;o.parameters={...o.parameters,docs:{...(k=o.parameters)==null?void 0:k.docs,source:{originalSource:`{
+  render: () => <div style={{
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 18
+  }}>
+      <SectionHeader variant="centered" eyebrow="A brand-first approach" title="We dig below the surface." subtitle="Most brands stop at safe messaging. We're more interested in the version that feels human, honest, and alive." />
+      <SectionHeader variant="marker" eyebrow="02 · Work people can feel" title="Emotion creates connection." />
+      <SectionHeader variant="divider" label="Mile 5,280" />
+    </div>
+}`,...(w=(S=o.parameters)==null?void 0:S.docs)==null?void 0:w.source}}};const E=["Centered","Marker","Divider","AllVariants"];export{o as AllVariants,i as Centered,s as Divider,n as Marker,E as __namedExportsOrder,q as default};
