@@ -11,6 +11,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### feat(5280-design-system)
+- **New project** — adds the 5280 Creative design system as a single self-contained static page (`projects/5280-design-system/index.html` + `docs/5280-design-system/main/index.html`) and registers it in `docs/projects.json`. Imported from Claude Design (`5280 Design System.dc.html`) and translated from the design-canvas DSL to vanilla HTML/CSS/JS: scroll-spy sidebar, reveal-on-scroll, count-up stats, hover/focus states, mobile nav drawer, live newsletter signup, accordions, tabs, modal, and auto-dismissing toasts — no build step or framework runtime.
+
 ### feat(oio-uploader)
 - **Remove manual upload tab** — photos are now ingested automatically via the Google Photos → Supabase sync pipeline. The Upload tab and all associated JS have been removed. The remaining tab is renamed "Library" and is the default landing page.
 
