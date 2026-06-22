@@ -1,0 +1,1 @@
+import{r as o}from"./index-Dx_1l3Sb.js";function t(){const[s,e]=o.useState(!1);return{isHovered:s,hoverProps:{onMouseEnter:()=>e(!0),onMouseLeave:()=>e(!1)}}}function u(){const[s,e]=o.useState(!1);return{isFocused:s,focusProps:{onFocus:()=>e(!0),onBlur:()=>e(!1)}}}export{u as a,t as u};

@@ -1,40 +1,47 @@
 # 5280 Design System
 
-The **5280 Creative** component library — a warm, human, faith-based branding system.
-_"Creative with a heartbeat."_
+The **5280 Creative** component library — a warm, human, faith-based branding system,
+presented as an interactive **Storybook**. _"Creative with a heartbeat."_
 
-🔗 Live: `https://spacecowboyian.github.io/clayground/5280-design-system/main/index.html`
+🔗 Live: `https://spacecowboyian.github.io/clayground/5280-design-system/main/`
 
-## What this is
+## Stack
 
-A single self-contained page (`index.html`) showcasing the 5280 brand system:
+Storybook 8 + Vite + React + TypeScript — the same stack as [Gearhead](../gearhead),
+but its own bespoke brand system (no Tailwind / React Aria; components are inline-styled
+ports driven by shared tokens).
 
-- **Foundations** — color palette (pine/jade core, red/periwinkle/gold accents, soft
-  tints), typography (display / serif / UI voices), spacing & elevation.
-- **Components** — pill buttons, navigation (desktop, over-imagery, mobile drawer),
-  forms & inputs with a live newsletter signup, cards, count-up stats & award badges,
-  logo marquee, testimonials, section headers, accordions, tabs, modals, and toasts.
+## What's inside
 
-All interactions are real: scroll-spy sidebar, reveal-on-scroll, animated count-up,
-hover/focus states, the mobile-nav drawer, accordion expand/collapse, tab switching,
-the modal, and auto-dismissing toasts.
+- **Foundations** — `Foundations/Colors`, `Foundations/Typography`,
+  `Foundations/Spacing & Elevation`.
+- **Components** (each with stories for every variant/state):
+  Button, Link, Navbar (+ mobile drawer), Field / Select / TextArea, NewsletterSignup,
+  ContactForm, Card (work / case-study / blog), StatBar (scroll count-up), AwardBadge,
+  LogoMarquee, Testimonial, SectionHeader, Accordion, Tabs, Modal, Toast, Footer.
 
-## Source & build
+Design tokens live in `src/tokens.ts` (colors, fonts, radii, spacing, elevation) and
+`src/styles/theme.css` (CSS vars, fonts, keyframes). Hover/focus/in-view behavior comes
+from the hooks in `src/utils/`.
 
-Imported from **Claude Design** (`5280 Design System.dc.html`). The design-canvas DSL
-(`style-hover`, `{{ bindings }}`, `<sc-if>`, `<sc-for>`) was translated to plain
-HTML/CSS/JS with a tiny vanilla runtime — no framework, no bundler, **no build step**.
-
-Because there is no `package.json`, the CI deploy skips building this project and
-serves `docs/5280-design-system/main/index.html` as-is (same pattern as `oio-uploader`).
-
-To regenerate from the original export, re-run the import transform and copy the output
-to both `projects/5280-design-system/index.html` and
-`docs/5280-design-system/main/index.html`.
-
-## Run locally
+## Develop
 
 ```bash
-open projects/5280-design-system/index.html
-# or serve the repo root and visit /clayground/5280-design-system/main/index.html
+cd projects/5280-design-system
+npm install
+npm run dev        # Storybook on http://localhost:6007
 ```
+
+## Build for GitHub Pages
+
+```bash
+npm run build      # → ../../docs/5280-design-system/main
+```
+
+CI (`.github/workflows/deploy.yml`) runs `npm ci && npm run build` for every project
+with a `package.json`, so this Storybook is rebuilt and published on each push to `main`.
+
+## Provenance
+
+Imported from **Claude Design** (`5280 Design System.dc.html`) via the `claude_design`
+MCP connector, then translated from the design-canvas DSL into React components + stories.
