@@ -1,5 +1,14 @@
 [
   {
+    "id": "5280-design-system",
+    "title": "5280 Design System",
+    "description": "The 5280 Creative component library — a warm, human, faith-based branding system. Deep pine + jade anchored, with a lively red/periwinkle/gold accent set. Foundations (color, type, spacing) plus fully interactive components: pill buttons, navigation, forms with live newsletter signup, cards, count-up stats, logo marquee, testimonials, accordions, tabs, modals, and toasts. Imported from Claude Design.",
+    "tags": ["design-system", "branding", "static", "claude-design"],
+    "url": "5280-design-system/main/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/5280-design-system",
+    "date": "2026-06-22"
+  },
+  {
     "id": "oio-uploader",
     "title": "OIO Uploader",
     "description": "A simple file uploader.",
