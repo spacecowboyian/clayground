@@ -42,10 +42,5 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-38/"
     }
-  },
-  "66": {
-    "title": "feat(5280-design-system): add 5280 Creative design system as a static project",
-    "url": "https://github.com/spacecowboyian/clayground/pull/66",
-    "builds": {}
   }
 }
