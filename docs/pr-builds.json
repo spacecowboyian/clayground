@@ -42,5 +42,12 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-38/"
     }
+  },
+  "67": {
+    "title": "refactor(5280-design-system): rebuild as an interactive Storybook library",
+    "url": "https://github.com/spacecowboyian/clayground/pull/67",
+    "builds": {
+      "5280-design-system": "https://spacecowboyian.github.io/clayground/5280-design-system/pr-67/"
+    }
   }
 }
