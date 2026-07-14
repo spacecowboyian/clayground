@@ -1,1 +1,0 @@
-import{a as s}from"./useHover-2nYSjO6d.js";import{r as f}from"./index-Dx_1l3Sb.js";function c(t,n,r){let a=s(e=>{r&&!e.defaultPrevented&&r(n)});f.useEffect(()=>{var d;let e=(d=t==null?void 0:t.current)==null?void 0:d.form;return e==null||e.addEventListener("reset",a),()=>{e==null||e.removeEventListener("reset",a)}},[t])}export{c as $};
