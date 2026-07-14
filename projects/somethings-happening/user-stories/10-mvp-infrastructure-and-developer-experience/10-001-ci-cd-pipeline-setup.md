@@ -69,3 +69,7 @@ To be filled during implementation
 - Test branch protection enforcement
 - Test database migrations
 - Verify environment configuration across environments
+
+## Additions
+### 2026-07-14 — Requested by: @copilot
+- [Fix CI build failure for `projects/cones` by aligning the project with workflow `npm ci` requirements.]
