@@ -36,6 +36,7 @@ _Changes not yet pushed to `main` go here._
 
 ### fix(cones)
 - Add `projects/cones/package-lock.json` so GitHub Actions `npm ci` succeeds during the deploy workflow's "Build all projects" step.
+- Register `cones` in `docs/projects.json` so the project appears on the Clayground homepage.
 
 ### docs(print-queue)
 - Clean up `projects/print-queue/user-stories/*` status tracking: set implemented stories to Completed, set new add-on/freemium stories to Not Started, and normalize metadata formatting so all stories use consistent checkbox sections for Status, Priority, and Estimated Complexity.

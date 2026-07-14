@@ -73,3 +73,5 @@ To be filled during implementation
 ## Additions
 ### 2026-07-14 — Requested by: @copilot
 - [Fix CI build failure for `projects/cones` by aligning the project with workflow `npm ci` requirements.]
+### 2026-07-14 — Requested by: @spacecowboyian
+- [Register `projects/cones` in `docs/projects.json` so the Cones Storybook appears on the Clayground homepage.]
