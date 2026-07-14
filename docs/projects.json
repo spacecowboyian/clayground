@@ -1,5 +1,14 @@
 [
   {
+    "id": "cones",
+    "title": "Cones",
+    "description": "A second-generation clayground design system — React Aria Components + Tailwind CSS 4. Interactive Storybook with a full suite of UI primitives including forms, navigation, data display, overlays, and page-level patterns.",
+    "tags": ["design-system", "storybook", "react-aria", "tailwind"],
+    "url": "cones/main/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/cones",
+    "date": "2026-07-14"
+  },
+  {
     "id": "5280-design-system",
     "title": "5280 Design System",
     "description": "The 5280 Creative component library — a warm, human, faith-based branding system, presented as an interactive Storybook. Deep pine + jade anchored, with a lively red/periwinkle/gold accent set. Foundations (color, type, spacing) plus React components with live stories: pill buttons, navigation, forms with newsletter signup, cards, count-up stats, logo marquee, testimonials, accordions, tabs, modals, and toasts. Imported from Claude Design.",
