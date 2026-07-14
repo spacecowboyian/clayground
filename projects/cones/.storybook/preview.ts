@@ -15,6 +15,11 @@ const preview: Preview = {
     docs: {
       theme: undefined,
     },
+    options: {
+      storySort: {
+        order: ['Foundations', '*'],
+      },
+    },
   },
 };
 
