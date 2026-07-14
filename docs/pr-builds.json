@@ -49,5 +49,12 @@
     "builds": {
       "cones": "https://spacecowboyian.github.io/clayground/cones/pr-71/"
     }
+  },
+  "72": {
+    "title": "feat(cones): add Foundations stories for colors, typography, spacing",
+    "url": "https://github.com/spacecowboyian/clayground/pull/72",
+    "builds": {
+      "cones": "https://spacecowboyian.github.io/clayground/cones/pr-72/"
+    }
   }
 }
