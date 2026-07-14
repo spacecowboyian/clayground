@@ -32,6 +32,10 @@ _Changes not yet pushed to `main` go here._
 
 ### docs(somethings-happening)
 - Append a user-story addition noting the AMS duplicate-rendering fix request.
+- Append a user-story addition noting the CI build-failure fix scope for `projects/cones`.
+
+### fix(cones)
+- Add `projects/cones/package-lock.json` so GitHub Actions `npm ci` succeeds during the deploy workflow's "Build all projects" step.
 
 ### docs(print-queue)
 - Clean up `projects/print-queue/user-stories/*` status tracking: set implemented stories to Completed, set new add-on/freemium stories to Not Started, and normalize metadata formatting so all stories use consistent checkbox sections for Status, Priority, and Estimated Complexity.
