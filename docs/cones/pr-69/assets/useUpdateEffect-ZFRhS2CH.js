@@ -1,1 +1,0 @@
-import{a as n}from"./useHover-CLL8Ak4f.js";import{r}from"./index-Dq4ZvVuH.js";function p(u,e){const t=r.useRef(!0),f=r.useRef(null);let c=n(u);r.useEffect(()=>(t.current=!0,()=>{t.current=!1}),[]),r.useEffect(()=>{let s=f.current;t.current?t.current=!1:(!s||e.some((a,o)=>!Object.is(a,s[o])))&&c(),f.current=e},e)}export{p as $};
