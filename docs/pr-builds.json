@@ -42,5 +42,12 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-38/"
     }
+  },
+  "71": {
+    "title": "fix(cones): show only the grayscale clear button in SearchField",
+    "url": "https://github.com/spacecowboyian/clayground/pull/71",
+    "builds": {
+      "cones": "https://spacecowboyian.github.io/clayground/cones/pr-71/"
+    }
   }
 }
