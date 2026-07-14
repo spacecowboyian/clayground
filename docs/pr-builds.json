@@ -42,5 +42,13 @@
     "builds": {
       "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-38/"
     }
+  },
+  "69": {
+    "title": "Fix deploy workflow failure for `projects/cones` by adding npm lockfile",
+    "url": "https://github.com/spacecowboyian/clayground/pull/69",
+    "builds": {
+      "cones": "https://spacecowboyian.github.io/clayground/cones/pr-69/",
+      "somethings-happening": "https://spacecowboyian.github.io/clayground/somethings-happening/pr-69/"
+    }
   }
 }
