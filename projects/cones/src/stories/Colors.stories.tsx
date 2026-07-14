@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta = {
-  title: 'Foundations/Colors',
+  title: 'Foundations',
   parameters: { layout: 'fullscreen' },
 } satisfies Meta;
 export default meta;
@@ -48,10 +48,8 @@ function Colors() {
   return (
     <section className="min-h-screen bg-background text-foreground px-8 pt-11 pb-6">
       <div className="max-w-5xl mx-auto">
-        <div className="text-xs tracking-[.24em] uppercase text-accent-orange mb-2">
-          Foundations
-        </div>
-        <h2 className="text-3xl font-medium -tracking-[0.02em] mb-2">Color Palette</h2>
+        <div className="eyebrow mb-2">Foundations</div>
+        <h2 className="text-3xl -tracking-[0.02em] mb-2">Color Palette</h2>
         <p className="text-sm text-muted-foreground max-w-[60ch] mb-6">
           A dark, high-contrast base with a cone-orange accent, plus a small set of status colors
           (blue, green, purple, red) for badges, charts, and state. This is a placeholder palette —
@@ -80,6 +78,7 @@ function Colors() {
   );
 }
 
-export const Palette: Story = {
+export const Colors_: Story = {
+  name: 'Colors',
   render: () => <Colors />,
 };

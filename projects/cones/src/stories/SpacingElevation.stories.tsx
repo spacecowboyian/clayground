@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta = {
-  title: 'Foundations/Spacing & Radius',
+  title: 'Foundations',
   parameters: { layout: 'fullscreen' },
 } satisfies Meta;
 export default meta;
@@ -21,10 +21,8 @@ function SpacingElevation() {
   return (
     <section className="min-h-screen bg-background text-foreground px-8 pt-11 pb-6">
       <div className="max-w-5xl mx-auto">
-        <div className="text-xs tracking-[.24em] uppercase text-accent-orange mb-2">
-          Foundations
-        </div>
-        <h2 className="text-3xl font-medium -tracking-[0.02em] mb-2">Spacing &amp; Radius</h2>
+        <div className="eyebrow mb-2">Foundations</div>
+        <h2 className="text-3xl -tracking-[0.02em] mb-2">Spacing &amp; Radius</h2>
         <p className="text-sm text-muted-foreground max-w-[60ch] mb-6">
           Tailwind's standard 4px spacing scale, and the radius scale derived from a single{' '}
           <code>--radius</code> base (0.5rem).
@@ -32,9 +30,7 @@ function SpacingElevation() {
 
         <div className="grid grid-cols-2 gap-3.5">
           <div className="rounded-2xl border border-border bg-card px-6 py-6">
-            <div className="text-[11px] tracking-[.2em] uppercase text-accent-orange mb-4">
-              Spacing scale
-            </div>
+            <div className="eyebrow mb-4">Spacing scale</div>
             <div className="flex items-end gap-3 flex-wrap">
               {space.map((s) => (
                 <div key={s} className="text-center">
@@ -49,9 +45,7 @@ function SpacingElevation() {
           </div>
 
           <div className="rounded-2xl border border-border bg-card px-6 py-6">
-            <div className="text-[11px] tracking-[.2em] uppercase text-accent-orange mb-4">
-              Radii
-            </div>
+            <div className="eyebrow mb-4">Radii</div>
             <div className="flex gap-3.5 items-end flex-wrap">
               {radii.map((r) => (
                 <div key={r.label} className="text-center">
@@ -70,6 +64,7 @@ function SpacingElevation() {
   );
 }
 
-export const Scale: Story = {
+export const SpacingRadius: Story = {
+  name: 'Spacing & Radius',
   render: () => <SpacingElevation />,
 };
