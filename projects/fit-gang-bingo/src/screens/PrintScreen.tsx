@@ -28,7 +28,7 @@ export function PrintScreen({ onBack }: PrintScreenProps) {
           both edges of the viewport. From sm up, white runs the full width
           of the page as a header band (separating it from the dark body
           below) with the banner centered inside it, matching Play. */}
-      <div className="no-print bg-white sm:py-6 md:py-8">
+      <div className="no-print bg-white sm:py-3 md:py-4">
         <a
           href={OIO_YOUTUBE_URL}
           target="_blank"
