@@ -57,10 +57,5 @@
       "fit-gang-bingo": "https://spacecowboyian.github.io/clayground/fit-gang-bingo/pr-75/",
       "somethings-happening": "https://spacecowboyian.github.io/clayground/somethings-happening/pr-75/"
     }
-  },
-  "77": {
-    "title": "fix(ci): remove full-build skip that let deploy.yml race and stale main",
-    "url": "https://github.com/spacecowboyian/clayground/pull/77",
-    "builds": {}
   }
 }
