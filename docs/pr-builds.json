@@ -49,5 +49,12 @@
     "builds": {
       "cones": "https://spacecowboyian.github.io/clayground/cones/pr-71/"
     }
+  },
+  "73": {
+    "title": "feat(fit-gang-bingo): printable Honda Fit spotting bingo",
+    "url": "https://github.com/spacecowboyian/clayground/pull/73",
+    "builds": {
+      "fit-gang-bingo": "https://spacecowboyian.github.io/clayground/fit-gang-bingo/pr-73/"
+    }
   }
 }
