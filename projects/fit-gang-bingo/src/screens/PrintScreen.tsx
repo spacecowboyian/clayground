@@ -42,15 +42,20 @@ export function PrintScreen({ onHome }: PrintScreenProps) {
       </header>
 
       <main className="print-main flex justify-center px-4 pb-16">
-        <div className="sheet grid grid-cols-2 grid-rows-2 gap-[0.15in] shadow-2xl">
-          {cards.map((squares, i) => (
-            <BingoCard
-              key={i}
-              squares={squares}
-              // Each card on the sheet gets its own Hot Rod car.
-              hotRodArt={HOT_ROD_ART[i % HOT_ROD_ART.length]}
-            />
-          ))}
+        {/* sheet-frame reserves the scaled-down layout footprint; .sheet stays
+            full-size underneath and is visually shrunk with transform. See
+            index.css for why (zoom is not reliably supported on iOS Safari). */}
+        <div className="sheet-frame">
+          <div className="sheet grid grid-cols-2 grid-rows-2 gap-[0.15in] shadow-2xl">
+            {cards.map((squares, i) => (
+              <BingoCard
+                key={i}
+                squares={squares}
+                // Each card on the sheet gets its own Hot Rod car.
+                hotRodArt={HOT_ROD_ART[i % HOT_ROD_ART.length]}
+              />
+            ))}
+          </div>
         </div>
       </main>
     </div>
