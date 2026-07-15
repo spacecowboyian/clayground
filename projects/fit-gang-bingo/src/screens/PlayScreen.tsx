@@ -16,22 +16,25 @@ export function PlayScreen({ onPrint, onRules }: PlayScreenProps) {
   return (
     <div className="min-h-screen bg-[#222222]">
       {/* Full-bleed on phones — the banner's own white touches the top and
-          both edges of the viewport. From sm up it rejoins the card's width
-          and gets breathing room above it like every other screen. */}
-      <a
-        href={OIO_YOUTUBE_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block w-full sm:mx-auto sm:max-w-[440px] sm:pt-6 md:max-w-[560px] md:pt-8 lg:max-w-[640px]"
-      >
-        <img
-          src={oioBanner}
-          alt="#FitGang Bingo — Spot it. Yell it. Mark it. Brought to you by the fit fanatics at OIO — youtube.com/@oioracing"
-          className="block h-auto w-full"
-        />
-      </a>
+          both edges of the viewport. From sm up, white runs the full width
+          of the page as a header band (separating it from the dark body
+          below) with the banner centered inside it. */}
+      <div className="bg-white sm:py-6 md:py-8">
+        <a
+          href={OIO_YOUTUBE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full sm:mx-auto sm:max-w-[440px] md:max-w-[560px] lg:max-w-[640px]"
+        >
+          <img
+            src={oioBanner}
+            alt="#FitGang Bingo — Spot it. Yell it. Mark it. Brought to you by the fit fanatics at OIO — youtube.com/@oioracing"
+            className="block h-auto w-full"
+          />
+        </a>
+      </div>
 
-      <div className="mx-auto flex max-w-md flex-col gap-5 px-4 pb-6 pt-5 md:max-w-xl md:gap-8 md:pb-10 md:pt-6 lg:max-w-2xl">
+      <div className="mx-auto flex max-w-md flex-col gap-5 px-4 pb-6 pt-4 md:max-w-xl md:gap-8 md:pb-10 lg:max-w-2xl">
         <header className="flex items-center justify-between">
           <p className="text-sm text-neutral-400">
             Brought to you by the fit fanatics at{' '}
