@@ -24,20 +24,31 @@ export function PrintScreen({ onBack }: PrintScreenProps) {
 
   return (
     <div className="print-root min-h-screen bg-[#222222]">
-      <header className="no-print mx-auto flex max-w-[8.5in] flex-col gap-4 px-4 pb-6 pt-10">
+      {/* Full-bleed on phones — the banner's own white touches the top and
+          both edges of the viewport. From sm up, white runs the full width
+          of the page as a header band (separating it from the dark body
+          below) with the banner centered inside it, matching Play. */}
+      <div className="no-print bg-white sm:py-6 md:py-8">
+        <a
+          href={OIO_YOUTUBE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full sm:mx-auto sm:max-w-[440px] md:max-w-[560px] lg:max-w-[640px]"
+        >
+          <img
+            src={oioBanner}
+            alt="#FitGang Bingo — Spot it. Yell it. Mark it. Brought to you by the fit fanatics at OIO — youtube.com/@oioracing"
+            className="block h-auto w-full"
+          />
+        </a>
+      </div>
+
+      <header className="no-print mx-auto flex max-w-[8.5in] flex-col gap-4 px-4 pb-6 pt-4">
         <div className="flex items-center justify-between gap-4">
           <Button variant="ghost" className="px-0" onPress={onBack}>
             ← Play
           </Button>
         </div>
-
-        <a href={OIO_YOUTUBE_URL} target="_blank" rel="noopener noreferrer" className="block">
-          <img
-            src={oioBanner}
-            alt="#FitGang Bingo — Spot it. Yell it. Mark it. Brought to you by the fit fanatics at OIO — youtube.com/@oioracing"
-            className="h-auto w-full"
-          />
-        </a>
 
         <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-neutral-400">
