@@ -19,12 +19,12 @@ export function PlayScreen({ onPrint, onRules }: PlayScreenProps) {
         href={OIO_YOUTUBE_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full max-w-xs self-center rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm md:max-w-sm"
+        className="mx-auto block w-full max-w-[440px] md:max-w-[560px] lg:max-w-[640px]"
       >
         <img
           src={oioBanner}
           alt="#FitGang Bingo — Spot it. Yell it. Mark it. Brought to you by the fit fanatics at OIO — youtube.com/@oioracing"
-          className="w-full"
+          className="h-auto w-full"
         />
       </a>
 
