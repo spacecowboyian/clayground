@@ -43,27 +43,11 @@ export function PrintScreen({ onBack }: PrintScreenProps) {
         </a>
       </div>
 
-      <header className="no-print mx-auto flex max-w-[8.5in] flex-col gap-4 px-4 pb-6 pt-4">
-        <div className="flex items-center justify-between gap-4">
+      <header className="no-print mx-auto flex max-w-[8.5in] flex-col gap-3 px-4 pb-6 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <Button variant="ghost" className="px-0" onPress={onBack}>
             ← Play
           </Button>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="text-sm text-neutral-400">
-            Four cards, one letter-size sheet. Brought to you by the fit
-            fanatics at{' '}
-            <a
-              href={OIO_YOUTUBE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white underline underline-offset-2 hover:text-neutral-300"
-            >
-              OIO
-            </a>
-            .
-          </p>
 
           <div className="flex gap-3">
             <Button onPress={() => setCards(generateSheet())}>Regenerate</Button>
@@ -72,6 +56,20 @@ export function PrintScreen({ onBack }: PrintScreenProps) {
             </Button>
           </div>
         </div>
+
+        <p className="text-sm text-neutral-400">
+          Four cards, one letter-size sheet. Brought to you by the fit
+          fanatics at{' '}
+          <a
+            href={OIO_YOUTUBE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white underline underline-offset-2 hover:text-neutral-300"
+          >
+            OIO
+          </a>
+          .
+        </p>
       </header>
 
       <main className="print-main flex justify-center px-4 pb-16">
