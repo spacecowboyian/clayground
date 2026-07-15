@@ -25,10 +25,9 @@ export function PrintScreen({ onBack }: PrintScreenProps) {
   return (
     <div className="print-root min-h-screen bg-[#222222]">
       {/* Full-bleed on phones — the banner's own white touches the top and
-          both edges of the viewport. From sm up it's capped to the same
-          8.5in width as the header and sheet below, not the full viewport,
-          so the whole page shares one alignment. */}
-      <div className="no-print mx-auto max-w-[8.5in] bg-white sm:py-3 md:py-4">
+          both edges of the viewport. From sm up, white runs the full width
+          of the page as a header band, matching Play. */}
+      <div className="no-print bg-white sm:py-3 md:py-4">
         <a
           href={OIO_YOUTUBE_URL}
           target="_blank"
@@ -43,7 +42,11 @@ export function PrintScreen({ onBack }: PrintScreenProps) {
         </a>
       </div>
 
-      <header className="no-print mx-auto flex max-w-[8.5in] flex-col gap-3 px-4 pb-6 pt-4">
+      {/* Matches the sheet's actual on-screen width (8.5in scaled by the same
+          --fgb-sheet-scale the sheet uses below), not the full page — at
+          smaller scales the fixed 8.5in cap made this spread wider than the
+          sheet it's describing. */}
+      <header className="no-print mx-auto flex max-w-[calc(8.5in*var(--fgb-sheet-scale))] flex-col gap-3 px-4 pb-6 pt-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Button variant="ghost" className="px-0" onPress={onBack}>
             ← Play
