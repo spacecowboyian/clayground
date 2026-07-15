@@ -1,5 +1,14 @@
 [
   {
+    "id": "fit-gang-bingo",
+    "title": "#FitGang Bingo",
+    "description": "A back-seat road-trip bingo game for spotting Honda Fits. Four randomized 4×4 cards on a single printable letter-size sheet. Honda shipped six near-identical blues, so they collapse into Light Blue and Dark Blue — Blue Raspberry survives on its own because it's actually a teal. Plus GD3/GE8/GK5 generation squares, a Free Space, and a Hot Rod wildcard. Spot it. Yell it. Mark it.",
+    "tags": ["game", "printable", "honda-fit", "react", "print-css"],
+    "url": "fit-gang-bingo/main/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/fit-gang-bingo",
+    "date": "2026-07-15"
+  },
+  {
     "id": "cones",
     "title": "Cones",
     "description": "A second-generation clayground design system — React Aria Components + Tailwind CSS 4. Interactive Storybook with a full suite of UI primitives including forms, navigation, data display, overlays, and page-level patterns.",
