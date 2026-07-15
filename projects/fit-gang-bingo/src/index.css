@@ -6,6 +6,7 @@
 @import 'tailwindcss' source(none);
 @source '../node_modules/@gearhead/ui/src/components/**/*.{ts,tsx}';
 @source './components/**/*.{ts,tsx}';
+@source './screens/**/*.{ts,tsx}';
 @source './App.tsx';
 
 /* Card tokens. The ink and red are sampled from the header artwork so the grid
@@ -14,41 +15,64 @@
   --fgb-ink: #17181a;
   --fgb-red: #de020d;
   --fgb-rule: #17181a;
+  --fgb-sheet-scale: 1;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  /* Matches .print-root; the Home/Play/Rules screens have no wrapper of
+     their own, so without this they'd render white text on white. */
+  background: #222222;
+  /* Prevent iOS Safari from inflating tiny card text on narrow screens. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* The sheet is a true US Letter page: 8.5in x 11in with a 0.3in margin.
    On screen it is scaled down to fit narrow viewports; in print it is exact.
-   `zoom` is used rather than `transform` because it affects layout, so the
-   page doesn't reserve full-size space for a shrunken sheet. */
+   `.sheet` stays full-size and is visually shrunk with `transform: scale()`.
+   `zoom` would do this in one property, but iOS Safari's support for `zoom`
+   on non-body elements is unreliable, which is why cards were still
+   spilling past the edge on phones despite a small enough zoom value.
+   `transform` is universally supported but doesn't affect layout, so
+   `.sheet-frame` reserves the scaled-down footprint by hand. */
+.sheet-frame {
+  width: calc(8.5in * var(--fgb-sheet-scale));
+  height: calc(11in * var(--fgb-sheet-scale));
+}
+
 .sheet {
   width: 8.5in;
   height: 11in;
   padding: 0.3in;
   background: #fff;
-  zoom: 1;
+  transform: scale(var(--fgb-sheet-scale));
+  transform-origin: top left;
 }
 
 @media screen and (max-width: 920px) {
-  .sheet {
-    zoom: 0.75;
+  :root {
+    --fgb-sheet-scale: 0.75;
   }
 }
 
 @media screen and (max-width: 700px) {
-  .sheet {
-    zoom: 0.55;
+  :root {
+    --fgb-sheet-scale: 0.55;
   }
 }
 
 @media screen and (max-width: 480px) {
-  .sheet {
-    zoom: 0.42;
+  :root {
+    --fgb-sheet-scale: 0.38;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  :root {
+    --fgb-sheet-scale: 0.34;
   }
 }
 
@@ -81,9 +105,14 @@ body {
   }
 
   /* Screen scaling must never reach the printed page. */
+  .sheet-frame {
+    width: auto !important;
+    height: auto !important;
+  }
+
   .sheet {
     box-shadow: none;
-    zoom: 1 !important;
+    transform: none !important;
     margin: 0;
   }
 
