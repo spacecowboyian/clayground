@@ -9,7 +9,9 @@ interface HomeScreenProps {
 export function HomeScreen({ onPlay, onPrint }: HomeScreenProps) {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-8 px-6 py-12 text-center">
-      <img src={headerArt} alt="#FitGang Bingo — Spot it. Yell it. Mark it." className="w-full max-w-xs" />
+      <div className="w-full max-w-xs rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+        <img src={headerArt} alt="#FitGang Bingo — Spot it. Yell it. Mark it." className="w-full" />
+      </div>
       <p className="text-sm text-neutral-400">Bingo for spotting Honda Fits from a moving car.</p>
 
       <div className="flex w-full flex-col gap-3">
