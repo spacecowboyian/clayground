@@ -16,18 +16,18 @@ function generateSheet(): Square[][] {
 }
 
 interface PrintScreenProps {
-  onHome: () => void;
+  onBack: () => void;
 }
 
-export function PrintScreen({ onHome }: PrintScreenProps) {
+export function PrintScreen({ onBack }: PrintScreenProps) {
   const [cards, setCards] = useState<Square[][]>(generateSheet);
 
   return (
     <div className="print-root min-h-screen bg-[#222222]">
       <header className="no-print mx-auto flex max-w-[8.5in] flex-col gap-4 px-4 pb-6 pt-10">
         <div className="flex items-center justify-between gap-4">
-          <Button variant="ghost" className="px-0" onPress={onHome}>
-            ← Home
+          <Button variant="ghost" className="px-0" onPress={onBack}>
+            ← Play
           </Button>
         </div>
 
