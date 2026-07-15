@@ -7,16 +7,17 @@ interface PlayCardProps {
   onToggle: (id: string) => void;
 }
 
-/** A big red X, drawn with a white halo underneath so it reads over every
- *  card color including black and red. */
+/** A slim red X, drawn with a thin white halo underneath so it still reads
+ *  over every card color including black and red, but stays light enough
+ *  that the swatch and label underneath are still visible. */
 function MarkOverlay() {
   return (
     <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
       <g strokeLinecap="round">
-        <line x1="14" y1="14" x2="86" y2="86" stroke="white" strokeWidth="24" />
-        <line x1="86" y1="14" x2="14" y2="86" stroke="white" strokeWidth="24" />
-        <line x1="14" y1="14" x2="86" y2="86" stroke="var(--fgb-red)" strokeWidth="15" />
-        <line x1="86" y1="14" x2="14" y2="86" stroke="var(--fgb-red)" strokeWidth="15" />
+        <line x1="14" y1="14" x2="86" y2="86" stroke="white" strokeWidth="10" />
+        <line x1="86" y1="14" x2="14" y2="86" stroke="white" strokeWidth="10" />
+        <line x1="14" y1="14" x2="86" y2="86" stroke="var(--fgb-red)" strokeWidth="5" />
+        <line x1="86" y1="14" x2="14" y2="86" stroke="var(--fgb-red)" strokeWidth="5" />
       </g>
     </svg>
   );
