@@ -4,8 +4,10 @@ import { BingoCard } from '../components/BingoCard/BingoCard';
 import { SQUARES, type Square } from '../data/squares';
 import { HOT_ROD_ART } from '../data/hotRods';
 import { shuffle } from '../utils/shuffle';
+import oioBanner from '../assets/oio-banner.png';
 
 const CARDS_PER_SHEET = 4;
+const OIO_YOUTUBE_URL = 'https://youtube.com/@oioracing';
 
 /** All 16 squares fill a 4x4 exactly, so one shuffle randomizes both the square
  *  order and where Free Space and Hot Rod land. */
@@ -14,31 +16,63 @@ function generateSheet(): Square[][] {
 }
 
 interface PrintScreenProps {
-  onHome: () => void;
+  onBack: () => void;
 }
 
-export function PrintScreen({ onHome }: PrintScreenProps) {
+export function PrintScreen({ onBack }: PrintScreenProps) {
   const [cards, setCards] = useState<Square[][]>(generateSheet);
 
   return (
     <div className="print-root min-h-screen bg-[#222222]">
-      <header className="no-print mx-auto flex max-w-[8.5in] flex-wrap items-center justify-between gap-4 px-4 pb-6 pt-10">
-        <div>
-          <Button variant="ghost" className="mb-2 px-0" onPress={onHome}>
-            ← Home
+      {/* Full-bleed on phones — the banner's own white touches the top and
+          both edges of the viewport. From sm up, white runs the full width
+          of the page as a header band, matching Play. */}
+      <div className="no-print bg-white sm:py-3 md:py-4">
+        <a
+          href={OIO_YOUTUBE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full sm:mx-auto sm:max-w-[440px] md:max-w-[560px] lg:max-w-[640px]"
+        >
+          <img
+            src={oioBanner}
+            alt="#FitGang Bingo — Spot it. Yell it. Mark it. Brought to you by the fit fanatics at OIO — youtube.com/@oioracing"
+            className="block h-auto w-full"
+          />
+        </a>
+      </div>
+
+      {/* Matches the sheet's actual on-screen width (8.5in scaled by the same
+          --fgb-sheet-scale the sheet uses below), not the full page — at
+          smaller scales the fixed 8.5in cap made this spread wider than the
+          sheet it's describing. */}
+      <header className="no-print mx-auto flex max-w-[calc(8.5in*var(--fgb-sheet-scale))] flex-col gap-3 px-4 pb-6 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <Button variant="ghost" className="px-0" onPress={onBack}>
+            ← Play
           </Button>
-          <h1 className="text-2xl font-black uppercase italic tracking-tight text-white">#FitGang Bingo</h1>
-          <p className="mt-1 text-sm text-neutral-400">
-            Four cards, one letter-size sheet. Spot it. Yell it. Mark it.
-          </p>
+
+          <div className="flex gap-3">
+            <Button onPress={() => setCards(generateSheet())}>Regenerate</Button>
+            <Button variant="outline" onPress={() => window.print()}>
+              Print
+            </Button>
+          </div>
         </div>
 
-        <div className="flex gap-3">
-          <Button onPress={() => setCards(generateSheet())}>Regenerate</Button>
-          <Button variant="outline" onPress={() => window.print()}>
-            Print
-          </Button>
-        </div>
+        <p className="text-sm text-neutral-400">
+          Four cards, one letter-size sheet. Brought to you by the fit
+          fanatics at{' '}
+          <a
+            href={OIO_YOUTUBE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white underline underline-offset-2 hover:text-neutral-300"
+          >
+            OIO
+          </a>
+          .
+        </p>
       </header>
 
       <main className="print-main flex justify-center px-4 pb-16">
