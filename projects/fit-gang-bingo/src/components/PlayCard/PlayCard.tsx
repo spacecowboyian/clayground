@@ -88,7 +88,7 @@ function Cell({
  *  thumb instead of a laser printer. Tap a square to mark it. */
 export function PlayCard({ squares, marks, hotRodArt, onToggle }: PlayCardProps) {
   return (
-    <div className="mx-auto grid aspect-square w-full max-w-[440px] grid-cols-4 grid-rows-4 gap-[2px] border-[3px] border-[var(--fgb-ink)] bg-[var(--fgb-rule)] p-[2px] md:max-w-[560px] lg:max-w-[640px]">
+    <div className="mx-auto grid aspect-square w-full max-w-[440px] grid-cols-4 grid-rows-4 gap-[2px] overflow-hidden rounded-2xl border-[3px] border-[var(--fgb-ink)] bg-[var(--fgb-rule)] p-[2px] md:max-w-[560px] lg:max-w-[640px]">
       {squares.map((square) => (
         <Cell
           key={square.id}

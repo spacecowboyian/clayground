@@ -14,55 +14,60 @@ export function PlayScreen({ onPrint, onRules }: PlayScreenProps) {
   const { squares, marks, hotRodArt, toggleMark, newCard } = usePersistedCard();
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col gap-5 px-4 py-6 md:max-w-xl md:gap-8 md:py-10 lg:max-w-2xl">
+    <div className="min-h-screen bg-[#222222]">
+      {/* Full-bleed on phones — the banner's own white touches the top and
+          both edges of the viewport. From sm up it rejoins the card's width
+          and gets breathing room above it like every other screen. */}
       <a
         href={OIO_YOUTUBE_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="mx-auto block w-full max-w-[440px] md:max-w-[560px] lg:max-w-[640px]"
+        className="block w-full sm:mx-auto sm:max-w-[440px] sm:pt-6 md:max-w-[560px] md:pt-8 lg:max-w-[640px]"
       >
         <img
           src={oioBanner}
           alt="#FitGang Bingo — Spot it. Yell it. Mark it. Brought to you by the fit fanatics at OIO — youtube.com/@oioracing"
-          className="h-auto w-full"
+          className="block h-auto w-full"
         />
       </a>
 
-      <header className="flex items-center justify-between">
-        <p className="text-sm text-neutral-400">
-          Brought to you by the fit fanatics at{' '}
-          <a
-            href={OIO_YOUTUBE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className="mx-auto flex max-w-md flex-col gap-5 px-4 pb-6 pt-5 md:max-w-xl md:gap-8 md:pb-10 md:pt-6 lg:max-w-2xl">
+        <header className="flex items-center justify-between">
+          <p className="text-sm text-neutral-400">
+            Brought to you by the fit fanatics at{' '}
+            <a
+              href={OIO_YOUTUBE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-neutral-200 underline underline-offset-2 hover:text-white"
+            >
+              OIO
+            </a>
+            .
+          </p>
+          <Button variant="ghost" className="px-2" onPress={onRules}>
+            Rules
+          </Button>
+        </header>
+
+        <PlayCard squares={squares} marks={marks} hotRodArt={hotRodArt} onToggle={toggleMark} />
+
+        <Button className="w-full py-4 text-lg" onPress={newCard}>
+          New Card
+        </Button>
+
+        <p className="text-center text-sm text-neutral-400">
+          Are you a caveman? Then{' '}
+          <button
+            type="button"
+            onClick={onPrint}
             className="text-neutral-200 underline underline-offset-2 hover:text-white"
           >
-            OIO
-          </a>
+            print out your own cards
+          </button>
           .
         </p>
-        <Button variant="ghost" className="px-2" onPress={onRules}>
-          Rules
-        </Button>
-      </header>
-
-      <PlayCard squares={squares} marks={marks} hotRodArt={hotRodArt} onToggle={toggleMark} />
-
-      <Button className="w-full py-4 text-lg" onPress={newCard}>
-        New Card
-      </Button>
-
-      <p className="text-center text-sm text-neutral-400">
-        Are you a caveman? Then{' '}
-        <button
-          type="button"
-          onClick={onPrint}
-          className="text-neutral-200 underline underline-offset-2 hover:text-white"
-        >
-          print out your own cards
-        </button>
-        .
-      </p>
+      </div>
     </div>
   );
 }
