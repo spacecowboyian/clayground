@@ -58,11 +58,22 @@ jobs:
           # Optional: dashboard password for print-queue (defaults to "beeps" if not set)
           VITE_PRINT_QUEUE_PASSWORD: ${{ secrets.VITE_PRINT_QUEUE_PASSWORD }}
         run: |
+          build_project() {
+            dir="$1"
+            [ -f "${dir}package.json" ] || return 0
+            echo "▶ Building ${dir}"
+            (cd "${dir}" && npm ci && npm run build)
+          }
+
+          # Gearhead is a file: dependency of other projects. Build it first so
+          # its node_modules exists for anything that resolves through it —
+          # projects/*/ is alphabetical, so without this any dependent sorting
+          # before "gearhead" builds against a gearhead that isn't installed yet.
+          build_project projects/gearhead/
+
           for dir in projects/*/; do
-            if [ -f "${dir}package.json" ]; then
-              echo "▶ Building ${dir}"
-              (cd "${dir}" && npm ci && npm run build)
-            fi
+            [ "${dir}" = "projects/gearhead/" ] && continue
+            build_project "${dir}"
           done
 
       # Always rebuild print-queue with the latest secrets, even on

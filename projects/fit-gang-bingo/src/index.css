@@ -1,0 +1,95 @@
+/* Import gearhead theme tokens (CSS custom properties) */
+@import '../node_modules/@gearhead/ui/src/styles/theme.css';
+@import '../node_modules/@gearhead/ui/src/styles/fonts.css';
+
+/* Tailwind v4 — source both gearhead components and our own */
+@import 'tailwindcss' source(none);
+@source '../node_modules/@gearhead/ui/src/components/**/*.{ts,tsx}';
+@source './components/**/*.{ts,tsx}';
+@source './App.tsx';
+
+/* Card tokens. The ink and red are sampled from the header artwork so the grid
+   and the sticker art speak the same language. */
+:root {
+  --fgb-ink: #17181a;
+  --fgb-red: #de020d;
+  --fgb-rule: #17181a;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* The sheet is a true US Letter page: 8.5in x 11in with a 0.3in margin.
+   On screen it is scaled down to fit narrow viewports; in print it is exact.
+   `zoom` is used rather than `transform` because it affects layout, so the
+   page doesn't reserve full-size space for a shrunken sheet. */
+.sheet {
+  width: 8.5in;
+  height: 11in;
+  padding: 0.3in;
+  background: #fff;
+  zoom: 1;
+}
+
+@media screen and (max-width: 920px) {
+  .sheet {
+    zoom: 0.75;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .sheet {
+    zoom: 0.55;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .sheet {
+    zoom: 0.42;
+  }
+}
+
+@media print {
+  @page {
+    size: letter portrait;
+    margin: 0;
+  }
+
+  /* Chrome is screen-only — the printed page is just the four cards. */
+  .no-print {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff;
+    min-height: 0;
+  }
+
+  /* The sheet is exactly one page tall, so any surrounding screen padding
+     would push it onto a second sheet. */
+  .print-root,
+  .print-main {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    background: #fff !important;
+    display: block !important;
+  }
+
+  /* Screen scaling must never reach the printed page. */
+  .sheet {
+    box-shadow: none;
+    zoom: 1 !important;
+    margin: 0;
+  }
+
+  /* Swatch fills must survive the browser's default "don't print backgrounds". */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
