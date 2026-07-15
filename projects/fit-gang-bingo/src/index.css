@@ -15,11 +15,7 @@
   --fgb-ink: #17181a;
   --fgb-red: #de020d;
   --fgb-rule: #17181a;
-  /* Fills the available width (viewport minus .print-main's px-4 padding)
-     at every screen size instead of jumping between fixed breakpoint
-     scales, which left the sheet narrower than the viewport on plenty of
-     phones. Capped at 1 so it never grows past true print size on desktop. */
-  --fgb-sheet-scale: min(1, calc((100vw - 2rem) / 8.5in));
+  --fgb-sheet-scale: 1;
 }
 
 body {
@@ -54,6 +50,30 @@ body {
   background: #fff;
   transform: scale(var(--fgb-sheet-scale));
   transform-origin: top left;
+}
+
+@media screen and (max-width: 920px) {
+  :root {
+    --fgb-sheet-scale: 0.75;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  :root {
+    --fgb-sheet-scale: 0.55;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  :root {
+    --fgb-sheet-scale: 0.38;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  :root {
+    --fgb-sheet-scale: 0.34;
+  }
 }
 
 @media print {
