@@ -34,7 +34,7 @@ export function PlayScreen({ onPrint, onRules }: PlayScreenProps) {
         </a>
       </div>
 
-      <div className="mx-auto flex max-w-md flex-col gap-5 px-4 pb-6 pt-3 md:max-w-xl md:gap-8 md:pb-10 lg:max-w-2xl">
+      <div className="mx-auto flex max-w-md flex-col gap-3 px-4 pb-6 pt-3 md:max-w-xl md:gap-6 md:pb-10 lg:max-w-2xl">
         <header className="flex items-center justify-between">
           <p className="text-sm text-neutral-400">
             Brought to you by the fit fanatics at{' '}
