@@ -6,6 +6,7 @@
 @import 'tailwindcss' source(none);
 @source '../node_modules/@gearhead/ui/src/components/**/*.{ts,tsx}';
 @source './components/**/*.{ts,tsx}';
+@source './screens/**/*.{ts,tsx}';
 @source './App.tsx';
 
 /* Card tokens. The ink and red are sampled from the header artwork so the grid
@@ -20,6 +21,9 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  /* Matches .print-root; the Home/Play/Rules screens have no wrapper of
+     their own, so without this they'd render white text on white. */
+  background: #222222;
   /* Prevent iOS Safari from inflating tiny card text on narrow screens. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
