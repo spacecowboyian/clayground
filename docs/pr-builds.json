@@ -57,5 +57,12 @@
       "fit-gang-bingo": "https://spacecowboyian.github.io/clayground/fit-gang-bingo/pr-75/",
       "somethings-happening": "https://spacecowboyian.github.io/clayground/somethings-happening/pr-75/"
     }
+  },
+  "76": {
+    "title": "feat(fit-gang-bingo): phone-playable card with tap-to-mark",
+    "url": "https://github.com/spacecowboyian/clayground/pull/76",
+    "builds": {
+      "fit-gang-bingo": "https://spacecowboyian.github.io/clayground/fit-gang-bingo/pr-76/"
+    }
   }
 }
