@@ -34,7 +34,7 @@ export function SearchField({
   ...props
 }: SearchFieldComponentProps) {
   return (
-    <AriaSearchField className={cn('flex flex-col gap-2', className)} {...props}>
+    <AriaSearchField className={cn('group flex flex-col gap-2', className)} {...props}>
       {label && <Label className="text-sm text-foreground">{label}</Label>}
       <div className="relative">
         <Input
@@ -42,11 +42,13 @@ export function SearchField({
           className={cn(
             'w-full pl-10 pr-8 py-2 bg-input rounded-lg border border-border text-foreground',
             'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-offset-0',
+            // Hide the native OS search-cancel button (shows as a system-accent-colored X) — we render our own.
+            '[&::-webkit-search-cancel-button]:appearance-none',
             focusColors[focusColor]
           )}
         />
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-        <Button className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground hover:text-foreground rounded transition-colors group-empty:hidden">
+        <Button className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground hover:text-foreground rounded transition-colors group-data-[empty]:hidden">
           <X className="w-3.5 h-3.5" />
         </Button>
       </div>
