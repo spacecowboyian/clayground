@@ -281,25 +281,6 @@ body {
   opacity: 0.85;
 }
 
-/* Full-bleed strip: the positions are percentages of the whole band width and
-   have to line up with the zones above, so this takes no horizontal padding. */
-.temp__legend {
-  position: relative;
-  height: 1.1rem;
-  padding-top: 0.25rem;
-}
-
-.temp__legend-item {
-  position: absolute;
-  transform: translateX(-50%);
-  font-size: 0.5rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted-foreground);
-  white-space: nowrap;
-}
-
 .temp__readout {
   display: flex;
   align-items: baseline;

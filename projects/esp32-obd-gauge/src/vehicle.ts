@@ -27,8 +27,23 @@ export const RPM_RED = 6000;
  * Five zones. Thermostat opens ~82C/180F, normal running 85-96C/185-205F, fans
  * pull it back from ~104C/219F. Past 110C/230F you are cooking the head gasket.
  */
-export const COOLANT_MIN_C = 38; /* 100F */
-export const COOLANT_COLD_C = 71; /* 160F — cold to cool */
+/*
+ * The bottom of the scale is a hard freeze, not the bottom of the operating
+ * range: the bar has to be off its stop and climbing the moment the engine
+ * fires, and coolant starts at whatever the air outside is. Lower this if you
+ * want sub-freezing starts to register off zero too.
+ */
+export const COOLANT_MIN_C = 0; /* 32F */
+
+/**
+ * Where the dash's blue low-coolant-temperature lamp goes out — the cold zone
+ * ends exactly there, so the band agrees with the car.
+ *
+ * UNVERIFIED. Honda does not publish this figure; 50C/122F is the number
+ * commonly cited for Hondas. To get the real one: cold-start the car with this
+ * gauge running and note the reading at the moment the blue lamp goes out.
+ */
+export const COOLANT_COLD_C = 50; /* 122F — cold to cool */
 export const COOLANT_NOMINAL_C = 85; /* 185F — cool to nominal */
 export const COOLANT_WARM_C = 96; /* 205F — nominal to warm */
 export const COOLANT_HOT_C = 104; /* 219F — warm to hot */

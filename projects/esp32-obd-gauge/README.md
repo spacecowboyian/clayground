@@ -18,12 +18,20 @@ Portrait, three bands, top to bottom:
 2. **Coolant band** — full bleed and square, butted straight onto the tach with
    a 2px seam so the two read as one instrument. Five flat zones with hard
    edges: blue cold, teal cool, green norm, amber warm, red hot. Cool is the
-   channel-by-channel midpoint of cold and nominal, so the first three read
-   as one progression. Every zone
-   but hot paints at half strength, so the band stays quiet until the engine is
-   actually in trouble and one zone lights at full saturation. Labels and
-   readout sit inside the band, below the colour — nothing is drawn over the
-   zones.
+   channel-by-channel midpoint of cold and nominal, so the first three read as
+   one progression. Every zone but hot paints at half strength, so the band
+   stays quiet until the engine is actually in trouble and one zone lights at
+   full saturation. The zones carry no printed names — colour and boundary
+   ticks say where you are, and the band is still spoken for screen readers.
+
+   The scale bottoms out at **32 °F, not at the operating range**, so the bar is
+   off its stop and climbing from the moment the engine fires.
+
+   **The cold zone ends where the dash's blue low-temperature lamp goes out**,
+   so the band agrees with the car. That boundary is set to 122 °F and is
+   **unverified** — Honda does not publish the figure. To get the real one:
+   cold-start the car with this gauge running and note the reading at the
+   moment the blue lamp goes out, then set `COOLANT_COLD_C` in `vehicle.ts`.
 
    Its scale is **not linear**. The centre of the nominal zone is pinned to the
    middle of the screen, and each half is shaped by `COOLANT_SCALE_EXP`, so the

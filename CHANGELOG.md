@@ -12,6 +12,11 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(esp32-obd-gauge)
+- **The coolant bar registers from key-on** — the scale bottomed out at 100 °F, which is above a cold start, so the bar sat pinned at zero through the first part of every warmup. The floor is now 32 °F: a 64 °F start reads 11.7% and climbs immediately.
+- **The cold zone ends where the car's blue low-temperature lamp goes out**, so the band agrees with the dash rather than picking its own boundary. Set to 122 °F and flagged **unverified** in `vehicle.ts` — Honda does not publish the figure, and the gauge itself is now the instrument for measuring it: cold-start with it running and read off the temperature when the lamp goes out.
+- **Zone names dropped from the bar** — colour and boundary ticks carry it, and `aria-valuetext` still speaks the band name. Removing the legend also removes the width constraint that forced "NOMINAL" down to "NORM".
+
+### feat(esp32-obd-gauge)
 - **Cool zone is now mixed from its neighbours** — the channel-by-channel midpoint of cold and nominal, giving a teal (`38 158 188`) in place of the unrelated purple, so the first three zones read as one progression rather than three separate hues. The text band follows the same rule, mixed from `--band-cold` and `--band-normal` to `#24bbbd` (6.8:1 on the background), so both token sets are derived the same way instead of picked independently.
 
 ### feat(esp32-obd-gauge)

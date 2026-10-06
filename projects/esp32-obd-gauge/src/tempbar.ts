@@ -28,33 +28,23 @@ const DIM = 0.5;
 const zone = (token: string, alpha: number): string => `rgb(var(${token}) / ${alpha})`;
 
 /**
- * The five zones, in order. Single source of truth: fill colours, boundary
- * ticks and the legend are all derived from this, so they cannot drift apart.
+ * The five zones, in order. Single source of truth: fill colours and boundary
+ * ticks are both derived from this, so they cannot drift apart.
  *
- * Labels are abbreviated to instrument length. Compressing the middle of the
- * scale leaves the nominal band about 38px wide on a phone, and "NOMINAL" does
- * not fit in that without running into its neighbour — "NORM" does, and reads
- * the same way every other gauge in a car does. The spoken labels in
- * BAND_LABEL stay unabbreviated. Likewise "Cool" rather than "Warming": it sits
- * next to "Warm", and two labels differing by three letters are not two labels
- * on a dash.
+ * The zones carry no printed names. The colours and the boundary ticks say
+ * where the reading sits, and the band name is still spoken through
+ * aria-valuetext for anyone who needs it said.
  */
 const ZONES = [
-  { to: COOLANT_COLD_C, color: zone('--temp-cold-rgb', DIM), label: 'Cold' },
-  { to: COOLANT_NOMINAL_C, color: zone('--temp-cool-rgb', DIM), label: 'Cool' },
-  { to: COOLANT_WARM_C, color: zone('--temp-nominal-rgb', DIM), label: 'Norm' },
-  { to: COOLANT_HOT_C, color: zone('--temp-warm-rgb', DIM), label: 'Warm' },
-  { to: COOLANT_MAX_C, color: zone('--temp-hot-rgb', 1), label: 'Hot' },
+  { to: COOLANT_COLD_C, color: zone('--temp-cold-rgb', DIM) },
+  { to: COOLANT_NOMINAL_C, color: zone('--temp-cool-rgb', DIM) },
+  { to: COOLANT_WARM_C, color: zone('--temp-nominal-rgb', DIM) },
+  { to: COOLANT_HOT_C, color: zone('--temp-warm-rgb', DIM) },
+  { to: COOLANT_MAX_C, color: zone('--temp-hot-rgb', 1) },
 ];
 
 /** Boundary temperatures — every zone edge except the far end of the bar. */
 const BOUNDARIES = ZONES.slice(0, -1).map((z) => z.to);
-
-/** Legend positions, centred in each zone rather than sat on the boundary. */
-const LEGEND = ZONES.map((z, i) => ({
-  label: z.label,
-  at: ((i === 0 ? COOLANT_MIN_C : ZONES[i - 1].to) + z.to) / 2,
-}));
 
 /** Coolant band: five flat zones, non-linear scale, nominal pinned to centre. */
 export function createTempBar(): TempBar {
@@ -71,9 +61,6 @@ export function createTempBar(): TempBar {
     <div class="temp__track">
       <div class="temp__fill" data-role="fill" style="background:${fillBackground}"></div>
       ${BOUNDARIES.map((c) => `<span class="temp__tick" style="left:${pct(c).toFixed(2)}%"></span>`).join('')}
-    </div>
-    <div class="temp__legend" aria-hidden="true">
-      ${LEGEND.map((l) => `<span class="temp__legend-item" style="left:${pct(l.at).toFixed(2)}%">${l.label}</span>`).join('')}
     </div>
     <div class="temp__readout">
       <span class="temp__label">Coolant</span>
