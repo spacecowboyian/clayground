@@ -2,14 +2,14 @@
   {
     "id": "esp32-obd-gauge",
     "title": "ESP32 OBD Gauge",
-    "description": "The web interface for a DIY ESP32 OBD-II dongle that reads engine coolant temperature over CAN and serves this page from its own Wi-Fi access point \u2014 no app, no internet. Coolant temp is the primary reading on a 270-degree SVG arc with cold/normal/hot/critical bands, alongside engine speed, intake air temperature and battery voltage. Vanilla TypeScript inlined to a single ~17 kB file so it fits the dongle's 4 MB flash. The gallery build runs a thermal-model simulator: load-driven heat in, thermostat and radiator-fan cycling, warm-idle decay and traffic heat creep all fall out of the model. Append ?sim=overheat, hot, stale or offline to drive the other states.",
+    "description": "The web interface for a DIY ESP32 OBD-II dongle in a 2009 Honda Fit Sport, built for autocross and rallycross. A full-bleed tach fills bottom to top, green through yellow to red, and flashes the whole band at the shift point; a coolant bar grows left to right over a cold-to-hot gradient with reference lines. Below that, six tiles you assign yourself \u2014 press and hold any tile to pick from 13 readouts, tap a session value to reset it. Built for the three moments that matter: heat soak in grid, the shift flash on course, and peak values on the roll back. Vanilla TypeScript inlined to a single ~29 kB file for the dongle's 4 MB flash. The gallery build runs a thermal-model simulator \u2014 try ?sim=redline or ?sim=overheat.",
     "tags": [
       "esp32",
       "obd-ii",
-      "car",
+      "autocross",
+      "honda-fit",
       "gauge",
-      "vanilla-ts",
-      "websocket"
+      "vanilla-ts"
     ],
     "url": "esp32-obd-gauge/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/esp32-obd-gauge",

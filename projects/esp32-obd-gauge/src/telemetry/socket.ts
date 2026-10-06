@@ -6,7 +6,8 @@ const BACKOFF_MS = [500, 1_000, 2_000, 4_000, 8_000];
 
 /**
  * The real client: an AsyncWebSocket on the ESP32 at /ws pushing
- * `{"coolantC":88,"rpm":2240,"intakeC":34,"voltage":14.1,"ts":123456}`.
+ * `{"coolantC":88,"rpm":2240,"intakeC":34,"voltage":14.1,"speedKph":96,
+ * "throttlePct":24,"timingAdv":33,"ts":123456}`.
  *
  * It never throws on bad input — a half-written frame from a dongle that
  * browned out mid-send is dropped and the watchdog handles the gap.
@@ -70,11 +71,16 @@ function parseFrame(data: unknown): TelemetryFrame | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const r = raw as Record<string, unknown>;
   if (!isNum(r.coolantC)) return null;
+  // Everything but coolant is optional: an ECU that does not answer a PID
+  // leaves that tile showing a placeholder rather than a confident zero.
   return {
     coolantC: r.coolantC as number,
     rpm: isNum(r.rpm) ? (r.rpm as number) : 0,
     intakeC: isNum(r.intakeC) ? (r.intakeC as number) : NaN,
     voltage: isNum(r.voltage) ? (r.voltage as number) : NaN,
+    speedKph: isNum(r.speedKph) ? (r.speedKph as number) : NaN,
+    throttlePct: isNum(r.throttlePct) ? (r.throttlePct as number) : NaN,
+    timingAdv: isNum(r.timingAdv) ? (r.timingAdv as number) : NaN,
     ts: isNum(r.ts) ? (r.ts as number) : 0,
   };
 }

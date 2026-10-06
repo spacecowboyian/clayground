@@ -1,4 +1,4 @@
-# Coolant Gauge Web Interface
+# Autocross Dash Web Interface
 
 ## Status
 - [ ] Not Started
@@ -73,3 +73,8 @@ band and connection transitions. The warmup curve was sampled every 4 s for
 ### 2026-10-06 — Requested by: @spacecowboyian
 - Initial request: build the web interface first, driven by realistic dummy
   data, ahead of any hardware purchase.
+- 2026-10-06 — Redesigned to a dash layout: full-bleed tach with shift flash,
+  coolant bar with cold/nominal/hot reference lines, and six tiles the driver
+  assigns by press-and-hold. Units switched to °F/mph. Scope widened from
+  coolant-only to seven PIDs, and from live readings to session peak-hold,
+  on the finding that nobody reads a gauge during a 45-70 second run.

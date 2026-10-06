@@ -1,13 +1,19 @@
 /** One decoded OBD-II sample, matching the JSON the firmware pushes over WS. */
 export interface TelemetryFrame {
-  /** PID 0x05 — engine coolant temp, °C. The primary reading. */
+  /** PID 0x05 — engine coolant temp, °C. */
   coolantC: number;
-  /** PID 0x0C — engine speed, rev/min. */
+  /** PID 0x0C — engine speed, rev/min. Drives the tach and the shift flash. */
   rpm: number;
-  /** PID 0x0F — intake air temp, °C. */
+  /** PID 0x0F — intake air temp, °C. Heat-soak indicator. */
   intakeC: number;
-  /** PID 0x42 — control module voltage, V. Proxy for charging health. */
+  /** PID 0x42 — control module voltage, V. Charging-system health. */
   voltage: number;
+  /** PID 0x0D — vehicle speed, km/h. */
+  speedKph: number;
+  /** PID 0x11 — throttle position, %. Peak confirms you actually got to WOT. */
+  throttlePct: number;
+  /** PID 0x0E — timing advance, ° BTDC. Watch it retard under heat soak. */
+  timingAdv: number;
   /** Firmware millis() at sample time. */
   ts: number;
 }
@@ -37,23 +43,9 @@ export interface TelemetrySource {
 /** Severity bands for coolant temp, in the order they escalate. */
 export type TempBand = 'cold' | 'normal' | 'warn' | 'critical';
 
-export const COOLANT_MIN_C = 40;
-export const COOLANT_MAX_C = 130;
-
-/**
- * Thresholds for a typical modern water-cooled petrol engine:
- * thermostat opens ~85, fans engage ~100-105, head-gasket territory ~115+.
- */
-export function tempBand(coolantC: number): TempBand {
-  if (coolantC >= 115) return 'critical';
-  if (coolantC >= 105) return 'warn';
-  if (coolantC < 70) return 'cold';
-  return 'normal';
-}
-
 export const BAND_LABEL: Record<TempBand, string> = {
-  cold: 'Warming up',
-  normal: 'Normal',
-  warn: 'Running hot',
+  cold: 'Cold',
+  normal: 'Nominal',
+  warn: 'Hot',
   critical: 'Overheating',
 };

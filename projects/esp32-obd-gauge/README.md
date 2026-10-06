@@ -1,16 +1,50 @@
 # ESP32 OBD Gauge — web interface
 
-The page that the DIY ESP32 OBD-II dongle serves to an iPhone over its own
-Wi‑Fi AP. Live coolant temperature is the primary reading; engine speed,
-intake air temperature and battery voltage sit alongside it.
+The page the DIY ESP32 OBD-II dongle serves to an iPhone over its own Wi‑Fi AP.
+Built for autocross and rallycross in a 2009 Honda Fit Sport (GE8, L15A7).
 
 Project plan (hardware, wiring, firmware phases) lives in Brains at
-`projects/esp32-obd-gauge/plan.md`. This repo holds **Phase 2: gauge UI**.
+`projects/esp32-obd-gauge/plan.md`. This repo is **Phase 2: gauge UI**.
 
-## Status
+## The design
 
-The UI is complete and driven entirely by a simulated telemetry feed. No
-hardware is required to work on it, and nothing here talks to a real car yet.
+Portrait, three bands, top to bottom:
+
+1. **Tach** — full bleed, fills bottom to top, green → yellow → red as it
+   climbs. The whole band flashes at the shift point.
+2. **Coolant bar** — grows left to right over a cold-to-hot gradient, with
+   reference lines for cold / nominal / hot.
+3. **Six configurable tiles** — **press and hold any tile** to choose what it
+   shows from 13 readouts. The choice persists on that phone.
+
+## Why it looks like that
+
+A run is 45–70 seconds and **you will not read this screen while driving.**
+Peripheral vision gets the shift flash; nothing else lands. So the gauge is
+built for three separate moments:
+
+- **In grid, before the run** — coolant and intake air answer "am I heat
+  soaked?" The most useful live reading you have.
+- **During** — shift flash only. That is why it is full bleed.
+- **Back in grid, after** — the session values. **Tap a tile to reset it,
+  or `Reset run` to clear them all.** Peak rpm catches a money-shift you would
+  otherwise never know about; peak coolant and intake tell you whether to pop
+  the hood before the next run.
+
+## Readouts
+
+| Live | Session (tap to reset) |
+|------|------------------------|
+| Intake air temp | Top speed |
+| Coolant temp | Peak engine speed |
+| Battery voltage | Peak coolant temp |
+| Vehicle speed | Peak intake air temp |
+| Engine speed | Peak throttle position |
+| Throttle position | Minimum voltage |
+| Timing advance | |
+
+Timing advance is the sleeper: if the ECU starts pulling timing you are heat
+soaked or on bad fuel, and you will see it here before you feel it.
 
 ## Running it
 
@@ -19,44 +53,84 @@ npm install
 npm run dev
 ```
 
-Everything is vanilla TypeScript — no React, no Tailwind, no Gearhead. That is
-a deliberate departure from the repo-wide rule in `AGENTS.md`: this page is
-flashed to a 4 MB ESP32 and served by `ESPAsyncWebServer`, so the whole app has
-to stay a single small file with no framework runtime.
+Vanilla TypeScript — no React, no Tailwind, no Gearhead. A deliberate departure
+from the repo-wide rule in `AGENTS.md`: this page is flashed to a 4 MB ESP32 and
+served by `ESPAsyncWebServer`, so no framework runtime can ship there and
+Gearhead has no gauge primitive to reuse. The Gearhead palette is mirrored in
+`src/styles/theme.css` and **extended** there with the tach and coolant ramps —
+instrument colours read as large fills in daylight, so they run brighter than
+Gearhead's accents, which are tuned for text on a monitor.
 
 ## Scenarios
 
 With no dongle present the page simulates one. Append `?sim=<scenario>`:
 
-| Scenario   | What it shows                                                   |
-|------------|-----------------------------------------------------------------|
-| `warmup`   | Default. Key-on → crank → cold idle → drive. Cold band to normal |
-| `normal`   | Already-warm engine cruising, thermostat modulating around 87 °C |
-| `hot`      | Sits in the warn band around 101–105 °C with the fan cycling     |
-| `overheat` | Stuck-shut thermostat; climbs through 115 °C into critical       |
-| `stale`    | Frames stop arriving while the socket stays open                 |
-| `offline`  | Nothing ever connects                                            |
+| Scenario | What it shows |
+|----------|---------------|
+| `warmup` | Default. Key-on → crank → cold idle → drive |
+| `normal` | Warm engine cruising, thermostat modulating |
+| `hot` | Warn band, fan cycling |
+| `overheat` | Stuck-shut thermostat, climbs into critical |
+| `redline` | Parks either side of the shift point so the flash is visible |
+| `stale` | Frames stop while the socket stays open |
+| `offline` | Nothing ever connects |
 
 `?live=1` forces a real WebSocket even on localhost.
 
 ### How realistic is the fake data?
 
-The simulator is a small thermal model, not a random walk. Heat in scales with
-engine load; heat out scales with `(coolant − ambient)`, thermostat opening and
-radiator airflow, so the behaviour falls out rather than being scripted:
+A thermal model, not a random walk. Heat in scales with engine load, heat out
+with `(coolant − ambient)` × thermostat opening × radiator airflow, so the
+behaviour falls out rather than being scripted: thermostat cracking at 82 °C,
+fan cycling 94–100 °C, cold fast-idle decaying ~1280 → ~800 rpm, intake air
+heat-soaking at a standstill and clearing at speed, timing retarding under load
+and under heat, charging voltage sagging under load.
 
-- Cold fast-idle near 1280 rpm decaying to ~800 rpm as the coolant comes up
-- Thermostat cracking open at 82 °C, fully open by 88 °C
-- Radiator fan on above 100 °C, off below 94 °C — so it cycles at idle
-- Coolant settling ~87 °C cruising, drifting to ~95 °C sitting in traffic
-- Intake air heat-soaking to the mid-40s °C at a standstill, dropping at speed
-- Charging voltage ~14.1 V, sagging under load, 12.5 V with the engine off
-- An upshift sawtooth on the tacho under acceleration
+Warmup runs at **6× real time** so the cold-to-normal arc takes about a minute.
+Coolant and intake are rounded to whole degrees, and speed to whole km/h,
+because the real PIDs encode them that way.
 
-Warmup runs at **6× real time** so the full cold-to-normal arc takes about a
-minute instead of 5–8. Coolant and intake air are rounded to whole degrees
-because the real PIDs encode them as a single byte of `A − 40`, so the gauge
-steps exactly as it will in the car.
+## Firmware contract
+
+WebSocket to `/ws` on whatever host served the page, ~2 Hz JSON:
+
+```json
+{ "coolantC": 88, "rpm": 2240, "intakeC": 34, "voltage": 14.1,
+  "speedKph": 96, "throttlePct": 24, "timingAdv": 33, "ts": 123456 }
+```
+
+PIDs: `0x05` coolant, `0x0C` rpm, `0x0F` intake, `0x42` voltage, `0x0D` speed,
+`0x11` throttle, `0x0E` timing advance. Only `coolantC` is required — anything
+missing or non-numeric shows a placeholder rather than a confident zero, so an
+ECU that does not answer a PID degrades gracefully.
+
+**Two things the firmware must get right:**
+
+- **Poll rpm every cycle and rotate the slow signals.** Each PID is a
+  request/response round trip (~5–15 ms). Polling seven evenly would put rpm at
+  well under 10 Hz, and at ~2000 rpm/sec in 2nd gear that is 200 rpm+ of lag on
+  the shift light. Coolant does not change in 50 ms; rpm does.
+- **Read the supported-PID bitmasks at boot** (`0x00`, `0x20`, `0x40`, `0x60`)
+  and log them. That settles what this ECU actually answers in one drive.
+
+Link health is derived from **frame arrival, not socket state** — a socket that
+stays open while CAN decoding dies goes stale (1.8 s) then disconnected (5 s).
+Reconnect backoff 0.5 s → 8 s.
+
+## Vehicle profile
+
+`src/vehicle.ts`. 6800 rpm redline, 117 hp @ 6600, 106 lb-ft @ 4800.
+
+`SHIFT_RPM` is **6500, deliberately below redline** to buy back polling latency —
+re-tune once the real poll rate is known. Fuel-cut and the VTEC crossover point
+are not published by Honda, so neither is baked in.
+
+**Oil temperature is not available.** PID `0x5C` is standard but the Fit has no
+oil temp sensor; oil pressure is not an OBD PID at all and the Fit only has a
+low-pressure switch. Both need aftermarket sensors.
+
+Phone accelerometer for lateral g is also out: iOS gates `DeviceMotion` behind a
+secure context and the dongle serves plain HTTP.
 
 ## Shipping it to the dongle
 
@@ -64,37 +138,7 @@ steps exactly as it will in the car.
 npm run build:fw
 ```
 
-Builds and copies the single inlined HTML file to `firmware/data/index.html`,
-ready for a LittleFS upload. Current size is **~17 kB (6.7 kB gzipped)** — one
-request, no external assets.
-
-The same artifact is published to `docs/esp32-obd-gauge/main/` for the
-Clayground gallery, where it runs the simulator.
-
-## Firmware contract
-
-The page opens a WebSocket to `/ws` on whatever host served it and expects
-JSON frames at roughly 2 Hz:
-
-```json
-{ "coolantC": 88, "rpm": 2240, "intakeC": 34, "voltage": 14.1, "ts": 123456 }
-```
-
-Only `coolantC` is required; the other fields degrade to `--` if absent or
-non-numeric. Malformed frames are dropped rather than throwing.
-
-Link health is derived from **frame arrival, not socket state** — a socket that
-stays open while CAN decoding dies still goes stale (1.8 s) then disconnected
-(5 s). Reconnect backoff is 0.5 s → 8 s.
-
-## Thresholds
-
-| Band     | Range        | Meaning                        |
-|----------|--------------|--------------------------------|
-| Cold     | below 70 °C  | Still warming up               |
-| Normal   | 70–104 °C    | Operating range                |
-| Warn     | 105–114 °C   | Running hot, fan should be on  |
-| Critical | 115 °C and up| Overheating                    |
-
-Scale runs 40–130 °C. Each band colour is verified at ≥ 4.5:1 contrast against
-the `#222222` background.
+Builds and copies the single inlined HTML file to `firmware/data/index.html` for
+LittleFS upload. Currently **~29 kB (9.4 kB gzipped)** — one request, no
+external assets. The same artifact is published to `docs/esp32-obd-gauge/main/`
+for the Clayground gallery, where it runs the simulator.

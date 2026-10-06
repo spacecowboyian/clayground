@@ -1,14 +1,18 @@
 /*
  * Design tokens for the ESP32 OBD gauge.
  *
- * Base palette mirrors Gearhead (projects/gearhead/src/styles/theme.css) so the
- * dongle page reads as part of Clayground, but it is declared locally rather
- * than imported: this file has to survive being inlined into a single HTML
- * document on the ESP32's LittleFS partition, with no Tailwind and no
- * node_modules. No component CSS may use a raw hex value — add a token here.
+ * The surface palette mirrors Gearhead (projects/gearhead/src/styles/theme.css)
+ * so the dongle page reads as part of Clayground, but it is declared locally
+ * rather than imported: this file has to survive being inlined into a single
+ * HTML document on the ESP32's LittleFS partition, with no Tailwind and no
+ * node_modules. No other stylesheet may use a raw hex value — add a token here.
  *
- * Dark-only by design. This thing lives on a car dash at night; a light theme
- * would be a glare hazard, so there is no `prefers-color-scheme: light` branch.
+ * The meter ramps below are the Gearhead EXTENSION this project needed. They
+ * are instrument colours, not UI accents: they are read as large fills at a
+ * glance in daylight, so they run brighter and more saturated than Gearhead's
+ * button accents, which are tuned for text on a desktop monitor.
+ *
+ * Dark-only by design. This lives on a car dash; a light theme is glare.
  */
 :root {
   color-scheme: dark;
@@ -22,13 +26,23 @@
   --border: #404040;
   --accent-orange: #d97706;
 
+  /* ── Tach ramp ───────────────────────────────────────────────────────── */
+  --rpm-green: #10b981;
+  --rpm-yellow: #f59e0b;
+  --rpm-red: #ef4444;
+  --rpm-redline: #b91c1c;
+
+  /* ── Coolant ramp, cold to hot ───────────────────────────────────────── */
+  --temp-0: #2563eb;
+  --temp-1: #38bdf8;
+  --temp-2: #10b981;
+  --temp-3: #f59e0b;
+  --temp-4: #dc2626;
+
   /*
-   * ── Coolant severity bands ─────────────────────────────────────────────
-   * Gearhead's accent set is tuned for buttons on a desktop monitor and runs
-   * too dark for a 60px numeral read at arm's length in daylight. These are
-   * brighter siblings, each verified at >= 4.5:1 against --background so even
-   * the small band label clears WCAG AA:
-   *   cold 7.4:1 · normal 6.3:1 · warn 7.4:1 · critical 5.8:1
+   * Band colours for TEXT. Brighter siblings of the Gearhead accents, each
+   * verified at >= 4.5:1 against --background so even a small label clears
+   * WCAG AA: cold 7.4:1 - normal 6.3:1 - warn 7.4:1 - critical 5.8:1.
    */
   --band-cold: #38bdf8;
   --band-normal: #10b981;
@@ -37,22 +51,20 @@
 
   /* Set per-band on the root by main.ts; everything else reads these. */
   --band: var(--band-normal);
-  --band-dim: #1d3a33;
+  --band-dim: #10312a;
 
-  /* ── Gauge geometry ──────────────────────────────────────────────────── */
   --track: #333333;
-  --tick: #4a4a4a;
 
   /* ── Type ────────────────────────────────────────────────────────────── */
   --font-ui: system-ui, -apple-system, 'Helvetica Neue', sans-serif;
-  /* Tabular figures stop the big readout from shuffling width as digits change. */
+  /* Tabular figures stop readouts shuffling width as digits change. */
   --font-numeric: ui-monospace, 'SF Mono', Menlo, monospace;
 
   --radius: 0.75rem;
   --gap: 0.75rem;
+  --pad: 0.75rem;
 }
 
-/* Band swaps are a single custom-property change on <html>. */
 :root[data-band='cold']     { --band: var(--band-cold);     --band-dim: #11283a; }
 :root[data-band='normal']   { --band: var(--band-normal);   --band-dim: #10312a; }
 :root[data-band='warn']     { --band: var(--band-warn);     --band-dim: #3a2c0d; }

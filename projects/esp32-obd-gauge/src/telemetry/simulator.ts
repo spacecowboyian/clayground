@@ -1,9 +1,24 @@
 import type { FrameEmitter } from './source';
 import type { TelemetryFrame } from './types';
 
-export type Scenario = 'warmup' | 'normal' | 'hot' | 'overheat' | 'offline' | 'stale';
+export type Scenario =
+  | 'warmup'
+  | 'normal'
+  | 'hot'
+  | 'overheat'
+  | 'redline'
+  | 'offline'
+  | 'stale';
 
-export const SCENARIOS: Scenario[] = ['warmup', 'normal', 'hot', 'overheat', 'offline', 'stale'];
+export const SCENARIOS: Scenario[] = [
+  'warmup',
+  'normal',
+  'hot',
+  'overheat',
+  'redline',
+  'offline',
+  'stale',
+];
 
 export function isScenario(v: string | null): v is Scenario {
   return v !== null && (SCENARIOS as string[]).includes(v);
@@ -66,6 +81,7 @@ const START_COOLANT: Record<Scenario, number> = {
   normal: 89,
   hot: 101,
   overheat: 108,
+  redline: 92,
   offline: AMBIENT_C,
   stale: 90,
 };
@@ -143,6 +159,11 @@ export function createSimulator(scenario: Scenario): FrameEmitter {
     else if (mode === 'traffic') rpm = speedKph > 2 ? 1500 + noise(200) : warmIdle();
     else if (mode === 'idle') rpm = warmIdle();
     if (running) rpm += noise(18);
+    // 'redline' parks the engine either side of the shift point so the flash
+    // can actually be seen standing still.
+    if (scenario === 'redline') {
+      rpm = 5800 + Math.abs(Math.sin(model.elapsed / 2.5)) * 1100 + noise(25);
+    }
 
     // ── Charging system ───────────────────────────────────────────────────
     let voltage: number;
@@ -150,13 +171,35 @@ export function createSimulator(scenario: Scenario): FrameEmitter {
     else if (mode === 'crank') voltage = 10.2 + noise(0.25);
     else voltage = 14.12 - load * 0.35 - (model.fanOn ? 0.18 : 0) + noise(0.04);
 
+    // ── Throttle ──────────────────────────────────────────────────────────
+    // Absolute TPS, which rests near 13% at a closed throttle rather than 0.
+    // Mapped per driving mode: engine load and pedal travel are not linear in
+    // each other on a small engine, so deriving one from the other reads wrong.
+    let throttlePct = 0;
+    if (mode === 'idle') throttlePct = 13 + noise(0.6);
+    else if (mode === 'traffic') throttlePct = (speedKph > 2 ? 22 : 13) + noise(1.5);
+    else if (mode === 'cruise') throttlePct = 24 + Math.sin(model.elapsed / 9) * 4 + noise(1);
+    else if (mode === 'accel') throttlePct = 92 + noise(3);
+
+    // ── Timing advance ────────────────────────────────────────────────────
+    // Lots of advance at light load, pulled back toward WOT, and pulled
+    // further once intake air gets hot — the knock-retard signature that makes
+    // this worth a tile at an autocross.
+    const heatRetard = clamp((model.intakeC - 45) / 10, 0, 1) * 6;
+    let timingAdv = 0;
+    if (running) timingAdv = rpm < 1100 ? 12 + noise(1) : 40 - load * 21 - heatRetard + noise(0.8);
+
     // Quantize exactly as the PIDs do: coolant and intake are a single byte
     // of `A - 40`, so they arrive as whole degrees and the gauge steps.
+    // Speed (0x0D) is a whole km/h for the same reason.
     return {
       coolantC: Math.round(model.coolantC),
       intakeC: Math.round(model.intakeC),
       rpm: Math.max(0, Math.round(rpm / 0.25) * 0.25),
       voltage: Math.round(voltage * 1000) / 1000,
+      speedKph: Math.max(0, Math.round(speedKph)),
+      throttlePct: clamp(Math.round(throttlePct * 10) / 10, 0, 100),
+      timingAdv: Math.round(timingAdv * 2) / 2,
       ts: Math.round(performance.now() - bootedAt),
     };
   }
