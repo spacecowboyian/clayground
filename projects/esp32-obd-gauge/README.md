@@ -43,7 +43,8 @@ Portrait, three bands, top to bottom:
    dramatic the moment it leaves. Set the exponent to 1 for a linear scale, or
    below 1 to invert it into a classic expanded-scale gauge.
 3. **Six configurable tiles** — a full-bleed grid ruled by 1px lines, butted
-   straight onto the coolant band. All text centred. **Press and hold any tile**
+   straight onto the coolant band. Each cell's reading runs as a large numeral
+   filling it top to bottom, with the label over it. **Press and hold any tile**
    to choose what it shows from 13 readouts; the choice persists on that phone.
    A rule inside a cell's bottom edge marks it as a session value you can tap to
    reset.

@@ -12,6 +12,11 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(esp32-obd-gauge)
+- **Each tile's reading is now a numeral filling the cell behind its own label** — left-aligned, sized to fill top to bottom, at 0.35 opacity. That is the one value that works both ways: the numeral clears 3.2:1 on the background as large text, and the white label over it still clears 4.6:1 as small text. Labels pin to the top corner; a `button` centres its content by default, which had dropped them into the middle of the digits.
+- **Numerals are sized per cell rather than uniformly** — a numeral tall enough to fill an 88px cell runs about 293px wide at four digits against a 171px cell, so a single size either crops `3149` to `31` or shrinks every cell to suit the longest. Each cell is measured and scaled only as far as it must be, so nothing is cropped; sizes therefore vary between cells. Measuring forces a reflow, so it runs only when the text or the cell width changes, never per frame.
+- **Units moved to the label line** — inside the value they inherited the watermark's opacity and were all but invisible, and they sat hard against the cell's right edge where rounding shaved the last glyph. A unit the label already contains is dropped, so `VOLTAGE V` and `PEAK RPM rpm` do not appear.
+
+### feat(esp32-obd-gauge)
 - **All chrome removed** — header, status pill, simulated-telemetry notice and footer are gone, so the three instruments run edge to edge from the top of the screen (the tach is now 510px on a phone, up from 330). A dead link still shows itself without a pill: every reading blanks to a placeholder and both meters park at zero rather than freezing on a stale number, and the polite live region still announces connection and band transitions. **The `Reset run` button went with the header**, so clearing session values is per-tile again; `resetAll()` was dropped from the peak tracker rather than left as dead code.
 - **Grid butts straight onto the coolant band**, and all cell text is centred.
 

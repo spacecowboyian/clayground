@@ -10,6 +10,16 @@ const HOLD_MS = 450;
 /** Finger drift past this is a scroll, not a press. */
 const DRIFT_PX = 10;
 
+interface Cell {
+  button: HTMLButtonElement;
+  label: HTMLElement;
+  value: HTMLElement;
+  unit: HTMLElement;
+  box: HTMLElement;
+  /** Last text and width the numeral was sized against. */
+  fitted: string;
+}
+
 export interface TileGrid {
   readonly el: HTMLElement;
   update(state: TelemetryState): void;
@@ -34,9 +44,9 @@ export function createTileGrid(peaks: PeakTracker): TileGrid {
     button.type = 'button';
     button.className = 'tile';
     button.innerHTML = `
-      <span class="tile__label" data-role="label"></span>
-      <span class="tile__value"><span data-role="value">––</span><span
-        class="tile__unit" data-role="unit"></span></span>`;
+      <span class="tile__label"><span data-role="label"></span><span
+        class="tile__unit" data-role="unit"></span></span>
+      <span class="tile__value"><span data-role="value">––</span></span>`;
     wireSlot(button, index);
     el.append(button);
     return {
@@ -44,6 +54,9 @@ export function createTileGrid(peaks: PeakTracker): TileGrid {
       label: must<HTMLElement>(button, '[data-role="label"]'),
       value: must<HTMLElement>(button, '[data-role="value"]'),
       unit: must<HTMLElement>(button, '[data-role="unit"]'),
+      /* The whole numeral row — what gets measured and scaled. */
+      box: must<HTMLElement>(button, '.tile__value'),
+      fitted: '',
     };
   });
 
@@ -131,7 +144,8 @@ export function createTileGrid(peaks: PeakTracker): TileGrid {
       const text = fmt(raw, metric.decimals);
       cell.label.textContent = metric.label;
       cell.value.textContent = text;
-      cell.unit.textContent = metric.unit;
+      cell.unit.textContent = unitFor(metric);
+      fit(cell);
       cell.button.classList.toggle('tile--session', metric.resets !== undefined);
       cell.button.setAttribute(
         'aria-label',
@@ -142,6 +156,51 @@ export function createTileGrid(peaks: PeakTracker): TileGrid {
   }
 
   return { el, update: render };
+}
+
+/**
+ * The unit, unless the label already says it.
+ *
+ * It rides on the label line rather than beside the numeral: inside the value
+ * it inherited the watermark's opacity and was all but invisible, and it sat
+ * hard against the cell's right edge where it lost its last glyph. Up here it
+ * is full strength and never clipped — but "PEAK RPM rpm" and "VOLTAGE V" are
+ * noise, so a unit the label already contains is dropped.
+ */
+function unitFor(metric: Metric): string {
+  return metric.label.toLowerCase().includes(metric.unit.toLowerCase()) ? '' : metric.unit;
+}
+
+/**
+ * Shrinks a cell's numeral only as far as it must to avoid being cut off.
+ *
+ * The stylesheet sets a size that fills the cell top to bottom, which runs
+ * wider than the cell once a reading reaches four digits. Rather than crop the
+ * number — losing the least significant digits, which on a peak rpm is the
+ * whole point of it — each cell drops to whatever size still fits. Cells
+ * therefore do not all share one size; each is as large as its own content
+ * allows.
+ *
+ * Measuring forces a reflow, so this runs only when the rendered text or the
+ * cell's width has actually changed, never on every frame.
+ */
+function fit(cell: Cell): void {
+  const key = `${cell.value.textContent}|${cell.box.clientWidth}`;
+  if (key === cell.fitted) return;
+  cell.fitted = key;
+
+  cell.box.style.fontSize = '';
+  const available = cell.box.clientWidth;
+  if (available <= 0) return;
+
+  // A couple of pixels of slack: sizing to exactly the available width leaves
+  // sub-pixel rounding to shave the last glyph.
+  const room = available - 2;
+  const numeral = cell.value.getBoundingClientRect().width;
+  if (numeral <= room) return;
+
+  const ceiling = Number.parseFloat(getComputedStyle(cell.box).fontSize);
+  cell.box.style.fontSize = `${Math.floor(ceiling * Math.max(0.25, room / numeral))}px`;
 }
 
 function loadSlots(): string[] {
