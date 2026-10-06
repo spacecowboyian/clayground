@@ -312,6 +312,10 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
+  /* Derived, not picked: --muted-foreground reads as 163 on the page's 34, and
+     --foreground at this alpha lands on the same 163, so the label carries the
+     same weight against its ground as a cell's does against the page. */
+  opacity: 0.61;
   pointer-events: none;
 }
 

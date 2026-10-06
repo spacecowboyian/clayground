@@ -11,6 +11,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### style(esp32-obd-gauge)
+- **The coolant bar's label is dimmed to the grid labels' weight.** `--muted-foreground` reads as 163 on the page's 34, and `--foreground` at 0.61 alpha lands on 163–188 against the washes — the alpha is derived from that, not picked by eye. It costs contrast: 4.4:1 on the blue, 4.0:1 on the green, 3.8:1 on the amber and 2.4:1 on the red, against 8.5 / 7.5 / 7.2 / 4.4 at full strength and the 6.3:1 a grid label gets on the page. All four are now under the 4.5:1 small text wants, where before only the red was.
+
 ### fix(esp32-obd-gauge)
 - **Every reading is now cut by the edge it sits on, whatever digits it is showing.** The seat anchored the lowest *ink* `cropPx` past the edge, which meant subtracting the round digits' overshoot — so `17` lost 1px where `75` lost 3, and flat readings sat all but flush. That overshoot exists precisely so round glyphs read as deep as flat ones, so the fix is to let it ride: the BASELINE is anchored instead, every reading loses at least 3px, and round digits go to 5px exactly as the face intends. Measured across all eight readings on screen. (All four containers already hid their overflow.)
 
