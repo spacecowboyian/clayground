@@ -11,6 +11,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### style(esp32-obd-gauge)
+- **The coolant reading is dark rather than white.** It now takes `--divider`, the same near-black as the reference lines, so the bar's dark elements read as one family instead of the number sitting on top as a highlight. It costs contrast: against the quarter-strength washes the dark reading measures 1.9:1 on blue, 2.1:1 on green and 2.2:1 on amber — under the 3:1 floor for large text — and clears it only on the full-strength red, at 3.6:1. Measured on the rendered pixel, compositing the wash over the track. Raising `WASH` in `tempbar.ts` is the lever if that ever matters; at the moment the number is large, bold and the only text in the bar.
+
 ### feat(esp32-obd-gauge)
 - **The operating range is now a symmetric band on the coolant scale** — its two edges sit 9% either side of centre instead of 1.7% and 6.4%. The scale became three pieces: the range maps linearly onto the middle of the bar, and the two shoulders share the rest, each still shaped by `COOLANT_SCALE_EXP`. One curve over the whole range could never do this, because there is 85 °C of travel below the range and only 25 °C above, so equal steps in temperature came out wildly unequal in pixels. It also clears the crowding that put a line 7px from the centre; marks now sit at 27 / 41 / 50 / 59 / 69%.
 - **The tach takes the grid's background**, so its unlit part reads as page rather than a third surface.

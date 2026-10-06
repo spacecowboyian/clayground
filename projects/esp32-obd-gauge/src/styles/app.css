@@ -229,6 +229,17 @@ body {
   transition: left 350ms ease;
 }
 
+/*
+ * The reading sits inside the bar, right-aligned, in the same dark as the
+ * reference lines so the bar's dark elements read as one family.
+ *
+ * Contrast is the cost. The quarter-strength washes sit at a luminance of
+ * roughly 0.06-0.08 and a dark number cannot pull far from that: it lands at
+ * about 2.0:1 on the blue, 2.3:1 on the green and 2.4:1 on the amber — under
+ * the 3:1 floor for large text — and only clears it on the full-strength red,
+ * at 3.9:1. Raising WASH in tempbar.ts lifts all three if that becomes a
+ * problem.
+ */
 .temp__readout {
   position: absolute;
   z-index: 1;
@@ -237,7 +248,7 @@ body {
   transform: translateY(-50%);
   display: flex;
   align-items: baseline;
-  color: var(--foreground);
+  color: var(--divider);
   pointer-events: none;
 }
 
