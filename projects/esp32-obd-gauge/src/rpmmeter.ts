@@ -1,6 +1,6 @@
 import { RPM_MAX, RPM_RED, RPM_REDLINE, RPM_YELLOW, SHIFT_RPM } from './vehicle';
 import { solidZones } from './zones';
-import { baselineDrop } from './numerals';
+import { baselineDrop, digitRightBearing } from './numerals';
 import type { TelemetryState } from './telemetry/types';
 
 export interface RpmMeter {
@@ -55,8 +55,8 @@ export function createRpmMeter(): RpmMeter {
   const fill = must<HTMLElement>(el, '[data-role="fill"]');
   const value = must<HTMLElement>(el, '[data-role="value"]');
   const readout = must<HTMLElement>(el, '.rpm__readout');
-  /* The watermark's size is clamped against the viewport, so it only moves on
-     a resize — seat it when that size actually changes, not every frame. */
+  /* Nothing here moves unless the font does, so seat on a size change rather
+     than on every frame. */
   let seatedAt = 0;
 
   const seat = (): void => {
@@ -64,7 +64,12 @@ export function createRpmMeter(): RpmMeter {
     const size = Number.parseFloat(getComputedStyle(value).fontSize);
     if (size === seatedAt || size === 0) return;
     seatedAt = size;
+
     readout.style.bottom = `${baselineDrop(value, CROP_PX).toFixed(2)}px`;
+
+    const overhang = digitRightBearing(value);
+    readout.style.transform =
+      Math.abs(overhang) > 0.1 ? `translateX(${overhang.toFixed(2)}px)` : '';
   };
 
   return {

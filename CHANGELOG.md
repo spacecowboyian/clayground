@@ -11,6 +11,12 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### feat(esp32-obd-gauge)
+- **The tach reading is the grid's numeral too** — 4.5rem, seated at the bottom right of the region with its feet cropped at 3.00px, the same as the coolant reading and the cells. It was a viewport-scaled watermark running off both edges at up to 18rem; all three readings on the dash are now one size, right-aligned down the same edge.
+- **It is painted in the tach's own background colour.** On the unlit part of the region it therefore does not exist, and the fill is what makes it legible: where the colour has risen past it the number is punched out of that colour, so the reading appears exactly as far up as the engine has revved. Verified it also knocks out of the solid red the region takes at the shift point, by holding that overlay on and checking the stacking.
+- **The unlit tach is now a single colour, and it is the grid's.** Every pixel of it samples `34,34,34`, as does the cells' surface — one value across each, not an average. The old watermark laid 25% black over the whole region, which left it a shade darker than the grid whatever the engine was doing; that was the difference that kept showing through.
+- **`--numeral-shade` is gone.** The watermark was its only consumer.
+
 ### fix(esp32-obd-gauge)
 - **The right-hand alignment accounts for the trailing letter-space.** CSS puts a letter-space after every character including the last, and canvas `measureText` does not model it, so the dash's −0.04em tracking was quietly eating 2.88px off the box's right edge — the reading sat 8.5px from the screen edge where 12px was asked for. Now 11.5px, measured on the pixel.
 

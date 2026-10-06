@@ -121,31 +121,40 @@ body {
  * bled right but not left. `bottom` is set by rpmmeter.ts from the font's own
  * metrics.
  */
+/*
+ * The reading is the tach's own background colour, at full strength.
+ *
+ * On the unlit part of the region it therefore does not exist — the tach reads
+ * as one flat sheet of the grid's grey, with nothing tinting it. The fill is
+ * what makes it legible: where the colour has risen past it the number is
+ * punched out of that colour, so the reading appears exactly as far up as the
+ * engine has revved. The old treatment painted black over everything at a
+ * quarter strength, which left the whole region a shade darker than the grid
+ * whatever the engine was doing.
+ *
+ * `bottom` and the horizontal nudge come from the font's metrics in
+ * rpmmeter.ts, the same seating the coolant reading and the cells use.
+ */
 .rpm__readout {
   position: absolute;
   z-index: 1;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
+  right: var(--pad);
   display: flex;
   align-items: flex-end;
-  color: var(--numeral-shade);
-  opacity: 0.25;
+  color: var(--background);
   /* Nothing here is interactive, and it overhangs the region. */
   pointer-events: none;
 }
 
+/* The grid's type, like every other reading on the dash. */
 .rpm__value {
   font-family: var(--font-numeric);
-  /* 48vw puts four digits wider than a phone viewport, so the numeral runs off
-     both sides and `overflow: hidden` on .rpm crops it. */
-  font-size: clamp(5rem, 48vw, 18rem);
-  font-weight: 700;
+  font-size: 4.5rem;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
-  line-height: 0.82;
+  line-height: 1;
   white-space: nowrap;
-  text-align: center;
 }
 
 /*
