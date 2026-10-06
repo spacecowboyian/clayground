@@ -221,6 +221,10 @@ body {
    8.4:1 on the green, 7.9:1 on the amber and 4.8:1 on the full-strength red. */
 .temp__needle {
   position: absolute;
+  /* Above the reading. The numeral is wide enough at this size to reach back
+     over the hot end of the scale, and the needle is the actual datum — it is
+     never the thing that gets covered. */
+  z-index: 2;
   top: 0;
   bottom: 0;
   width: 2px;
@@ -252,12 +256,16 @@ body {
   pointer-events: none;
 }
 
+/* The same type as a grid cell's reading, at the same size — the bar reads as
+   one more cell rather than a caption above the grid. The numeral is taller
+   than the bar it sits in, which is the point: the feet are cropped. */
 .temp__readout [data-role='value'] {
   font-family: var(--font-numeric);
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 4.5rem;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  line-height: 1.1;
+  letter-spacing: -0.04em;
+  line-height: 1;
 }
 
 .temp__unit {

@@ -12,6 +12,10 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(esp32-obd-gauge)
+- **The coolant reading is set in the grid's type, at the grid's size** — 4.5rem, weight 600, the same negative tracking. It is taller than the bar that holds it, which is the point: the feet are cropped exactly as a cell's are, measured at 3.00px against a cell's 3.00px. The bar now reads as one more cell rather than a caption above the grid.
+- **The needle is drawn over the reading.** At this size the numeral reaches back across the hot end of the scale, and the needle is the actual datum — it is never the thing that gets covered.
+
+### feat(esp32-obd-gauge)
 - **The coolant reading is seated like the grid's numerals** — dropped out of the middle of the bar until the feet of its digits are cut by the bottom edge, and pushed to the right edge of the screen. It lands 2.1px past the edge where a cell's numeral lands 1–3px depending on whether its digits are round, so it reads as one family with them.
 - **Right-aligned by its ink, not by its box.** `rightBearing()` mirrors the existing `leftBearing()`: canvas reports where the last stroke actually ends inside the glyph's advance, and the readout is nudged by the difference. The `°F` now stops exactly `--pad` from the screen edge — 12px, the same margin the tile labels keep on the left, measured on the rendered pixel.
 - **The unit is lifted back out of the crop.** It rides the digits' baseline, so the same cut would have taken three of its eleven pixels — a third of a cap height, against a couple of percent on the digits. The numerals break the edge of the bar; the unit sits on it.
