@@ -3,6 +3,19 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; }
 
+/*
+ * The root element is painted as well as body.
+ *
+ * On its own, body's background propagates to the canvas and the whole viewport
+ * comes out dark. That stops the moment the page is embedded in a host that
+ * styles the root itself — the propagation no longer happens, body paints only
+ * its own box, and the strips the safe-area insets leave above and below show
+ * the host's colour instead. Above the tach that reads as a band of some other
+ * grey sitting behind the gauge. `:root` rather than `html` so it carries the
+ * same specificity as the host's own rule.
+ */
+:root { background: var(--background); }
+
 body {
   margin: 0;
   background: var(--background);

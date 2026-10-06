@@ -11,6 +11,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### fix(esp32-obd-gauge)
+- **The root element is painted, not just `body`.** On its own, `body`'s background propagates to the canvas and the whole viewport comes out dark — but that stops the moment the page is embedded in a host that styles the root itself, which is what the published build is. `body` then paints only its own box and the strip the safe-area inset leaves above the gauge shows the host's colour, which reads as a band of some other grey behind the tach. Reproduced under a deliberately white host that pads the root: the strip was the host's colour, and now computes to `#222222`. The tach's own surface and the grid cells were already identical — both sample `rgb(34,34,34)` — so this was the only surface that could differ.
+
 ### feat(esp32-obd-gauge)
 - **The coolant reading is set in the grid's type, at the grid's size** — 4.5rem, weight 600, the same negative tracking. It is taller than the bar that holds it, which is the point: the feet are cropped exactly as a cell's are, measured at 3.00px against a cell's 3.00px. The bar now reads as one more cell rather than a caption above the grid.
 - **The needle is drawn over the reading.** At this size the numeral reaches back across the hot end of the scale, and the needle is the actual datum — it is never the thing that gets covered.
