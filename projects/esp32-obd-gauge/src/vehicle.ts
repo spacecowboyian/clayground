@@ -58,10 +58,10 @@ export const COOLANT_MAX_C = 121; /* 250F */
 export const COOLANT_SCALE_MID_C = (COOLANT_NOMINAL_C + COOLANT_WARM_C) / 2;
 
 /**
- * Shapes the scale either side of that centre. Above 1 the bar crawls near
- * nominal and lunges toward either extreme: steady while the engine sits where
- * it belongs, dramatic the moment it leaves. Set to 1 for a plain linear
- * scale, or below 1 to invert it into a classic expanded-scale gauge that
- * spends most of its width on the operating range.
+ * Shapes the two shoulders either side of the operating range. Above 1 the
+ * needle crawls as it nears the range and lunges toward either extreme: steady
+ * while the engine sits where it belongs, dramatic the moment it leaves. Set to
+ * 1 for plain linear shoulders. The operating range itself is always linear, so
+ * its edges stay equidistant from the centre whatever this is set to.
  */
 export const COOLANT_SCALE_EXP = 1.2;

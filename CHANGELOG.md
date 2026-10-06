@@ -12,6 +12,14 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(esp32-obd-gauge)
+- **The operating range is now a symmetric band on the coolant scale** — its two edges sit 9% either side of centre instead of 1.7% and 6.4%. The scale became three pieces: the range maps linearly onto the middle of the bar, and the two shoulders share the rest, each still shaped by `COOLANT_SCALE_EXP`. One curve over the whole range could never do this, because there is 85 °C of travel below the range and only 25 °C above, so equal steps in temperature came out wildly unequal in pixels. It also clears the crowding that put a line 7px from the centre; marks now sit at 27 / 41 / 50 / 59 / 69%.
+- **The tach takes the grid's background**, so its unlit part reads as page rather than a third surface.
+- **Every cell's numeral is the same size**, sized for the four characters these readings reach. A per-cell fit had a two-digit reading at 88px beside a four-digit one at 75px. If something longer ever appears, all six drop together rather than one being singled out.
+
+### fix(esp32-obd-gauge)
+- **Numerals now actually align with their labels** — two bugs stacked. The seating aligned the numeral's *box* to the label's box, but both carry a left bearing and the two differ (the label's is under a pixel, a numeral's runs 3–6px), so the reading sat visibly indented. Worse, the previous fix measured that bearing through SVG `getBBox`, which returns the advance box rather than the ink — 0 for every digit — so no correction was applied at all. Canvas `actualBoundingBoxLeft` was checked against a pixel scan of the rendered glyphs and agreed on all ten digits, so it is used instead, and the numeral's ink is aligned to the label's ink.
+
+### feat(esp32-obd-gauge)
 - **Tile numerals seat flush left with their labels** — a monospace face gives every digit the same advance but not the same ink, so a numeral set flush still printed a few pixels inside the box and read as misaligned against the label sharing that edge. The left bearing is measured from the font and taken out with a transform, which leaves the width `fit()` measures against untouched. Within 2px across every cell.
 - **The tach reading gets the same treatment as the cells** — seated at the foot of the region with its feet cropped by the edge, and dark at 25% rather than white, so it reads as a shadow under the fill instead of a highlight over it. The rising fill now reveals it. The small `RPM` caption is gone: it sat below the numeral, which is exactly the space the crop consumes.
 - **Numeral seating extracted to `src/numerals.ts`** and taught to read the computed line height instead of assuming it equals the font size — the tach's watermark is set at 0.82, which moves the baseline within its box and had the crop 15px out.

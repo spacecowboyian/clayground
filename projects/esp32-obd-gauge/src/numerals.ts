@@ -62,14 +62,26 @@ export function baselineDrop(el: HTMLElement, cropPx: number): number {
 }
 
 /**
- * How far right of its own origin a digit's ink begins.
+ * How far right of its own origin a string's ink begins.
  *
- * A monospace face gives every digit the same advance but not the same ink, so
- * a numeral set flush to a box still prints a few pixels inside it — enough to
- * read as misaligned against a small label sharing that edge.
+ * A monospace face gives every digit the same advance but not the same ink: at
+ * 72px the bearings here run 3px for a 4 or a 9 up to 6px for a 1. So a numeral
+ * set flush to a box still prints several pixels inside it, enough to read as
+ * misaligned against a small label sharing that edge.
+ *
+ * Canvas is accurate for this — its `actualBoundingBoxLeft` was checked against
+ * a pixel scan of the rendered glyphs and agreed on every digit. SVG `getBBox`
+ * was tried and returns 0, i.e. the advance box rather than the ink.
+ *
+ * Measured on the string actually shown rather than on all ten digits, because
+ * only the leading glyph sets the left edge and a reading's leading digit
+ * changes rarely. The vertical seat is measured across all ten precisely
+ * because its last digit changes constantly.
  */
-export function leftBearing(el: HTMLElement): number {
-  const { metrics } = measure(el);
-  if (!metrics || !Number.isFinite(metrics.actualBoundingBoxLeft)) return 0;
-  return Math.max(0, -metrics.actualBoundingBoxLeft);
+export function leftBearing(el: HTMLElement, text: string): number {
+  if (!probe || text === '') return 0;
+  const style = getComputedStyle(el);
+  probe.font = `${style.fontWeight} ${Number.parseFloat(style.fontSize)}px ${style.fontFamily}`;
+  const { actualBoundingBoxLeft } = probe.measureText(text);
+  return Number.isFinite(actualBoundingBoxLeft) ? -actualBoundingBoxLeft : 0;
 }

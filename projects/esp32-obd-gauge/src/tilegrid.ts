@@ -39,6 +39,7 @@ export function createTileGrid(peaks: PeakTracker): TileGrid {
 
   let slots = loadSlots();
   let lastState: TelemetryState | null = null;
+  let sizedFor = '';
 
   const cells = Array.from({ length: SLOT_COUNT }, (_, index) => {
     const button = document.createElement('button');
@@ -146,7 +147,6 @@ export function createTileGrid(peaks: PeakTracker): TileGrid {
       cell.label.textContent = metric.label;
       cell.value.textContent = text;
       cell.unit.textContent = unitFor(metric);
-      fit(cell);
       cell.button.classList.toggle('tile--session', metric.resets !== undefined);
       cell.button.setAttribute(
         'aria-label',
@@ -154,6 +154,10 @@ export function createTileGrid(peaks: PeakTracker): TileGrid {
           `${metric.resets ? 'Activate to reset. ' : ''}Shift+Enter to change readout.`,
       );
     });
+
+    // Size the whole grid as one, then seat each cell against that size.
+    sizedFor = sizeAll(cells, sizedFor);
+    for (const cell of cells) seat(cell);
   }
 
   return { el, update: render };
@@ -172,54 +176,61 @@ function unitFor(metric: Metric): string {
   return metric.label.toLowerCase().includes(metric.unit.toLowerCase()) ? '' : metric.unit;
 }
 
-/**
- * Shrinks a cell's numeral only as far as it must to avoid being cut off.
- *
- * The stylesheet sets a size that fills the cell top to bottom, which runs
- * wider than the cell once a reading reaches four digits. Rather than crop the
- * number — losing the least significant digits, which on a peak rpm is the
- * whole point of it — each cell drops to whatever size still fits. Cells
- * therefore do not all share one size; each is as large as its own content
- * allows.
- *
- * Measuring forces a reflow, so this runs only when the rendered text or the
- * cell's width has actually changed, never on every frame.
- */
-function fit(cell: Cell): void {
-  const key = `${cell.value.textContent}|${cell.box.clientWidth}`;
-  if (key === cell.fitted) return;
-  cell.fitted = key;
-
-  cell.box.style.fontSize = '';
-  const available = cell.box.clientWidth;
-  if (available <= 0) return;
-  // Sized first, then seated — both offsets depend on the size that is chosen.
-  const crop = (): void => seat(cell);
-
-  // A couple of pixels of slack: sizing to exactly the available width leaves
-  // sub-pixel rounding to shave the last glyph.
-  const room = available - 2;
-  const numeral = cell.value.getBoundingClientRect().width;
-  if (numeral <= room) {
-    crop();
-    return;
-  }
-
-  const ceiling = Number.parseFloat(getComputedStyle(cell.box).fontSize);
-  cell.box.style.fontSize = `${Math.floor(ceiling * Math.max(0.25, room / numeral))}px`;
-  crop();
-}
-
 /** How far past the cell's bottom edge the digits' baseline is pushed. */
 const CROP_PX = 3;
 
 /** Seats a cell's numeral: feet cropped by the bottom edge, ink flush left. */
 function seat(cell: Cell): void {
+  const text = cell.value.textContent ?? '';
+  const key = `${text}|${getComputedStyle(cell.box).fontSize}`;
+  if (key === cell.fitted) return;
+  cell.fitted = key;
+
   cell.box.style.bottom = `${baselineDrop(cell.box, CROP_PX).toFixed(2)}px`;
-  // Shifted by transform rather than by position, so the width that fit()
-  // measures against is untouched.
-  const bearing = leftBearing(cell.box);
-  cell.box.style.transform = bearing > 0 ? `translateX(${-bearing.toFixed(2)}px)` : '';
+
+  // Align the numeral's INK to the label's ink, not its box to the label's box.
+  // Both carry a left bearing and the two differ — the label's is under a pixel,
+  // the numeral's is three to six — so matching boxes leaves the reading
+  // visibly indented. Shifted by transform rather than by position, so the
+  // width the sizing pass measures against is untouched.
+  const nudge =
+    leftBearing(cell.label, cell.label.textContent ?? '') - leftBearing(cell.box, text);
+  cell.box.style.transform = Math.abs(nudge) > 0.1 ? `translateX(${nudge.toFixed(2)}px)` : '';
+}
+
+/**
+ * Gives every cell the same numeral size — the largest that fits them all.
+ *
+ * A per-cell fit let a two-digit reading sit at 88px beside a four-digit one at
+ * 75px, which reads as sloppy across a grid. The stylesheet's size already
+ * suits four characters, so this only engages for something longer, and when it
+ * does it drops every cell together rather than singling one out.
+ *
+ * Keyed on the readings' LENGTHS, not their text: the digits turn over twice a
+ * second and re-measuring on each would reflow the grid constantly, but the
+ * number of digits almost never changes.
+ */
+function sizeAll(cells: Cell[], sizedFor: string): string {
+  const key = `${cells.map((c) => (c.value.textContent ?? '').length).join(',')}|${cells[0]?.box.clientWidth ?? 0}`;
+  if (key === sizedFor) return key;
+
+  let scale = 1;
+  for (const cell of cells) {
+    cell.box.style.fontSize = '';
+    // A couple of pixels of slack: sizing to exactly the available width leaves
+    // sub-pixel rounding to shave the last glyph.
+    const room = cell.box.clientWidth - 2;
+    const needed = cell.value.getBoundingClientRect().width;
+    if (room > 0 && needed > room) scale = Math.min(scale, room / needed);
+  }
+
+  if (scale < 1) {
+    for (const cell of cells) {
+      const ceiling = Number.parseFloat(getComputedStyle(cell.box).fontSize);
+      cell.box.style.fontSize = `${Math.floor(ceiling * Math.max(0.25, scale))}px`;
+    }
+  }
+  return key;
 }
 
 function loadSlots(): string[] {

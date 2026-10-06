@@ -46,7 +46,9 @@ body {
   flex: 1 1 0;
   min-height: 26vh;
   overflow: hidden;
-  background: var(--track);
+  /* Same ground as the grid below, so the unlit part of the tach reads as page
+     rather than as a third surface. */
+  background: var(--background);
   display: grid;
   place-items: center;
 }
@@ -327,10 +329,9 @@ body {
  * works both ways: the numeral clears 3.2:1 on the background as large text,
  * and the white label over it still clears 4.6:1 as small text.
  *
- * The size here is the ceiling, not the final value — a numeral tall enough to
- * fill an 88px cell is about 293px wide at four digits, far past a 171px cell,
- * so tilegrid.ts measures each cell and scales this down only where the digits
- * would otherwise be cut off.
+ * Sized for four characters, which is as long as any of these readings gets,
+ * so every cell carries the same size. tilegrid.ts drops them all together only
+ * if something longer ever turns up.
  */
 .tile__value {
   position: absolute;
@@ -347,7 +348,7 @@ body {
   gap: 0.1rem;
   overflow: hidden;
   font-family: var(--font-numeric);
-  font-size: 5.5rem;
+  font-size: 4.5rem;
   line-height: 1;
   font-weight: 600;
   font-variant-numeric: tabular-nums;

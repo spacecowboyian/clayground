@@ -125,22 +125,41 @@ export function tempBand(coolantC: number): TempBand {
 }
 
 /**
- * Temperature to position along the bar, as a percentage.
+ * Half the width the operating range occupies on screen, as a fraction of the
+ * bar. The range is mapped linearly across it, which is what makes its two
+ * edges equidistant from the centre.
+ */
+const NOMINAL_HALF = 0.09;
+
+/**
+ * Temperature to position along the bar, as a percentage. Three pieces.
  *
- * Not linear. The nominal centre is pinned to 50% — which is what puts its
- * marker line in the middle of the screen — and each half is shaped by
- * COOLANT_SCALE_EXP, which above 1 makes the needle crawl near nominal and
- * lunge toward either end. The two halves cover different spans (about 90 °C
- * below the centre, 31 °C above), so they are mapped separately; a single curve
- * across the whole range would not land the centre where it belongs.
+ * The operating range (nominal low to nominal high) is mapped linearly onto the
+ * middle `2 × NOMINAL_HALF` of the bar. Its midpoint therefore lands dead
+ * centre and its two edges sit the same distance either side — which a single
+ * curve over the whole range could not do, because there is 85 °C of travel
+ * below the range and only 25 °C above it, so equal steps in temperature came
+ * out wildly unequal in pixels.
+ *
+ * Everything below and above shares the rest of the bar, each shaped by
+ * COOLANT_SCALE_EXP so the needle crawls as it nears the operating range and
+ * sweeps toward either extreme.
  */
 function pct(c: number): number {
-  if (c <= COOLANT_SCALE_MID_C) {
-    const x = clamp((COOLANT_SCALE_MID_C - c) / (COOLANT_SCALE_MID_C - COOLANT_MIN_C), 0, 1);
-    return (0.5 - 0.5 * Math.pow(x, COOLANT_SCALE_EXP)) * 100;
+  const shoulder = 0.5 - NOMINAL_HALF;
+
+  if (c <= COOLANT_NOMINAL_C) {
+    const x = clamp((COOLANT_NOMINAL_C - c) / (COOLANT_NOMINAL_C - COOLANT_MIN_C), 0, 1);
+    return shoulder * (1 - Math.pow(x, COOLANT_SCALE_EXP)) * 100;
   }
-  const x = clamp((c - COOLANT_SCALE_MID_C) / (COOLANT_MAX_C - COOLANT_SCALE_MID_C), 0, 1);
-  return (0.5 + 0.5 * Math.pow(x, COOLANT_SCALE_EXP)) * 100;
+
+  if (c <= COOLANT_WARM_C) {
+    const x = (c - COOLANT_NOMINAL_C) / (COOLANT_WARM_C - COOLANT_NOMINAL_C);
+    return (shoulder + x * 2 * NOMINAL_HALF) * 100;
+  }
+
+  const x = clamp((c - COOLANT_WARM_C) / (COOLANT_MAX_C - COOLANT_WARM_C), 0, 1);
+  return (0.5 + NOMINAL_HALF + shoulder * Math.pow(x, COOLANT_SCALE_EXP)) * 100;
 }
 
 function clamp(v: number, lo: number, hi: number): number {
