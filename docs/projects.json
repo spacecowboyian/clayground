@@ -1,9 +1,31 @@
 [
   {
+    "id": "esp32-obd-gauge",
+    "title": "ESP32 OBD Gauge",
+    "description": "The web interface for a DIY ESP32 OBD-II dongle that reads engine coolant temperature over CAN and serves this page from its own Wi-Fi access point \u2014 no app, no internet. Coolant temp is the primary reading on a 270-degree SVG arc with cold/normal/hot/critical bands, alongside engine speed, intake air temperature and battery voltage. Vanilla TypeScript inlined to a single ~17 kB file so it fits the dongle's 4 MB flash. The gallery build runs a thermal-model simulator: load-driven heat in, thermostat and radiator-fan cycling, warm-idle decay and traffic heat creep all fall out of the model. Append ?sim=overheat, hot, stale or offline to drive the other states.",
+    "tags": [
+      "esp32",
+      "obd-ii",
+      "car",
+      "gauge",
+      "vanilla-ts",
+      "websocket"
+    ],
+    "url": "esp32-obd-gauge/main/index.html",
+    "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/esp32-obd-gauge",
+    "date": "2026-10-06"
+  },
+  {
     "id": "fit-gang-bingo",
     "title": "#FitGang Bingo",
-    "description": "A back-seat road-trip bingo game for spotting Honda Fits. Four randomized 4×4 cards on a single printable letter-size sheet. Honda shipped six near-identical blues, so they collapse into Light Blue and Dark Blue — Blue Raspberry survives on its own because it's actually a teal. Plus GD3/GE8/GK5 generation squares, a Free Space, and a Hot Rod wildcard. Spot it. Yell it. Mark it.",
-    "tags": ["game", "printable", "honda-fit", "react", "print-css"],
+    "description": "A back-seat road-trip bingo game for spotting Honda Fits. Four randomized 4\u00d74 cards on a single printable letter-size sheet. Honda shipped six near-identical blues, so they collapse into Light Blue and Dark Blue \u2014 Blue Raspberry survives on its own because it's actually a teal. Plus GD3/GE8/GK5 generation squares, a Free Space, and a Hot Rod wildcard. Spot it. Yell it. Mark it.",
+    "tags": [
+      "game",
+      "printable",
+      "honda-fit",
+      "react",
+      "print-css"
+    ],
     "url": "fit-gang-bingo/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/fit-gang-bingo",
     "date": "2026-07-15"
@@ -11,8 +33,13 @@
   {
     "id": "cones",
     "title": "Cones",
-    "description": "A second-generation clayground design system — React Aria Components + Tailwind CSS 4. Interactive Storybook with a full suite of UI primitives including forms, navigation, data display, overlays, and page-level patterns.",
-    "tags": ["design-system", "storybook", "react-aria", "tailwind"],
+    "description": "A second-generation clayground design system \u2014 React Aria Components + Tailwind CSS 4. Interactive Storybook with a full suite of UI primitives including forms, navigation, data display, overlays, and page-level patterns.",
+    "tags": [
+      "design-system",
+      "storybook",
+      "react-aria",
+      "tailwind"
+    ],
     "url": "cones/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/cones",
     "date": "2026-07-14"
@@ -20,8 +47,14 @@
   {
     "id": "5280-design-system",
     "title": "5280 Design System",
-    "description": "The 5280 Creative component library — a warm, human, faith-based branding system, presented as an interactive Storybook. Deep pine + jade anchored, with a lively red/periwinkle/gold accent set. Foundations (color, type, spacing) plus React components with live stories: pill buttons, navigation, forms with newsletter signup, cards, count-up stats, logo marquee, testimonials, accordions, tabs, modals, and toasts. Imported from Claude Design.",
-    "tags": ["design-system", "storybook", "react", "branding", "claude-design"],
+    "description": "The 5280 Creative component library \u2014 a warm, human, faith-based branding system, presented as an interactive Storybook. Deep pine + jade anchored, with a lively red/periwinkle/gold accent set. Foundations (color, type, spacing) plus React components with live stories: pill buttons, navigation, forms with newsletter signup, cards, count-up stats, logo marquee, testimonials, accordions, tabs, modals, and toasts. Imported from Claude Design.",
+    "tags": [
+      "design-system",
+      "storybook",
+      "react",
+      "branding",
+      "claude-design"
+    ],
     "url": "5280-design-system/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/5280-design-system",
     "date": "2026-06-22"
@@ -30,16 +63,25 @@
     "id": "oio-uploader",
     "title": "OIO Uploader",
     "description": "A simple file uploader.",
-    "tags": ["upload", "static"],
+    "tags": [
+      "upload",
+      "static"
+    ],
     "url": "oio-uploader/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/oio-uploader",
     "date": "2026-03-20"
   },
   {
     "id": "print-queue",
-    "title": "Tiny Prints — Print Queue",
+    "title": "Tiny Prints \u2014 Print Queue",
     "description": "A 3-D print work-order tracker for Tiny Prints. Password-protected management dashboard with full CRUD, shareable public per-order links (no login needed), inline status updates, paid toggles, and Supabase or localStorage backend.",
-    "tags": ["3d-printing", "work-orders", "supabase", "react", "tailwind"],
+    "tags": [
+      "3d-printing",
+      "work-orders",
+      "supabase",
+      "react",
+      "tailwind"
+    ],
     "url": "print-queue/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/print-queue",
     "date": "2026-03-11"
@@ -48,7 +90,13 @@
     "id": "kc-live-timing",
     "title": "KC Live Timing",
     "description": "A mobile-friendly live timing viewer for KCRSCCA autocross and rallycross events. Drop in the axware results_live.htm file to instantly parse all class results, stream the 10 latest runs, sort drivers by fastest time, and build a personal competition watchlist with sticky 'my car' positioning.",
-    "tags": ["motorsport", "timing", "react", "mobile", "scca"],
+    "tags": [
+      "motorsport",
+      "timing",
+      "react",
+      "mobile",
+      "scca"
+    ],
     "url": "kc-live-timing/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/kc-live-timing",
     "date": "2026-02-23"
@@ -56,8 +104,13 @@
   {
     "id": "gearhead",
     "title": "Gearhead",
-    "description": "The clayground design system — React Aria Components + Tailwind CSS. Interactive Storybook with all shared UI primitives.",
-    "tags": ["design-system", "storybook", "react-aria", "tailwind"],
+    "description": "The clayground design system \u2014 React Aria Components + Tailwind CSS. Interactive Storybook with all shared UI primitives.",
+    "tags": [
+      "design-system",
+      "storybook",
+      "react-aria",
+      "tailwind"
+    ],
     "url": "gearhead/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/gearhead",
     "date": "2026-02-22"
@@ -65,8 +118,13 @@
   {
     "id": "somethings-happening",
     "title": "Something's Happening",
-    "description": "A real-time event timeline experience. Relive the Super Bowl LX 2026 streaker incident through fan footage, tweets, and media moments — playable like a social Shorts feed.",
-    "tags": ["timeline", "react-aria", "sports", "media"],
+    "description": "A real-time event timeline experience. Relive the Super Bowl LX 2026 streaker incident through fan footage, tweets, and media moments \u2014 playable like a social Shorts feed.",
+    "tags": [
+      "timeline",
+      "react-aria",
+      "sports",
+      "media"
+    ],
     "url": "somethings-happening/main/index.html",
     "source": "https://github.com/spacecowboyian/clayground/tree/main/projects/somethings-happening",
     "date": "2026-02-22"

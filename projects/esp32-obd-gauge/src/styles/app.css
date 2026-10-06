@@ -1,0 +1,268 @@
+@import './theme.css';
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-ui);
+  line-height: 1.4;
+  /* Fills the notch area black instead of leaving a white band in Safari. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-height: 100%;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: var(--gap);
+}
+
+/* ── Status bar ─────────────────────────────────────────────────────────── */
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  flex-wrap: wrap;
+}
+
+.bar__title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.link__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--band);
+  flex: none;
+}
+
+/* Only a healthy link pulses. Stale and dead stay still so motion always
+   means "data is arriving", never just "the page is running". */
+:root[data-link='live'] .link__dot { animation: pulse 2s ease-in-out infinite; }
+
+@keyframes pulse {
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-link='live'] .link__dot { animation: none; }
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+.readouts {
+  display: grid;
+  gap: var(--gap);
+  flex: 1;
+  align-content: start;
+}
+
+@media (min-width: 46rem) {
+  .readouts {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    align-items: center;
+    align-content: center;
+  }
+}
+
+/* ── Primary gauge ──────────────────────────────────────────────────────── */
+.gauge {
+  position: relative;
+  width: 100%;
+  /* Big enough to read at arm's length on a dash, capped so a desktop
+     browser does not render a 600px dial. */
+  max-width: 24rem;
+  margin-inline: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+}
+
+.gauge svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.gauge__track { stroke: var(--track); }
+.gauge__tick { stroke: var(--tick); }
+.gauge__limit { stroke: var(--band-warn); opacity: 0.8; }
+
+.gauge__value {
+  stroke: var(--band);
+  transition: stroke 400ms ease, stroke-dashoffset 450ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gauge__value { transition: none; }
+}
+
+.gauge__scale {
+  fill: var(--muted-foreground);
+  font-family: var(--font-numeric);
+  font-size: 7px;
+}
+
+.gauge__number {
+  fill: var(--foreground);
+  font-family: var(--font-numeric);
+  font-size: 46px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Dim the "--" placeholder so a missing reading looks deliberately blank
+   rather than like a failed glyph. */
+.gauge__number--empty { fill: var(--muted); }
+
+.gauge__unit {
+  fill: var(--muted-foreground);
+  font-family: var(--font-ui);
+  font-size: 11px;
+}
+
+.gauge__band {
+  fill: var(--band);
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gauge__caption {
+  fill: var(--muted-foreground);
+  font-family: var(--font-ui);
+  font-size: 8px;
+}
+
+/* ── Secondary tiles ────────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+@media (min-width: 46rem) {
+  .tiles {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+  }
+}
+
+.tile {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.625rem 0.75rem;
+  min-width: 0;
+}
+
+.tile__label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tile__value {
+  margin: 0.15rem 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  font-family: var(--font-numeric);
+  font-size: clamp(1.125rem, 6vw, 1.75rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tile__unit {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--muted-foreground);
+}
+
+.tile--alert .tile__value { color: var(--band-warn); }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.foot {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gap);
+  flex-wrap: wrap;
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+}
+
+.foot code {
+  font-family: var(--font-numeric);
+  background: var(--muted);
+  border-radius: 4px;
+  padding: 0.05rem 0.3rem;
+}
+
+.notice {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted-foreground);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--muted-foreground);
+  padding: 0.625rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.notice--alert {
+  border-left-color: var(--band-warn);
+  background: var(--band-dim);
+  color: var(--foreground);
+}
+
+.notice[hidden] { display: none; }

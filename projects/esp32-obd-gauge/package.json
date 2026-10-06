@@ -1,0 +1,17 @@
+{
+  "name": "esp32-obd-gauge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:fw": "npm run build && mkdir -p firmware/data && cp ../../docs/esp32-obd-gauge/main/index.html firmware/data/index.html && ls -l firmware/data/index.html",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0",
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}
