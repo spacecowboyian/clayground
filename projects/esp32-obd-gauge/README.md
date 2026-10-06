@@ -21,9 +21,11 @@ Portrait, three bands, top to bottom:
    channel-by-channel midpoint of cold and nominal, so the first three read as
    one progression. Every zone but hot paints at half strength, so the band
    stays quiet until the engine is actually in trouble and one zone lights at
-   full saturation. Nothing is captioned — no zone names, no "coolant" label;
-   colour and boundary ticks say where you are, the reading sits centred under
-   the bar, and the band is still spoken for screen readers.
+   full saturation. Nothing is captioned — colour and boundary ticks say where
+   you are, and the band is spoken for screen readers. The temperature sits
+   inside the bar, right-aligned into the hot zone, always white: that zone
+   only ever shows the unlit track (12.6:1) or the hot fill at full strength
+   (4.8:1), never the green where white would drop to 2.5:1.
 
    The scale bottoms out at **32 °F, not at the operating range**, so the bar is
    off its stop and climbing from the moment the engine fires.
@@ -40,8 +42,10 @@ Portrait, three bands, top to bottom:
    %/°F cold, ~1.03 %/°F hot): steady while the engine sits where it belongs,
    dramatic the moment it leaves. Set the exponent to 1 for a linear scale, or
    below 1 to invert it into a classic expanded-scale gauge.
-3. **Six configurable tiles** — **press and hold any tile** to choose what it
-   shows from 13 readouts. The choice persists on that phone.
+3. **Six configurable tiles** — a full-bleed grid ruled by 1px lines, not a row
+   of cards. **Press and hold any tile** to choose what it shows from 13
+   readouts; the choice persists on that phone. A rule inside a cell's bottom
+   edge marks it as a session value you can tap to reset.
 
 ## Why it looks like that
 

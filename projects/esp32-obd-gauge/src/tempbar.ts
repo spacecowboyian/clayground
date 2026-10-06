@@ -61,9 +61,7 @@ export function createTempBar(): TempBar {
     <div class="temp__track">
       <div class="temp__fill" data-role="fill" style="background:${fillBackground}"></div>
       ${BOUNDARIES.map((c) => `<span class="temp__tick" style="left:${pct(c).toFixed(2)}%"></span>`).join('')}
-    </div>
-    <div class="temp__readout">
-      <span class="temp__value"><span data-role="value">––</span><span
+      <span class="temp__readout"><span data-role="value">––</span><span
         class="temp__unit">°F</span></span>
     </div>`;
 

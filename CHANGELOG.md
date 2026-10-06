@@ -12,6 +12,10 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(esp32-obd-gauge)
+- **Coolant reading moved into the bar, right-aligned in the hot zone, always white** — that zone is the one stretch where a fixed white is always legible: it only ever shows the unlit track (12.6:1) or the hot fill at full strength (4.8:1), and the green nominal zone, where white drops to 2.5:1, is never under it. The colour no longer follows the band. The track grew to 64px to carry it.
+- **Tiles are a ruled grid, not a row of cards** — full bleed, square, no borders or fills of their own. The 1px gaps let the container's background through as the rules, so every line is exactly one pixel and no two cells double up a border. Rows are 88px with larger type, and the tach keeps the remaining space on a `flex-basis: 0` so the shift light never ends up smaller than the data below it. Tap-to-reset is now marked by a rule inside the cell's bottom edge, since there is no longer a border to dash.
+
+### feat(esp32-obd-gauge)
 - **Coolant caption dropped, reading centred under the bar** — the band already carries `aria-label="Engine coolant temperature"` on its `role="meter"`, so the printed "COOLANT" was redundant for sighted and assisted readers alike. The temperature now sits centred on its own.
 
 ### feat(esp32-obd-gauge)

@@ -103,8 +103,8 @@ body {
 /* ── Tach: full bleed, fills bottom to top ──────────────────────────────── */
 .rpm {
   position: relative;
-  flex: 1 1 auto;
-  min-height: 32vh;
+  flex: 1 1 0;
+  min-height: 26vh;
   overflow: hidden;
   background: var(--track);
   display: grid;
@@ -256,7 +256,7 @@ body {
 
 .temp__track {
   position: relative;
-  height: 3rem;
+  height: 4rem;
   background: var(--track);
   overflow: hidden;
 }
@@ -281,29 +281,36 @@ body {
   opacity: 0.85;
 }
 
-/* The band is labelled by its role="meter" aria-label, so the reading needs no
-   printed caption — it sits centred under the bar on its own. */
+/*
+ * The reading sits inside the bar, right-aligned into the hot zone — which is
+ * the one stretch where plain white is always legible. That zone only ever
+ * shows the unlit track (12.6:1) or the hot fill at full strength (4.8:1); the
+ * green nominal zone, where white would drop to 2.5:1, is never under it.
+ * So the colour is fixed rather than following the band.
+ */
 .temp__readout {
+  position: absolute;
+  right: var(--pad);
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: baseline;
-  justify-content: center;
-  padding: 0.1rem var(--pad) 0;
+  color: var(--foreground);
+  pointer-events: none;
 }
 
-.temp__value {
+.temp__readout [data-role='value'] {
   font-family: var(--font-numeric);
   font-size: 1.75rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
-  color: var(--band);
 }
 
 .temp__unit {
   font-family: var(--font-ui);
   font-size: 0.7rem;
   font-weight: 400;
-  color: var(--muted-foreground);
   margin-left: 0.15rem;
 }
 
@@ -312,24 +319,34 @@ body {
 }
 
 /* ── Configurable tiles ─────────────────────────────────────────────────── */
+/*
+ * A ruled grid, not a row of cards. The 1px gaps let the container's background
+ * through as the rules, so every line is exactly one pixel and no two cells
+ * ever double up a border.
+ */
 .tiles {
   margin-top: var(--gap);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem;
-  padding: 0 var(--pad);
-  flex: none;
+  grid-auto-rows: 5.5rem;
+  gap: 1px;
+  background: var(--border);
+  border-block: 1px solid var(--border);
+  flex: 0 0 auto;
 }
 
 .tile {
   appearance: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   text-align: left;
   font: inherit;
   color: inherit;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.5rem 0.7rem 0.6rem;
+  background: var(--background);
+  border: 0;
+  border-radius: 0;
+  padding: 0.5rem var(--pad);
   min-width: 0;
   /* Press-and-hold must not raise iOS text selection or the share callout. */
   user-select: none;
@@ -337,15 +354,16 @@ body {
   -webkit-touch-callout: none;
 }
 
-.tile:focus-visible { outline: 2px solid var(--band-cold); outline-offset: 2px; }
+.tile:focus-visible { outline: 2px solid var(--band-cold); outline-offset: -2px; }
 .tile:active { background: var(--muted); }
 
-/* Session values are tap-to-reset; the dashed rule is the only hint of that. */
-.tile--session { border-bottom-style: dashed; }
+/* Session values are tap-to-reset. With the cards gone there is no border to
+   dash, so the hint is a rule inside the cell's own bottom edge. */
+.tile--session { box-shadow: inset 0 -2px 0 var(--muted); }
 
 .tile__label {
   display: block;
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -360,7 +378,7 @@ body {
   align-items: baseline;
   gap: 0.15rem;
   font-family: var(--font-numeric);
-  font-size: clamp(1.25rem, 7vw, 1.75rem);
+  font-size: clamp(1.5rem, 8vw, 2.125rem);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
