@@ -41,14 +41,17 @@ export interface TelemetrySource {
 }
 
 /**
- * Coolant bands, in the order they escalate — the four colours the bar can
- * take. "Overheating" is not a fifth: it is inside hot, and is called out in
+ * Coolant bands, in the order they escalate. Cold and warming share the blue
+ * wash — the dash lamp going out changes what the driver may do, not what the
+ * coolant is doing — but they are named apart so a screen reader can tell them
+ * apart. "Overheating" is not a sixth: it sits inside hot and is called out in
  * the spoken description instead.
  */
-export type TempBand = 'cold' | 'normal' | 'warm' | 'hot';
+export type TempBand = 'cold' | 'warming' | 'normal' | 'warm' | 'hot';
 
 export const BAND_LABEL: Record<TempBand, string> = {
   cold: 'Cold',
+  warming: 'Warming',
   normal: 'Nominal',
   warm: 'Warm',
   hot: 'Hot',

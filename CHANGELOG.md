@@ -12,6 +12,10 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(esp32-obd-gauge)
+- **Five reference lines on the coolant bar, and the colour switches moved onto the two new inner ones** — cold (122 °F, lamp out, bar stays blue), nominal low (185 °F, blue to green), nominal mid (195 °F, screen centre, reference only), nominal high (205 °F, green to amber, necessarily past the middle) and hot (219 °F, amber to red). Verified on a live warmup: the switches land on exactly those temperatures.
+- **Cold and warming share the blue wash** — the dash lamp going out changes what the driver may do, not what the coolant is doing, so it earns a line but not a colour. The bands are named apart so `aria-valuetext` still distinguishes them.
+
+### feat(esp32-obd-gauge)
 - **Tile numerals drop until the cell crops their feet** — the baseline is pushed just past the bottom edge so a few pixels of the digits are cut off. The offset is derived rather than fixed: each cell sizes its own numeral and iOS resolves a different monospace face than a desktop browser, so it comes from the font actually in use — with `line-height: 1` the baseline sits `(size − ascent + descent) / 2` above its line box. Round digits also overshoot the baseline for optical correction (3, 5, 0 and 8 do; 2 and 4 do not), worth 2px at this size, so that is measured across all ten digits rather than the digits currently on screen — otherwise the numeral would hop a couple of pixels every time a round digit rolled into the reading.
 
 ### feat(esp32-obd-gauge)

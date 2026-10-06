@@ -4,8 +4,10 @@ import {
   COOLANT_HOT_C,
   COOLANT_MAX_C,
   COOLANT_MIN_C,
+  COOLANT_NOMINAL_C,
   COOLANT_SCALE_EXP,
   COOLANT_SCALE_MID_C,
+  COOLANT_WARM_C,
 } from './vehicle';
 import { BAND_LABEL, type TelemetryState, type TempBand } from './telemetry/types';
 import { toF } from './units';
@@ -24,24 +26,42 @@ const WASH = 0.25;
 
 /**
  * The whole bar takes ONE colour, picked by where the reading sits — not a row
- * of zones. The marker lines below say where the thresholds are; the colour
- * says which side of them you are on.
+ * of zones. The marker lines say where the thresholds are; the colour says
+ * which side of them you are on.
  *
- * Note the colour boundaries are not the same as the marker lines. The nominal
- * line is a reference point inside the green, not a change of state: 195F is
- * the middle of the operating range, and turning the bar amber above it would
- * call a perfectly healthy 200F a warning. Amber starts at the high crossover
- * and red at the critical temperature, which carries no line of its own.
+ * Two of the five lines are reference points rather than colour changes:
+ *
+ *   COLD      the dash lamp goes out — warm enough to drive, but the bar stays
+ *             blue, because warm enough to drive is not yet up to temperature
+ *   NOMINAL   the low edge of the operating range; blue gives way to green here
+ *   MID       the middle of the operating range, pinned to the middle of the
+ *             screen. A reference only: turning amber at the centre of the
+ *             range would call a healthy 195F a warning
+ *   WARM      the high edge of the operating range; green gives way to amber,
+ *             which is why it cannot go amber until the needle is past the
+ *             middle
+ *   HOT       amber gives way to red
+ *
+ * Cold and warming share the blue: the lamp going out changes what the driver
+ * may do, not what the coolant is doing, so it is worth saying but not worth a
+ * colour. The band names still differ, so a screen reader hears the difference.
  */
 const BANDS: { upTo: number; band: TempBand; color: string }[] = [
   { upTo: COOLANT_COLD_C, band: 'cold', color: `rgb(var(--temp-cold-rgb) / ${WASH})` },
-  { upTo: COOLANT_HOT_C, band: 'normal', color: `rgb(var(--temp-nominal-rgb) / ${WASH})` },
-  { upTo: COOLANT_CRITICAL_C, band: 'warm', color: `rgb(var(--temp-warm-rgb) / ${WASH})` },
+  { upTo: COOLANT_NOMINAL_C, band: 'warming', color: `rgb(var(--temp-cold-rgb) / ${WASH})` },
+  { upTo: COOLANT_WARM_C, band: 'normal', color: `rgb(var(--temp-nominal-rgb) / ${WASH})` },
+  { upTo: COOLANT_HOT_C, band: 'warm', color: `rgb(var(--temp-warm-rgb) / ${WASH})` },
   { upTo: Infinity, band: 'hot', color: 'rgb(var(--temp-hot-rgb) / 1)' },
 ];
 
-/** The three reference lines: cold threshold, nominal, high crossover. */
-const MARKS = [COOLANT_COLD_C, COOLANT_SCALE_MID_C, COOLANT_HOT_C];
+/** Cold threshold, nominal low edge, nominal centre, nominal high edge, hot. */
+const MARKS = [
+  COOLANT_COLD_C,
+  COOLANT_NOMINAL_C,
+  COOLANT_SCALE_MID_C,
+  COOLANT_WARM_C,
+  COOLANT_HOT_C,
+];
 
 /** Coolant band: one colour wash, three reference lines, a travelling needle. */
 export function createTempBar(): TempBar {

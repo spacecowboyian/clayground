@@ -19,18 +19,25 @@ Portrait, three bands, top to bottom:
    a 2px seam so the two read as one instrument. The whole bar takes **one**
    colour for where the reading sits: blue cold, green nominal, amber warm, red
    hot. Everything but red washes at a quarter strength, so the band is only
-   loud when the engine is. Three dark reference lines mark the cold threshold,
-   the nominal temperature (pinned to the middle of the screen) and the high
-   crossover, and a 2px white needle travels to the current reading. The
-   temperature sits inside the bar, right-aligned, always white — it clears
-   9.4:1 on the blue, 8.4:1 on the green, 7.9:1 on the amber and 4.8:1 on the
-   full-strength red.
+   loud when the engine is. A 2px white needle travels to the current reading,
+   and the temperature sits inside the bar, right-aligned, always white — it
+   clears 9.4:1 on the blue, 8.4:1 on the green, 7.9:1 on the amber and 4.8:1 on
+   the full-strength red.
 
-   The colour boundaries are deliberately **not** the marker lines. The nominal
-   line is a reference point inside the green, not a change of state: 195 °F is
-   the middle of the operating range, and turning the bar amber above it would
-   call a healthy 200 °F a warning. Amber starts at the high crossover and red
-   at the critical temperature, which carries no line of its own.
+   Five dark reference lines. Two of them are reference points rather than
+   colour changes:
+
+   | Line | °F | What it does |
+   |------|----|--------------|
+   | Cold | 122 | Dash lamp goes out — warm enough to drive. Bar stays blue |
+   | Nominal low | 185 | Blue gives way to green |
+   | Nominal mid | 195 | Middle of the screen. Reference only |
+   | Nominal high | 205 | Green gives way to amber — past the middle |
+   | Hot | 219 | Amber gives way to red |
+
+   Cold and warming share the blue: the lamp going out changes what the driver
+   may do, not what the coolant is doing. The bands are still named apart, so a
+   screen reader hears the difference.
 
 3. **Six configurable tiles** — a full-bleed grid ruled by 1px lines, butted
    straight onto the coolant band. Each cell's reading runs as a large numeral
