@@ -200,35 +200,40 @@ body {
   overflow: hidden;
 }
 
-/* Four flat zones with hard edges, built in tempbar.ts from the thresholds in
-   vehicle.ts so the bands line up with the tick marks exactly. */
-.temp__fill {
+/* The whole bar takes one colour, set per frame from the reading's band. */
+.temp__wash {
   position: absolute;
   inset: 0;
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 350ms ease;
+  transition: background 350ms ease;
 }
 
-/* Zone boundaries, in the seam colour so they read as the same joinery. */
-.temp__tick {
+/* Cold threshold, nominal, high crossover — reference lines, not boundaries
+   between colours. Drawn in the seam colour so the joinery reads as one
+   system with the divider above the band. */
+.temp__mark {
   position: absolute;
   top: 0;
   bottom: 0;
   width: 2px;
   margin-left: -1px;
   background: var(--divider);
-  opacity: 0.85;
 }
 
-/*
- * The reading sits inside the bar, right-aligned into the hot zone — which is
- * the one stretch where plain white is always legible. That zone only ever
- * shows the unlit track (12.6:1) or the hot fill at full strength (4.8:1); the
- * green nominal zone, where white would drop to 2.5:1, is never under it.
- * So the colour is fixed rather than following the band.
- */
+/* The reading's own position. White against every wash: 9.4:1 on the blue,
+   8.4:1 on the green, 7.9:1 on the amber and 4.8:1 on the full-strength red. */
+.temp__needle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--foreground);
+  transition: left 350ms ease;
+}
+
 .temp__readout {
   position: absolute;
+  z-index: 1;
   right: var(--pad);
   top: 50%;
   transform: translateY(-50%);
@@ -254,7 +259,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .temp__fill { transition: none; }
+  .temp__wash,
+  .temp__needle { transition: none; }
 }
 
 /* ── Configurable tiles ─────────────────────────────────────────────────── */

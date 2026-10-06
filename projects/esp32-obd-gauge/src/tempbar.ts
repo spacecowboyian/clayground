@@ -4,14 +4,11 @@ import {
   COOLANT_HOT_C,
   COOLANT_MAX_C,
   COOLANT_MIN_C,
-  COOLANT_NOMINAL_C,
   COOLANT_SCALE_EXP,
   COOLANT_SCALE_MID_C,
-  COOLANT_WARM_C,
 } from './vehicle';
 import { BAND_LABEL, type TelemetryState, type TempBand } from './telemetry/types';
 import { toF } from './units';
-import { solidZones } from './zones';
 
 export interface TempBar {
   readonly el: HTMLElement;
@@ -19,34 +16,34 @@ export interface TempBar {
 }
 
 /**
- * Every zone but hot is held at half strength, so the band reads as quiet
- * information until the engine is actually in trouble and one zone lights up
- * at full saturation. Tokens are channel triplets rather than hex precisely so
- * the alpha can be varied here.
+ * Everything but red washes at a quarter strength, so the bar is only ever
+ * loud when the engine is. Tokens are channel triplets rather than hex so the
+ * alpha can be varied here.
  */
-const DIM = 0.5;
-const zone = (token: string, alpha: number): string => `rgb(var(${token}) / ${alpha})`;
+const WASH = 0.25;
 
 /**
- * The five zones, in order. Single source of truth: fill colours and boundary
- * ticks are both derived from this, so they cannot drift apart.
+ * The whole bar takes ONE colour, picked by where the reading sits — not a row
+ * of zones. The marker lines below say where the thresholds are; the colour
+ * says which side of them you are on.
  *
- * The zones carry no printed names. The colours and the boundary ticks say
- * where the reading sits, and the band name is still spoken through
- * aria-valuetext for anyone who needs it said.
+ * Note the colour boundaries are not the same as the marker lines. The nominal
+ * line is a reference point inside the green, not a change of state: 195F is
+ * the middle of the operating range, and turning the bar amber above it would
+ * call a perfectly healthy 200F a warning. Amber starts at the high crossover
+ * and red at the critical temperature, which carries no line of its own.
  */
-const ZONES = [
-  { to: COOLANT_COLD_C, color: zone('--temp-cold-rgb', DIM) },
-  { to: COOLANT_NOMINAL_C, color: zone('--temp-cool-rgb', DIM) },
-  { to: COOLANT_WARM_C, color: zone('--temp-nominal-rgb', DIM) },
-  { to: COOLANT_HOT_C, color: zone('--temp-warm-rgb', DIM) },
-  { to: COOLANT_MAX_C, color: zone('--temp-hot-rgb', 1) },
+const BANDS: { upTo: number; band: TempBand; color: string }[] = [
+  { upTo: COOLANT_COLD_C, band: 'cold', color: `rgb(var(--temp-cold-rgb) / ${WASH})` },
+  { upTo: COOLANT_HOT_C, band: 'normal', color: `rgb(var(--temp-nominal-rgb) / ${WASH})` },
+  { upTo: COOLANT_CRITICAL_C, band: 'warm', color: `rgb(var(--temp-warm-rgb) / ${WASH})` },
+  { upTo: Infinity, band: 'hot', color: 'rgb(var(--temp-hot-rgb) / 1)' },
 ];
 
-/** Boundary temperatures — every zone edge except the far end of the bar. */
-const BOUNDARIES = ZONES.slice(0, -1).map((z) => z.to);
+/** The three reference lines: cold threshold, nominal, high crossover. */
+const MARKS = [COOLANT_COLD_C, COOLANT_SCALE_MID_C, COOLANT_HOT_C];
 
-/** Coolant band: five flat zones, non-linear scale, nominal pinned to centre. */
+/** Coolant band: one colour wash, three reference lines, a travelling needle. */
 export function createTempBar(): TempBar {
   const el = document.createElement('section');
   el.className = 'temp';
@@ -55,17 +52,17 @@ export function createTempBar(): TempBar {
   el.setAttribute('aria-valuemin', String(Math.round(toF(COOLANT_MIN_C))));
   el.setAttribute('aria-valuemax', String(Math.round(toF(COOLANT_MAX_C))));
 
-  const fillBackground = solidZones('to right', ZONES, COOLANT_MIN_C, pct);
-
   el.innerHTML = `
     <div class="temp__track">
-      <div class="temp__fill" data-role="fill" style="background:${fillBackground}"></div>
-      ${BOUNDARIES.map((c) => `<span class="temp__tick" style="left:${pct(c).toFixed(2)}%"></span>`).join('')}
+      <div class="temp__wash" data-role="wash"></div>
+      ${MARKS.map((c) => `<span class="temp__mark" style="left:${pct(c).toFixed(2)}%"></span>`).join('')}
+      <span class="temp__needle" data-role="needle"></span>
       <span class="temp__readout"><span data-role="value">––</span><span
         class="temp__unit">°F</span></span>
     </div>`;
 
-  const fill = must<HTMLElement>(el, '[data-role="fill"]');
+  const wash = must<HTMLElement>(el, '[data-role="wash"]');
+  const needle = must<HTMLElement>(el, '[data-role="needle"]');
   const value = must<HTMLElement>(el, '[data-role="value"]');
 
   return {
@@ -76,44 +73,45 @@ export function createTempBar(): TempBar {
       const c = usable && Number.isFinite(frame.coolantC) ? frame.coolantC : null;
 
       if (c === null) {
-        fill.style.clipPath = 'inset(0 100% 0 0)';
+        wash.style.background = '';
+        needle.style.visibility = 'hidden';
         value.textContent = '––';
-        el.dataset.band = 'none';
         el.removeAttribute('aria-valuenow');
         el.setAttribute('aria-valuetext', 'No coolant reading');
         return;
       }
 
-      fill.style.clipPath = `inset(0 ${(100 - pct(c)).toFixed(2)}% 0 0)`;
+      const zone = BANDS.find((b) => c < b.upTo) ?? BANDS[BANDS.length - 1];
+      wash.style.background = zone.color;
+      needle.style.visibility = 'visible';
+      needle.style.left = `${pct(c).toFixed(2)}%`;
+
       const f = Math.round(toF(c));
       value.textContent = String(f);
-      const band = tempBand(c);
-      el.dataset.band = band;
       el.setAttribute('aria-valuenow', String(f));
-      // Overheating gets no colour of its own (it is inside the hot zone), so
-      // it has to be said rather than shown.
+      // Overheating has no colour of its own above hot, so it is said instead.
       const overheating = c >= COOLANT_CRITICAL_C ? ', overheating' : '';
-      el.setAttribute('aria-valuetext', `${f} degrees Fahrenheit, ${BAND_LABEL[band]}${overheating}`);
+      el.setAttribute(
+        'aria-valuetext',
+        `${f} degrees Fahrenheit, ${BAND_LABEL[zone.band]}${overheating}`,
+      );
     },
   };
 }
 
-/** The zone the reading sits in — the same five the bar paints. */
+/** The band the reading sits in — the colour the whole bar takes. */
 export function tempBand(coolantC: number): TempBand {
-  if (coolantC >= COOLANT_HOT_C) return 'hot';
-  if (coolantC >= COOLANT_WARM_C) return 'warm';
-  if (coolantC >= COOLANT_NOMINAL_C) return 'normal';
-  if (coolantC >= COOLANT_COLD_C) return 'cool';
-  return 'cold';
+  return (BANDS.find((b) => coolantC < b.upTo) ?? BANDS[BANDS.length - 1]).band;
 }
 
 /**
  * Temperature to position along the bar, as a percentage.
  *
- * Not linear. The nominal centre is pinned to 50% and each half is shaped by
- * COOLANT_SCALE_EXP, which above 1 makes the bar crawl near nominal and lunge
- * toward either end. The two halves cover different spans (about 52 °C below
- * the centre, 31 °C above), so they are mapped separately — a single curve
+ * Not linear. The nominal centre is pinned to 50% — which is what puts its
+ * marker line in the middle of the screen — and each half is shaped by
+ * COOLANT_SCALE_EXP, which above 1 makes the needle crawl near nominal and
+ * lunge toward either end. The two halves cover different spans (about 90 °C
+ * below the centre, 31 °C above), so they are mapped separately; a single curve
  * across the whole range would not land the centre where it belongs.
  */
 function pct(c: number): number {

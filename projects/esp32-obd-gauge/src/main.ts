@@ -14,7 +14,6 @@ const LINK_TEXT: Record<ConnectionState, string> = {
   disconnected: 'Disconnected',
 };
 
-const root = document.documentElement;
 const app = document.querySelector<HTMLElement>('#app');
 if (!app) throw new Error('main: #app missing');
 
@@ -48,9 +47,6 @@ source.subscribe((state) => {
     lastFrameTs = state.frame.ts;
     peaks.update(state.frame);
   }
-
-  root.dataset.link = state.connection;
-  root.dataset.band = state.frame ? tempBand(state.frame.coolantC) : 'normal';
 
   rpm.update(state);
   temp.update(state);

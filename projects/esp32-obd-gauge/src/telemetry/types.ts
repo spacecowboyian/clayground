@@ -41,16 +41,14 @@ export interface TelemetrySource {
 }
 
 /**
- * Coolant bands, in the order they escalate. These are exactly the five solid
- * zones on the bar, so the colour of the number always matches the band it sits
- * in. "Overheating" is not a sixth colour — it is called out in the spoken
- * description instead.
+ * Coolant bands, in the order they escalate — the four colours the bar can
+ * take. "Overheating" is not a fifth: it is inside hot, and is called out in
+ * the spoken description instead.
  */
-export type TempBand = 'cold' | 'cool' | 'normal' | 'warm' | 'hot';
+export type TempBand = 'cold' | 'normal' | 'warm' | 'hot';
 
 export const BAND_LABEL: Record<TempBand, string> = {
   cold: 'Cold',
-  cool: 'Cool',
   normal: 'Nominal',
   warm: 'Warm',
   hot: 'Hot',

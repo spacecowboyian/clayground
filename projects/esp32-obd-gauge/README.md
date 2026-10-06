@@ -16,32 +16,22 @@ Portrait, three bands, top to bottom:
    in peripheral vision, and a flashing light at eye level on a dash is a
    photosensitivity hazard.
 2. **Coolant band** — full bleed and square, butted straight onto the tach with
-   a 2px seam so the two read as one instrument. Five flat zones with hard
-   edges: blue cold, teal cool, green norm, amber warm, red hot. Cool is the
-   channel-by-channel midpoint of cold and nominal, so the first three read as
-   one progression. Every zone but hot paints at half strength, so the band
-   stays quiet until the engine is actually in trouble and one zone lights at
-   full saturation. Nothing is captioned — colour and boundary ticks say where
-   you are, and the band is spoken for screen readers. The temperature sits
-   inside the bar, right-aligned into the hot zone, always white: that zone
-   only ever shows the unlit track (12.6:1) or the hot fill at full strength
-   (4.8:1), never the green where white would drop to 2.5:1.
+   a 2px seam so the two read as one instrument. The whole bar takes **one**
+   colour for where the reading sits: blue cold, green nominal, amber warm, red
+   hot. Everything but red washes at a quarter strength, so the band is only
+   loud when the engine is. Three dark reference lines mark the cold threshold,
+   the nominal temperature (pinned to the middle of the screen) and the high
+   crossover, and a 2px white needle travels to the current reading. The
+   temperature sits inside the bar, right-aligned, always white — it clears
+   9.4:1 on the blue, 8.4:1 on the green, 7.9:1 on the amber and 4.8:1 on the
+   full-strength red.
 
-   The scale bottoms out at **32 °F, not at the operating range**, so the bar is
-   off its stop and climbing from the moment the engine fires.
+   The colour boundaries are deliberately **not** the marker lines. The nominal
+   line is a reference point inside the green, not a change of state: 195 °F is
+   the middle of the operating range, and turning the bar amber above it would
+   call a healthy 200 °F a warning. Amber starts at the high crossover and red
+   at the critical temperature, which carries no line of its own.
 
-   **The cold zone ends where the dash's blue low-temperature lamp goes out**,
-   so the band agrees with the car. That boundary is set to 122 °F and is
-   **unverified** — Honda does not publish the figure. To get the real one:
-   cold-start the car with this gauge running and note the reading at the
-   moment the blue lamp goes out, then set `COOLANT_COLD_C` in `vehicle.ts`.
-
-   Its scale is **not linear**. The centre of the nominal zone is pinned to the
-   middle of the screen, and each half is shaped by `COOLANT_SCALE_EXP`, so the
-   bar crawls near nominal (~0.42 %/°F) and lunges toward either end (~0.61
-   %/°F cold, ~1.03 %/°F hot): steady while the engine sits where it belongs,
-   dramatic the moment it leaves. Set the exponent to 1 for a linear scale, or
-   below 1 to invert it into a classic expanded-scale gauge.
 3. **Six configurable tiles** — a full-bleed grid ruled by 1px lines, butted
    straight onto the coolant band. Each cell's reading runs as a large numeral
    filling it top to bottom, with the label over it. **Press and hold any tile**
