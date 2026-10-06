@@ -11,6 +11,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### fix(esp32-obd-gauge)
+- **The right-hand alignment accounts for the trailing letter-space.** CSS puts a letter-space after every character including the last, and canvas `measureText` does not model it, so the dash's −0.04em tracking was quietly eating 2.88px off the box's right edge — the reading sat 8.5px from the screen edge where 12px was asked for. Now 11.5px, measured on the pixel.
+
 ### feat(esp32-obd-gauge)
 - **The coolant bar gets a label instead of a unit beside its number** — `COOLANT °F` at the top left, in the cells' label type: same size, weight, tracking and inset from the corner, unit riding alongside exactly as a cell's does. With the unit gone from the reading, the number moves right into the space it held and its last digit now sets the right margin.
 - **The label cannot take the cells' `--muted-foreground`.** That colour is chosen against the page; here it sits on the wash, where it measures 3.7:1 on blue, 3.3:1 on green, 3.1:1 on amber and 1.9:1 on red — all short of the 4.5:1 small text needs. `--foreground` clears it on three (8.5 / 7.5 / 7.2) and reaches 4.4:1 on the red, a shade under. So weight alone separates label from unit here, where a cell has colour to spend as well.

@@ -107,11 +107,19 @@ export function digitRightBearing(el: HTMLElement): number {
   const style = getComputedStyle(el);
   probe.font = `${style.fontWeight} ${Number.parseFloat(style.fontSize)}px ${style.fontFamily}`;
 
+  // CSS puts a letter-space after EVERY character, the last one included, and
+  // canvas does not model it. With the dash's -0.04em tracking that is 2.88px
+  // the box loses off its right edge at 72px, which lands the reading three
+  // pixels tighter to the screen than the margin asked for. Negative tracking
+  // eats the bearing; positive would add to it.
+  const spacing = Number.parseFloat(style.letterSpacing);
+  const trailing = Number.isFinite(spacing) ? spacing : 0;
+
   let total = 0;
   for (const digit of DIGITS) {
     const { width, actualBoundingBoxRight } = probe.measureText(digit);
     if (!Number.isFinite(actualBoundingBoxRight)) return 0;
     total += width - actualBoundingBoxRight;
   }
-  return total / DIGITS.length;
+  return total / DIGITS.length + trailing;
 }
