@@ -17,7 +17,9 @@ Portrait, three bands, top to bottom:
    photosensitivity hazard.
 2. **Coolant band** — full bleed and square, butted straight onto the tach with
    a 2px seam so the two read as one instrument. Five flat zones with hard
-   edges: blue cold, purple cool, green norm, amber warm, red hot. Every zone
+   edges: blue cold, teal cool, green norm, amber warm, red hot. Cool is the
+   channel-by-channel midpoint of cold and nominal, so the first three read
+   as one progression. Every zone
    but hot paints at half strength, so the band stays quiet until the engine is
    actually in trouble and one zone lights at full saturation. Labels and
    readout sit inside the band, below the colour — nothing is drawn over the
