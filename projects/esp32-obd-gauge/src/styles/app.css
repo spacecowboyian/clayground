@@ -96,23 +96,26 @@ body {
 
 /*
  * The readout is a watermark, not a gauge face: oversized enough to bleed off
- * both edges and dropped to 20% so it tints the fill rather than sitting on
- * it. At this opacity it is ambient texture, not a number you read — the bar
- * height and the shift flash carry the actual signal.
+ * both edges, seated so its feet are cropped by the bottom of the region, and
+ * dark rather than light so it reads as a shadow under the fill instead of a
+ * highlight over it. Ambient texture, not a number you read — the bar height
+ * and the shift flood carry the actual signal.
+ *
+ * Centred by transform rather than by the grid: a grid item wider than its
+ * track gets pinned to the start and overhangs one side only, so the numeral
+ * bled right but not left. `bottom` is set by rpmmeter.ts from the font's own
+ * metrics.
  */
 .rpm__readout {
-  /* Absolutely centred rather than grid-centred: a grid item wider than its
-     track gets pinned to the start and overhangs one side only, so the numeral
-     bled right but not left. */
   position: absolute;
   z-index: 1;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  bottom: 0;
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  opacity: 0.2;
+  align-items: flex-end;
+  color: var(--numeral-shade);
+  opacity: 0.25;
   /* Nothing here is interactive, and it overhangs the region. */
   pointer-events: none;
 }
@@ -128,13 +131,6 @@ body {
   line-height: 0.82;
   white-space: nowrap;
   text-align: center;
-}
-
-.rpm__unit {
-  font-size: 0.7rem;
-  letter-spacing: 0.25em;
-  text-indent: 0.25em;
-  text-transform: uppercase;
 }
 
 /*
@@ -304,9 +300,10 @@ body {
 .tile:focus-visible { outline: 2px solid var(--band-cold); outline-offset: -2px; }
 .tile:active { background: var(--muted); }
 
-/* Session values are tap-to-reset. With the cards gone there is no border to
-   dash, so the hint is a rule inside the cell's own bottom edge. */
-.tile--session { box-shadow: inset 0 -2px 0 var(--muted); }
+/* No marker for tap-to-reset: a rule inside the cell's bottom edge landed
+   straight on the grid line below it and read as a doubled border. The
+   readouts that reset are the ones named "top" or "peak", and the button's
+   aria-label says so outright. */
 
 /* Rides over the numeral, so it takes full strength rather than the muted
    grey: against the value's own tone that is 4.6:1, and 15:1 off it. */

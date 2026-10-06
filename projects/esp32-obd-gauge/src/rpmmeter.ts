@@ -1,5 +1,6 @@
 import { RPM_MAX, RPM_RED, RPM_REDLINE, RPM_YELLOW, SHIFT_RPM } from './vehicle';
 import { solidZones } from './zones';
+import { baselineDrop } from './numerals';
 import type { TelemetryState } from './telemetry/types';
 
 export interface RpmMeter {
@@ -7,16 +8,19 @@ export interface RpmMeter {
   update(state: TelemetryState): void;
 }
 
+/** How far past the region's bottom edge the watermark's baseline is pushed. */
+const CROP_PX = 3;
+
 /**
- * Full-bleed tach. The fill rises from the bottom of the region and the colour
- * under it escalates green -> yellow -> red, so the band of colour you see in
- * peripheral vision IS the reading. At the shift point the whole region
- * flashes.
+ * Full-bleed tach. The fill rises from the bottom of the region through flat
+ * zones — green, yellow, red, redline — so the band of colour you see in
+ * peripheral vision IS the reading. At the shift point the whole region goes
+ * solid red.
  *
- * The fill is a full-height gradient revealed by `clip-path`, rather than a
- * growing element with a changing colour: that way the hue at the top edge of
- * the fill always matches the rpm it represents, with no colour maths per
- * frame.
+ * The fill is a full-height stack of zones revealed by `clip-path`, rather than
+ * a growing element with a changing colour: that way the zone showing at the
+ * top edge of the fill is always the one the engine is in, with no colour maths
+ * per frame.
  */
 export function createRpmMeter(): RpmMeter {
   const el = document.createElement('section');
@@ -45,16 +49,28 @@ export function createRpmMeter(): RpmMeter {
     <div class="rpm__redline" style="bottom:${pct(RPM_REDLINE).toFixed(2)}%"></div>
     <div class="rpm__readout">
       <span class="rpm__value" data-role="value">––––</span>
-      <span class="rpm__unit">rpm</span>
     </div>
     <p class="rpm__shift" data-role="shift" aria-hidden="true">SHIFT</p>`;
 
   const fill = must<HTMLElement>(el, '[data-role="fill"]');
   const value = must<HTMLElement>(el, '[data-role="value"]');
+  const readout = must<HTMLElement>(el, '.rpm__readout');
+  /* The watermark's size is clamped against the viewport, so it only moves on
+     a resize — seat it when that size actually changes, not every frame. */
+  let seatedAt = 0;
+
+  const seat = (): void => {
+    // The font lives on the value span; the container is what gets positioned.
+    const size = Number.parseFloat(getComputedStyle(value).fontSize);
+    if (size === seatedAt || size === 0) return;
+    seatedAt = size;
+    readout.style.bottom = `${baselineDrop(value, CROP_PX).toFixed(2)}px`;
+  };
 
   return {
     el,
     update(state) {
+      seat();
       const frame = state.frame;
       const usable = frame !== null && state.connection !== 'disconnected';
       const rpm = usable && Number.isFinite(frame.rpm) ? frame.rpm : null;

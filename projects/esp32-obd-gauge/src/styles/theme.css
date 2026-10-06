@@ -62,6 +62,9 @@
   --band-normal: #10b981;
 
   --track: #333333;
+  /* The tach watermark: dark, so the numeral reads as a shadow beneath the
+     fill rather than a highlight laid over it. */
+  --numeral-shade: #000000;
   /* The 2px seam between the tach and the coolant band, and the zone
      boundaries inside it. Dark enough to read against both the empty track and
      any lit zone. */

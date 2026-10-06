@@ -11,7 +11,10 @@ Project plan (hardware, wiring, firmware phases) lives in Brains at
 Portrait, three bands, top to bottom:
 
 1. **Tach** — full bleed, fills bottom to top through flat zones: green,
-   yellow, red, then the redline band. At the shift point the whole band goes
+   yellow, red, then the redline band. The reading itself is a dark watermark
+   seated at the foot of the region with its feet cropped by the edge, so it
+   reads as a shadow under the fill rather than a highlight over it — and the
+   rising fill reveals it. At the shift point the whole band goes
    solid red. It does not strobe — a steady flood is just as impossible to miss
    in peripheral vision, and a flashing light at eye level on a dash is a
    photosensitivity hazard.

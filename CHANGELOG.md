@@ -12,6 +12,12 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(esp32-obd-gauge)
+- **Tile numerals seat flush left with their labels** — a monospace face gives every digit the same advance but not the same ink, so a numeral set flush still printed a few pixels inside the box and read as misaligned against the label sharing that edge. The left bearing is measured from the font and taken out with a transform, which leaves the width `fit()` measures against untouched. Within 2px across every cell.
+- **The tach reading gets the same treatment as the cells** — seated at the foot of the region with its feet cropped by the edge, and dark at 25% rather than white, so it reads as a shadow under the fill instead of a highlight over it. The rising fill now reveals it. The small `RPM` caption is gone: it sat below the numeral, which is exactly the space the crop consumes.
+- **Numeral seating extracted to `src/numerals.ts`** and taught to read the computed line height instead of assuming it equals the font size — the tach's watermark is set at 0.82, which moves the baseline within its box and had the crop 15px out.
+- **Double border on the session cells removed** — the 2px rule marking tap-to-reset sat directly on the 1px grid line beneath it, reading as one doubled border. The marker is gone; the readouts that reset are the ones named "top" or "peak", and the button's `aria-label` says so outright.
+
+### feat(esp32-obd-gauge)
 - **Five reference lines on the coolant bar, and the colour switches moved onto the two new inner ones** — cold (122 °F, lamp out, bar stays blue), nominal low (185 °F, blue to green), nominal mid (195 °F, screen centre, reference only), nominal high (205 °F, green to amber, necessarily past the middle) and hot (219 °F, amber to red). Verified on a live warmup: the switches land on exactly those temperatures.
 - **Cold and warming share the blue wash** — the dash lamp going out changes what the driver may do, not what the coolant is doing, so it earns a line but not a colour. The bands are named apart so `aria-valuetext` still distinguishes them.
 
