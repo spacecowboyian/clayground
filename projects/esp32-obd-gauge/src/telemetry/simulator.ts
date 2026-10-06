@@ -58,7 +58,7 @@ interface Segment { mode: DriveMode; seconds: number }
 const COLD_START: Segment[] = [
   { mode: 'off', seconds: 2 },
   { mode: 'crank', seconds: 1.2 },
-  { mode: 'idle', seconds: 14 },
+  { mode: 'idle', seconds: 8 },
 ];
 const LOOP: Segment[] = [
   { mode: 'accel', seconds: 9 },

@@ -11,6 +11,13 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### fix(esp32-obd-gauge)
+- **Host detection no longer assumes every unknown host is a car** — `hasDongle()` treated anything that was not localhost or GitHub Pages as a live dongle, so any other published host opened a permanently disconnected gauge with no way back. It now matches private IP ranges (192.168.x, 10.x, 172.16-31.x), which is what the ESP32's own access point actually hands out — more correct for the real device, not just for published builds.
+
+### feat(esp32-obd-gauge)
+- **Rpm readout is a watermark, not a gauge face** — dropped the solid plate, sized the numeral at `48vw` so four digits run off both edges of a phone, and took it to 20% opacity so it tints the fill instead of sitting on it. At that opacity it is ambient texture rather than a number you read; the bar height and the shift flash carry the signal, and `Engine speed` is in the tile picker for anyone who wants the figure back. Centred absolutely rather than by grid, because a grid item wider than its track gets pinned to the start and overhangs one side only.
+- **Cold-start idle trimmed 14s to 8s** — nobody idles that long before pulling away, and it is a long time to watch a stationary engine before the demo does anything.
+
 ### feat(esp32-obd-gauge)
 - **Dash redesign to Ian's layout** — portrait, three bands. A full-bleed tach fills bottom to top and flashes the whole band at the shift point; a coolant bar grows left to right over a cold-to-hot gradient with reference lines for cold / nominal / hot; six configurable tiles sit beneath. Switched to °F and mph throughout (US autocross), with OBD's native °C and km/h kept in the frame so the firmware contract stays standard and conversion happens in one place.
 - **Tiles are user-assignable** — press and hold any tile to pick from 13 readouts (7 live, 6 session), persisted per phone in `localStorage` with validation and a safe fallback when storage throws. Tap a session tile to reset it; `Reset run` in the header clears all of them at once, because six taps while being called to grid is not a workflow.

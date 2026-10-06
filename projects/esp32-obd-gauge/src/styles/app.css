@@ -178,36 +178,46 @@ body {
 }
 
 /*
- * The readout sits on a solid plate. White numerals directly on the green fill
- * only reach 2.5:1 — under the 3:1 large-text minimum — so the plate is a
- * legibility requirement, not decoration.
+ * The readout is a watermark, not a gauge face: oversized enough to bleed off
+ * both edges and dropped to 20% so it tints the fill rather than sitting on
+ * it. At this opacity it is ambient texture, not a number you read — the bar
+ * height and the shift flash carry the actual signal.
  */
 .rpm__readout {
-  position: relative;
-  /* Above the flash overlay: losing the number at the exact moment you need
-     to shift would be the worst possible time to lose it. */
+  /* Absolutely centred rather than grid-centred: a grid item wider than its
+     track gets pinned to the start and overhangs one side only, so the numeral
+     bled right but not left. */
+  position: absolute;
   z-index: 1;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
-  padding: 0.3rem 1rem 0.45rem;
-  border-radius: var(--radius);
-  background: var(--background);
-  border: 1px solid var(--border);
+  flex-direction: column;
+  align-items: center;
+  opacity: 0.2;
+  /* Nothing here is interactive, and it overhangs the region. */
+  pointer-events: none;
 }
 
 .rpm__value {
   font-family: var(--font-numeric);
-  font-size: clamp(2.75rem, 17vw, 4.5rem);
+  /* 48vw puts four digits wider than a phone viewport, so the numeral runs off
+     both sides and `overflow: hidden` on .rpm crops it. */
+  font-size: clamp(5rem, 48vw, 18rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
-  line-height: 1;
+  letter-spacing: -0.04em;
+  line-height: 0.82;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .rpm__unit {
-  font-size: 0.8rem;
-  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-indent: 0.25em;
+  text-transform: uppercase;
 }
 
 /* Shift flash. A separate overlay so it never fights the inline clip-path. */

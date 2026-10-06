@@ -98,10 +98,15 @@ export function resolveSource(search: string): TelemetrySource {
   return withWatchdog(hasDongle() ? createSocket() : createSimulator('warmup'));
 }
 
-/** True when the page looks like it was served by the dongle itself. */
+/**
+ * True when the page looks like it was served by the dongle itself.
+ *
+ * The ESP32 runs its own access point and hands out private addresses, so a
+ * private IP is the signal. Matching on "anything that is not localhost or
+ * GitHub Pages" was wrong: it treated every other host as a car, including
+ * published pages, and showed them a permanently disconnected gauge.
+ */
 function hasDongle(): boolean {
-  const { hostname, protocol } = window.location;
-  if (protocol === 'file:') return false;
-  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '') return false;
-  return !hostname.endsWith('github.io');
+  const { hostname } = window.location;
+  return /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostname);
 }
