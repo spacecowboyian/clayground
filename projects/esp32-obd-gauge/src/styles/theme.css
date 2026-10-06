@@ -61,10 +61,11 @@
   --band-cold: #38bdf8;
   --band-normal: #10b981;
 
-  --track: #333333;
-  /* The 2px seam between the tach and the coolant band, and the zone
-     boundaries inside it. Dark enough to read against both the empty track and
-     any lit zone. */
+  /* The 2px seam between the tach and the coolant band, the reference lines
+     inside it, the reading, and the band's own base. One value for all four:
+     the wash is translucent, so where the reading and the lines sit on top of
+     it they are the base colour undiluted, and read as the band showing
+     through rather than as ink laid over it. */
   --divider: #1a1a1a;
 
   /* ── Type ────────────────────────────────────────────────────────────── */

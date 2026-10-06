@@ -216,7 +216,8 @@ body {
 .temp__track {
   position: relative;
   height: 4rem;
-  background: var(--track);
+  /* The same colour the reading and the reference lines are drawn in. */
+  background: var(--divider);
   overflow: hidden;
 }
 

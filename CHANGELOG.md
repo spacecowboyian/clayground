@@ -11,6 +11,10 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### feat(esp32-obd-gauge)
+- **The coolant band's base is now the colour its reading is drawn in**, so the reading works the way the tach's does: the wash is translucent, and where the number and the reference lines sit on top of it they are the base colour undiluted — the band showing through rather than ink laid over it. `--track` is gone, folded into `--divider`, which now names the seam, the lines, the reading and the base alike.
+- It cuts both ways on contrast, and the measurements are the argument for it. The reading gets dimmer on the three translucent washes — 1.6:1 on green, 1.4:1 on blue, 1.7:1 on amber, from 2.1 / 1.9 / 2.2 — and is unchanged at 3.6:1 on the hot state, where the wash is opaque and the base never shows. The label moves the other way, because the darker base lifts it: 4.9:1 green, 5.4:1 blue, 4.7:1 amber, up from 4.0 / 4.4 / 3.8, so it now clears the 4.5:1 small text wants on three of the four states where it cleared none.
+
 ### style(esp32-obd-gauge)
 - **The grid's top border is gone.** It ran immediately under the coolant reading's cropped feet, close enough to read as part of the numeral rather than as the edge of the region below. The 2px seam on the coolant band already separates the two, and the grid keeps its bottom rule and its internal gaps.
 
