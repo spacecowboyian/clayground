@@ -343,7 +343,10 @@ body {
   grid-auto-rows: 5.5rem;
   gap: 1px;
   background: var(--border);
-  border-block: 1px solid var(--border);
+  /* Bottom only. A rule along the top landed immediately under the coolant
+     reading's cropped feet, close enough to read as part of the numeral. The
+     2px seam on the band already separates the two regions. */
+  border-bottom: 1px solid var(--border);
   flex: 0 0 auto;
 }
 

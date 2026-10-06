@@ -12,6 +12,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### style(esp32-obd-gauge)
+- **The grid's top border is gone.** It ran immediately under the coolant reading's cropped feet, close enough to read as part of the numeral rather than as the edge of the region below. The 2px seam on the coolant band already separates the two, and the grid keeps its bottom rule and its internal gaps.
+
+### style(esp32-obd-gauge)
 - **The coolant bar's label is dimmed to the grid labels' weight.** `--muted-foreground` reads as 163 on the page's 34, and `--foreground` at 0.61 alpha lands on 163–188 against the washes — the alpha is derived from that, not picked by eye. It costs contrast: 4.4:1 on the blue, 4.0:1 on the green, 3.8:1 on the amber and 2.4:1 on the red, against 8.5 / 7.5 / 7.2 / 4.4 at full strength and the 6.3:1 a grid label gets on the page. All four are now under the 4.5:1 small text wants, where before only the red was.
 
 ### fix(esp32-obd-gauge)
