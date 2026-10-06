@@ -12,6 +12,10 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### feat(esp32-obd-gauge)
+- **All chrome removed** — header, status pill, simulated-telemetry notice and footer are gone, so the three instruments run edge to edge from the top of the screen (the tach is now 510px on a phone, up from 330). A dead link still shows itself without a pill: every reading blanks to a placeholder and both meters park at zero rather than freezing on a stale number, and the polite live region still announces connection and band transitions. **The `Reset run` button went with the header**, so clearing session values is per-tile again; `resetAll()` was dropped from the peak tracker rather than left as dead code.
+- **Grid butts straight onto the coolant band**, and all cell text is centred.
+
+### feat(esp32-obd-gauge)
 - **Coolant reading moved into the bar, right-aligned in the hot zone, always white** — that zone is the one stretch where a fixed white is always legible: it only ever shows the unlit track (12.6:1) or the hot fill at full strength (4.8:1), and the green nominal zone, where white drops to 2.5:1, is never under it. The colour no longer follows the band. The track grew to 64px to carry it.
 - **Tiles are a ruled grid, not a row of cards** — full bleed, square, no borders or fills of their own. The 1px gaps let the container's background through as the rules, so every line is exactly one pixel and no two cells double up a border. Rows are 88px with larger type, and the tach keeps the remaining space on a `flex-basis: 0` so the shift light never ends up smaller than the data below it. Tap-to-reset is now marked by a rule inside the cell's bottom edge, since there is no longer a border to dash.
 

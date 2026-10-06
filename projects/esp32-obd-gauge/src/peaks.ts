@@ -23,7 +23,6 @@ export interface PeakTracker {
   readonly peaks: Peaks;
   update(frame: TelemetryFrame): void;
   reset(key: PeakKey): void;
-  resetAll(): void;
 }
 
 const EMPTY: Peaks = {
@@ -60,9 +59,6 @@ export function createPeakTracker(): PeakTracker {
     },
     reset(key) {
       peaks = { ...peaks, [key]: null };
-    },
-    resetAll() {
-      peaks = { ...EMPTY };
     },
   };
 }

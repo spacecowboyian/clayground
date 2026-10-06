@@ -42,10 +42,16 @@ Portrait, three bands, top to bottom:
    %/°F cold, ~1.03 %/°F hot): steady while the engine sits where it belongs,
    dramatic the moment it leaves. Set the exponent to 1 for a linear scale, or
    below 1 to invert it into a classic expanded-scale gauge.
-3. **Six configurable tiles** — a full-bleed grid ruled by 1px lines, not a row
-   of cards. **Press and hold any tile** to choose what it shows from 13
-   readouts; the choice persists on that phone. A rule inside a cell's bottom
-   edge marks it as a session value you can tap to reset.
+3. **Six configurable tiles** — a full-bleed grid ruled by 1px lines, butted
+   straight onto the coolant band. All text centred. **Press and hold any tile**
+   to choose what it shows from 13 readouts; the choice persists on that phone.
+   A rule inside a cell's bottom edge marks it as a session value you can tap to
+   reset.
+
+There is no chrome: no header, no status pill, no footer. A dead link shows
+itself — every reading blanks to a placeholder and both meters park at zero
+rather than freezing on a stale number — and a polite live region carries the
+same thing to a screen reader.
 
 ## Why it looks like that
 

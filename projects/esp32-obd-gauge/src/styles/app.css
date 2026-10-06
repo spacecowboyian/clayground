@@ -25,14 +25,12 @@ body {
   white-space: nowrap;
 }
 
-/* The app owns no horizontal padding: the tach has to bleed to the screen
-   edges, so each section pads itself instead. */
+/* No chrome left, so the instruments run edge to edge in both axes; the body's
+   safe-area padding still keeps them clear of the notch and the home bar. */
 .app {
   display: flex;
   flex-direction: column;
-  gap: var(--gap);
   min-height: 100%;
-  padding: var(--pad) 0;
 }
 
 .stack {
@@ -41,64 +39,6 @@ body {
   flex: 1;
   min-height: 0;
 }
-
-/* ── Status bar ─────────────────────────────────────────────────────────── */
-.bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--gap);
-  padding: 0 var(--pad);
-  flex: none;
-}
-
-.bar__title {
-  margin: 0;
-  margin-right: auto;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted-foreground);
-}
-
-.link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--card);
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.reset {
-  appearance: none;
-  font: inherit;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--foreground);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-}
-
-.reset:active { background: var(--muted); }
-.reset:focus-visible { outline: 2px solid var(--band-cold); outline-offset: 2px; }
-
-.link__dot {
-  width: 0.5rem; height: 0.5rem;
-  border-radius: 50%;
-  background: var(--band);
-  flex: none;
-}
-
-/* Only a healthy link pulses, so motion always means "data is arriving". */
-:root[data-link='live'] .link__dot { animation: pulse 2s ease-in-out infinite; }
-@keyframes pulse { 50% { opacity: 0.35; } }
 
 /* ── Tach: full bleed, fills bottom to top ──────────────────────────────── */
 .rpm {
@@ -233,7 +173,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .rpm__fill { transition: none; }
   .rpm::after { transition: none; }
-  :root[data-link='live'] .link__dot { animation: none; }
 }
 
 /* ── Coolant band ──────────────────────────────────────────────────────── */
@@ -325,7 +264,6 @@ body {
  * ever double up a border.
  */
 .tiles {
-  margin-top: var(--gap);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: 5.5rem;
@@ -340,7 +278,8 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  text-align: left;
+  align-items: center;
+  text-align: center;
   font: inherit;
   color: inherit;
   background: var(--background);
@@ -376,6 +315,7 @@ body {
 .tile__value {
   display: flex;
   align-items: baseline;
+  justify-content: center;
   gap: 0.15rem;
   font-family: var(--font-numeric);
   font-size: clamp(1.5rem, 8vw, 2.125rem);
@@ -474,33 +414,3 @@ body {
 }
 
 .picker__cancel:focus-visible { outline: 2px solid var(--band-cold); outline-offset: 2px; }
-
-/* ── Notice + footer ────────────────────────────────────────────────────── */
-.notice {
-  margin: 0 var(--pad);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--muted-foreground);
-  border-radius: var(--radius);
-  background: var(--card);
-  color: var(--muted-foreground);
-  padding: 0.5rem 0.65rem;
-  font-size: 0.75rem;
-}
-
-.notice--alert {
-  border-left-color: var(--accent-orange);
-  background: var(--band-dim);
-  color: var(--foreground);
-}
-
-.notice[hidden] { display: none; }
-
-.foot {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--gap);
-  padding: 0 var(--pad);
-  font-size: 0.625rem;
-  font-family: var(--font-numeric);
-  color: var(--muted-foreground);
-}
