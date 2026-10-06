@@ -60,6 +60,10 @@
   --band-dim: #10312a;
 
   --track: #333333;
+  /* The 2px seam between the tach and the coolant band, and the zone
+     boundaries inside it. Dark enough to read against both the empty track and
+     any lit zone. */
+  --divider: #1a1a1a;
 
   /* ── Type ────────────────────────────────────────────────────────────── */
   --font-ui: system-ui, -apple-system, 'Helvetica Neue', sans-serif;

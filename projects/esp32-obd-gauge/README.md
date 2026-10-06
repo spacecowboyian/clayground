@@ -15,9 +15,11 @@ Portrait, three bands, top to bottom:
    solid red. It does not strobe — a steady flood is just as impossible to miss
    in peripheral vision, and a flashing light at eye level on a dash is a
    photosensitivity hazard.
-2. **Coolant bar** — grows left to right across four flat zones with hard
-   edges: blue cold, purple warming, green nominal, red hot. Reference lines
-   mark each boundary.
+2. **Coolant band** — full bleed and square, butted straight onto the tach with
+   a 2px seam so the two read as one instrument. Grows left to right across
+   four flat zones with hard edges: blue cold, purple warming, green nominal,
+   red hot. Its labels and readout sit inside the band, on their own strips
+   below the colour — nothing is drawn over the zones.
 3. **Six configurable tiles** — **press and hold any tile** to choose what it
    shows from 13 readouts. The choice persists on that phone.
 

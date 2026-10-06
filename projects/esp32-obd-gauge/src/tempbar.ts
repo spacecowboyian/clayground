@@ -52,17 +52,17 @@ export function createTempBar(): TempBar {
   const fillBackground = solidZones('to right', COOLANT_MIN_C, COOLANT_MAX_C, ZONES);
 
   el.innerHTML = `
-    <div class="temp__head">
-      <span class="temp__label">Coolant</span>
-      <span class="temp__value"><span data-role="value">––</span><span
-        class="temp__unit">°F</span></span>
-    </div>
     <div class="temp__track">
       <div class="temp__fill" data-role="fill" style="background:${fillBackground}"></div>
       ${BOUNDARIES.map((c) => `<span class="temp__tick" style="left:${pct(c).toFixed(2)}%"></span>`).join('')}
     </div>
     <div class="temp__legend" aria-hidden="true">
       ${LEGEND.map((l) => `<span class="temp__legend-item" style="left:${pct(l.at).toFixed(2)}%">${l.label}</span>`).join('')}
+    </div>
+    <div class="temp__readout">
+      <span class="temp__label">Coolant</span>
+      <span class="temp__value"><span data-role="value">\u2013\u2013</span><span
+        class="temp__unit">\u00B0F</span></span>
     </div>`;
 
   const fill = must<HTMLElement>(el, '[data-role="fill"]');

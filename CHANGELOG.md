@@ -11,6 +11,10 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### feat(esp32-obd-gauge)
+- **Coolant band rebuilt as part of the instrument** — full bleed, square corners, and butted straight onto the tach with a 2px seam, so the two no longer read as separate cards. The colour track is 48px rather than 22px, and the `COOLANT` label, the zone names and the numeric readout all moved inside the band.
+- **Nothing is drawn over the zones** — the labels ride on their own dark strips below the colour instead of on a scrim over it. No single text colour clears 4.5:1 on both a lit zone and the unlit track (dark text dies on the empty track at 1.5:1, light text dies on the green zone at 2.5:1), and a scrim would have fixed contrast at the cost of making the flat zones look graded. Zone boundaries are drawn in the seam colour so the joinery reads as one system.
+
 ### fix(esp32-obd-gauge)
 - **Status dot pulsed even while disconnected** — a stylesheet edit had split `:root[data-link='live'] .link__dot` from its animation, leaving the pulse on a bare `.link__dot`, so the "live" heartbeat ran on a dead link. Motion on that dot is supposed to mean data is arriving and nothing else. The same stray block had also been dropped inside the `prefers-reduced-motion` query, breaking the rules after it. Both repaired, and a nesting/brace audit added to the verification pass.
 
