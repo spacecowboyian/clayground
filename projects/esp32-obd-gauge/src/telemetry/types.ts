@@ -40,12 +40,17 @@ export interface TelemetrySource {
   readonly label: string;
 }
 
-/** Severity bands for coolant temp, in the order they escalate. */
-export type TempBand = 'cold' | 'normal' | 'warn' | 'critical';
+/**
+ * Coolant bands, in the order they escalate. These are exactly the four solid
+ * zones on the bar, so the colour of the number always matches the colour of
+ * the band it sits in. "Overheating" is not a fifth colour — it is called out
+ * in the spoken description instead.
+ */
+export type TempBand = 'cold' | 'warming' | 'normal' | 'hot';
 
 export const BAND_LABEL: Record<TempBand, string> = {
   cold: 'Cold',
+  warming: 'Warming',
   normal: 'Nominal',
-  warn: 'Hot',
-  critical: 'Overheating',
+  hot: 'Hot',
 };

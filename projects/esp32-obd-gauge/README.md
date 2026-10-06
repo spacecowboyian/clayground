@@ -10,10 +10,14 @@ Project plan (hardware, wiring, firmware phases) lives in Brains at
 
 Portrait, three bands, top to bottom:
 
-1. **Tach** — full bleed, fills bottom to top, green → yellow → red as it
-   climbs. The whole band flashes at the shift point.
-2. **Coolant bar** — grows left to right over a cold-to-hot gradient, with
-   reference lines for cold / nominal / hot.
+1. **Tach** — full bleed, fills bottom to top through flat zones: green,
+   yellow, red, then the redline band. At the shift point the whole band goes
+   solid red. It does not strobe — a steady flood is just as impossible to miss
+   in peripheral vision, and a flashing light at eye level on a dash is a
+   photosensitivity hazard.
+2. **Coolant bar** — grows left to right across four flat zones with hard
+   edges: blue cold, purple warming, green nominal, red hot. Reference lines
+   mark each boundary.
 3. **Six configurable tiles** — **press and hold any tile** to choose what it
    shows from 13 readouts. The choice persists on that phone.
 

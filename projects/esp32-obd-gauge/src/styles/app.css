@@ -98,22 +98,7 @@ body {
 }
 
 /* Only a healthy link pulses, so motion always means "data is arriving". */
-:root[data-link='live'] .reset {
-  appearance: none;
-  font: inherit;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--foreground);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-}
-
-.reset:active { background: var(--muted); }
-.reset:focus-visible { outline: 2px solid var(--band-cold); outline-offset: 2px; }
-
-.link__dot { animation: pulse 2s ease-in-out infinite; }
+:root[data-link='live'] .link__dot { animation: pulse 2s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: 0.35; } }
 
 /* ── Tach: full bleed, fills bottom to top ──────────────────────────────── */
@@ -128,21 +113,14 @@ body {
 }
 
 /*
- * The fill is a full-height gradient revealed by clip-path, not a growing
- * block of flat colour. That keeps the hue at the top edge of the fill
- * matching the rpm it stands for, with no per-frame colour maths.
+ * A full-height stack of solid zones revealed by clip-path. The zone showing at
+ * the top edge of the fill is always the zone the engine is in, with no
+ * per-frame colour maths. The hard-stop background is built in rpmmeter.ts from
+ * the thresholds in vehicle.ts, so the bands cannot drift from the numbers.
  */
 .rpm__fill {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    var(--rpm-green) 0%,
-    var(--rpm-green) 58%,
-    var(--rpm-yellow) 80%,
-    var(--rpm-red) 93%,
-    var(--rpm-redline) 100%
-  );
   clip-path: inset(100% 0 0 0);
   transition: clip-path 90ms linear;
 }
@@ -220,18 +198,23 @@ body {
   text-transform: uppercase;
 }
 
-/* Shift flash. A separate overlay so it never fights the inline clip-path. */
+/*
+ * Shift signal: the whole band goes solid red. A separate overlay so it never
+ * fights the inline clip-path. No strobe — a steady flood is just as impossible
+ * to miss in peripheral vision, and a flashing light at eye level on a dash is
+ * a photosensitivity hazard.
+ */
 .rpm::after {
   content: '';
   position: absolute;
   inset: 0;
   background: var(--rpm-red);
   opacity: 0;
+  transition: opacity 60ms linear;
   pointer-events: none;
 }
 
-.rpm--shift::after { animation: shift-flash 0.16s steps(1) infinite; }
-@keyframes shift-flash { 0%, 49% { opacity: 0; } 50%, 100% { opacity: 0.85; } }
+.rpm--shift::after { opacity: 1; }
 
 .rpm__shift {
   position: absolute;
@@ -250,25 +233,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .rpm__fill { transition: none; }
-  :root[data-link='live'] .reset {
-  appearance: none;
-  font: inherit;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--foreground);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-}
-
-.reset:active { background: var(--muted); }
-.reset:focus-visible { outline: 2px solid var(--band-cold); outline-offset: 2px; }
-
-.link__dot { animation: none; }
-  /* A flashing shift light is a photosensitivity hazard. Hold it solid
-     instead — still unmissable, no flicker. */
-  .rpm--shift::after { animation: none; opacity: 0.7; }
+  .rpm::after { transition: none; }
+  :root[data-link='live'] .link__dot { animation: none; }
 }
 
 /* ── Coolant bar ────────────────────────────────────────────────────────── */
@@ -313,17 +279,11 @@ body {
   overflow: hidden;
 }
 
+/* Four flat zones with hard edges, built in tempbar.ts from the thresholds in
+   vehicle.ts so the bands line up with the tick marks exactly. */
 .temp__fill {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to right,
-    var(--temp-0) 0%,
-    var(--temp-1) 28%,
-    var(--temp-2) 55%,
-    var(--temp-3) 78%,
-    var(--temp-4) 100%
-  );
   clip-path: inset(0 100% 0 0);
   transition: clip-path 350ms ease;
 }
@@ -516,7 +476,7 @@ body {
 }
 
 .notice--alert {
-  border-left-color: var(--band-warn);
+  border-left-color: var(--accent-orange);
   background: var(--band-dim);
   color: var(--foreground);
 }

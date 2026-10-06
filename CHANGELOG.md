@@ -12,6 +12,15 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 _Changes not yet pushed to `main` go here._
 
 ### fix(esp32-obd-gauge)
+- **Status dot pulsed even while disconnected** — a stylesheet edit had split `:root[data-link='live'] .link__dot` from its animation, leaving the pulse on a bare `.link__dot`, so the "live" heartbeat ran on a dead link. Motion on that dot is supposed to mean data is arriving and nothing else. The same stray block had also been dropped inside the `prefers-reduced-motion` query, breaking the rules after it. Both repaired, and a nesting/brace audit added to the verification pass.
+
+### feat(esp32-obd-gauge)
+- **Both meters now paint flat zones instead of blended ramps** — the tach is green / yellow / red / redline, and the coolant bar is blue cold, purple warming, green nominal, red hot, each with a hard edge. Both backgrounds are generated from the thresholds in `vehicle.ts` by a shared `solidZones()` helper rather than written as percentages in CSS, so the bands can never drift out of step with the numbers they stand for.
+- **Coolant bands now mirror the four visible zones** — `TempBand` is cold / warming / nominal / hot, so the colour of the number always matches the band it sits in. Overheating above 110 °C gets no fifth colour; it is called out in the spoken description instead. Zone labels moved from the boundaries to the centre of each band: on a blended ramp a label on the line read as "where it turns cold", but against flat bands it has to name the band under it.
+- **Shift signal no longer strobes** — at the shift point the whole tach band goes solid red and stays there. A steady flood is just as impossible to miss in peripheral vision, and a flashing light at eye level on a dash is a photosensitivity hazard. The `prefers-reduced-motion` special case is gone because there is no longer anything to suppress.
+- **Fill and text colours are now separate token sets** — the zone fills are large solid areas and carry no contrast minimum, while the band colours are read as small type and are each verified at ≥ 4.5:1 on `#222222` (cold 7.4:1, warming 5.9:1, nominal 6.3:1, hot 5.8:1). The fill blue and purple would fail as text at 4.3:1 and 3.8:1, which is why they cannot be shared.
+
+### fix(esp32-obd-gauge)
 - **Host detection no longer assumes every unknown host is a car** — `hasDongle()` treated anything that was not localhost or GitHub Pages as a live dongle, so any other published host opened a permanently disconnected gauge with no way back. It now matches private IP ranges (192.168.x, 10.x, 172.16-31.x), which is what the ESP32's own access point actually hands out — more correct for the real device, not just for published builds.
 
 ### feat(esp32-obd-gauge)

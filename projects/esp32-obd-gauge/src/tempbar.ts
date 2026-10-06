@@ -7,6 +7,7 @@ import {
   COOLANT_NOMINAL_C,
 } from './vehicle';
 import { BAND_LABEL, type TelemetryState, type TempBand } from './telemetry/types';
+import { solidZones } from './zones';
 import { toF } from './units';
 
 export interface TempBar {
@@ -14,11 +15,30 @@ export interface TempBar {
   update(state: TelemetryState): void;
 }
 
-const TICKS = [
-  { c: COOLANT_COLD_C, label: 'Cold' },
-  { c: COOLANT_NOMINAL_C, label: 'Nominal' },
-  { c: COOLANT_HOT_C, label: 'Hot' },
+/**
+ * The four zones, in order. Single source of truth: the fill colours, the
+ * boundary tick marks and the legend are all derived from this, so they cannot
+ * drift apart.
+ */
+const ZONES = [
+  { to: COOLANT_COLD_C, color: 'var(--temp-cold)', label: 'Cold' },
+  { to: COOLANT_NOMINAL_C, color: 'var(--temp-warming)', label: 'Warming' },
+  { to: COOLANT_HOT_C, color: 'var(--temp-nominal)', label: 'Nominal' },
+  { to: COOLANT_MAX_C, color: 'var(--temp-hot)', label: 'Hot' },
 ];
+
+/** Boundary temperatures — every zone edge except the far end of the bar. */
+const BOUNDARIES = ZONES.slice(0, -1).map((z) => z.to);
+
+/**
+ * Legend positions, centred in each zone rather than sat on the boundary.
+ * On a blended ramp a label on the line read as "the point where it turns
+ * cold"; against flat bands it has to name the band under it.
+ */
+const LEGEND = ZONES.map((zone, i) => ({
+  label: zone.label,
+  at: ((i === 0 ? COOLANT_MIN_C : ZONES[i - 1].to) + zone.to) / 2,
+}));
 
 /** Coolant bar: grows left to right over a cold-to-hot gradient. */
 export function createTempBar(): TempBar {
@@ -29,6 +49,8 @@ export function createTempBar(): TempBar {
   el.setAttribute('aria-valuemin', String(Math.round(toF(COOLANT_MIN_C))));
   el.setAttribute('aria-valuemax', String(Math.round(toF(COOLANT_MAX_C))));
 
+  const fillBackground = solidZones('to right', COOLANT_MIN_C, COOLANT_MAX_C, ZONES);
+
   el.innerHTML = `
     <div class="temp__head">
       <span class="temp__label">Coolant</span>
@@ -36,11 +58,11 @@ export function createTempBar(): TempBar {
         class="temp__unit">°F</span></span>
     </div>
     <div class="temp__track">
-      <div class="temp__fill" data-role="fill"></div>
-      ${TICKS.map((t) => `<span class="temp__tick" style="left:${pct(t.c).toFixed(2)}%"></span>`).join('')}
+      <div class="temp__fill" data-role="fill" style="background:${fillBackground}"></div>
+      ${BOUNDARIES.map((c) => `<span class="temp__tick" style="left:${pct(c).toFixed(2)}%"></span>`).join('')}
     </div>
     <div class="temp__legend" aria-hidden="true">
-      ${TICKS.map((t) => `<span class="temp__legend-item" style="left:${pct(t.c).toFixed(2)}%">${t.label}</span>`).join('')}
+      ${LEGEND.map((l) => `<span class="temp__legend-item" style="left:${pct(l.at).toFixed(2)}%">${l.label}</span>`).join('')}
     </div>`;
 
   const fill = must<HTMLElement>(el, '[data-role="fill"]');
@@ -69,16 +91,20 @@ export function createTempBar(): TempBar {
       const band = tempBand(c);
       el.dataset.band = band;
       el.setAttribute('aria-valuenow', String(f));
-      el.setAttribute('aria-valuetext', `${f} degrees Fahrenheit, ${BAND_LABEL[band]}`);
+      // Overheating gets no colour of its own (it is inside the hot zone), so
+      // it has to be said rather than shown.
+      const overheating = c >= COOLANT_CRITICAL_C ? ', overheating' : '';
+      el.setAttribute('aria-valuetext', `${f} degrees Fahrenheit, ${BAND_LABEL[band]}${overheating}`);
     },
   };
 }
 
+/** The zone the reading sits in — the same four the bar paints. */
 export function tempBand(coolantC: number): TempBand {
-  if (coolantC >= COOLANT_CRITICAL_C) return 'critical';
-  if (coolantC >= COOLANT_HOT_C) return 'warn';
-  if (coolantC < COOLANT_COLD_C) return 'cold';
-  return 'normal';
+  if (coolantC >= COOLANT_HOT_C) return 'hot';
+  if (coolantC >= COOLANT_NOMINAL_C) return 'normal';
+  if (coolantC >= COOLANT_COLD_C) return 'warming';
+  return 'cold';
 }
 
 function pct(c: number): number {

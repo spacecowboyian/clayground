@@ -26,28 +26,34 @@
   --border: #404040;
   --accent-orange: #d97706;
 
-  /* ── Tach ramp ───────────────────────────────────────────────────────── */
+  /*
+   * ── Meter ZONE fills ──────────────────────────────────────────────────
+   * Flat bands, no blending: each zone is one colour with a hard edge. These
+   * are large solid areas rather than text, so they carry no contrast minimum
+   * and are picked for separation from each other at a glance.
+   */
   --rpm-green: #10b981;
   --rpm-yellow: #f59e0b;
   --rpm-red: #ef4444;
   --rpm-redline: #b91c1c;
 
-  /* ── Coolant ramp, cold to hot ───────────────────────────────────────── */
-  --temp-0: #2563eb;
-  --temp-1: #38bdf8;
-  --temp-2: #10b981;
-  --temp-3: #f59e0b;
-  --temp-4: #dc2626;
+  --temp-cold: #3b82f6;
+  --temp-warming: #8b5cf6;
+  --temp-nominal: #10b981;
+  --temp-hot: #dc2626;
 
   /*
-   * Band colours for TEXT. Brighter siblings of the Gearhead accents, each
-   * verified at >= 4.5:1 against --background so even a small label clears
-   * WCAG AA: cold 7.4:1 - normal 6.3:1 - warn 7.4:1 - critical 5.8:1.
+   * ── Band colours for TEXT ─────────────────────────────────────────────
+   * Same four coolant zones, but brighter: these are read as small type, so
+   * each is verified at >= 4.5:1 against --background for WCAG AA.
+   * cold 7.4:1 - warming 5.9:1 - normal 6.3:1 - hot 5.8:1.
+   * The fill tokens above would fail here (that blue is 4.3:1, that purple
+   * 3.8:1), which is why the two sets are separate.
    */
   --band-cold: #38bdf8;
+  --band-warming: #a78bfa;
   --band-normal: #10b981;
-  --band-warn: #f59e0b;
-  --band-critical: #f87171;
+  --band-hot: #f87171;
 
   /* Set per-band on the root by main.ts; everything else reads these. */
   --band: var(--band-normal);
@@ -65,10 +71,10 @@
   --pad: 0.75rem;
 }
 
-:root[data-band='cold']     { --band: var(--band-cold);     --band-dim: #11283a; }
-:root[data-band='normal']   { --band: var(--band-normal);   --band-dim: #10312a; }
-:root[data-band='warn']     { --band: var(--band-warn);     --band-dim: #3a2c0d; }
-:root[data-band='critical'] { --band: var(--band-critical); --band-dim: #3a1c1c; }
+:root[data-band='cold']    { --band: var(--band-cold);    --band-dim: #11283a; }
+:root[data-band='warming'] { --band: var(--band-warming); --band-dim: #241b3a; }
+:root[data-band='normal']  { --band: var(--band-normal);  --band-dim: #10312a; }
+:root[data-band='hot']     { --band: var(--band-hot);     --band-dim: #3a1c1c; }
 
 /* A dead or stale link must not look like a confident reading. */
 :root[data-link='stale'],
