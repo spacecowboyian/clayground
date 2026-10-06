@@ -244,8 +244,8 @@ body {
   position: absolute;
   z-index: 1;
   right: var(--pad);
-  top: 50%;
-  transform: translateY(-50%);
+  /* `bottom` and the horizontal nudge are set from the font's own metrics in
+     tempbar.ts — the seat has to come from the face actually in use. */
   display: flex;
   align-items: baseline;
   color: var(--divider);
@@ -261,6 +261,8 @@ body {
 }
 
 .temp__unit {
+  /* Offset from the digits' baseline so the crop does not eat it; see seat(). */
+  position: relative;
   font-family: var(--font-ui);
   font-size: 0.7rem;
   font-weight: 400;

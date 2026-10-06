@@ -11,6 +11,11 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### feat(esp32-obd-gauge)
+- **The coolant reading is seated like the grid's numerals** — dropped out of the middle of the bar until the feet of its digits are cut by the bottom edge, and pushed to the right edge of the screen. It lands 2.1px past the edge where a cell's numeral lands 1–3px depending on whether its digits are round, so it reads as one family with them.
+- **Right-aligned by its ink, not by its box.** `rightBearing()` mirrors the existing `leftBearing()`: canvas reports where the last stroke actually ends inside the glyph's advance, and the readout is nudged by the difference. The `°F` now stops exactly `--pad` from the screen edge — 12px, the same margin the tile labels keep on the left, measured on the rendered pixel.
+- **The unit is lifted back out of the crop.** It rides the digits' baseline, so the same cut would have taken three of its eleven pixels — a third of a cap height, against a couple of percent on the digits. The numerals break the edge of the bar; the unit sits on it.
+
 ### style(esp32-obd-gauge)
 - **The coolant reading is dark rather than white.** It now takes `--divider`, the same near-black as the reference lines, so the bar's dark elements read as one family instead of the number sitting on top as a highlight. It costs contrast: against the quarter-strength washes the dark reading measures 1.9:1 on blue, 2.1:1 on green and 2.2:1 on amber — under the 3:1 floor for large text — and clears it only on the full-strength red, at 3.6:1. Measured on the rendered pixel, compositing the wash over the track. Raising `WASH` in `tempbar.ts` is the lever if that ever matters; at the moment the number is large, bold and the only text in the bar.
 

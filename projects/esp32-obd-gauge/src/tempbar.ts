@@ -9,6 +9,7 @@ import {
   COOLANT_SCALE_MID_C,
   COOLANT_WARM_C,
 } from './vehicle';
+import { baselineDrop, rightBearing } from './numerals';
 import { BAND_LABEL, type TelemetryState, type TempBand } from './telemetry/types';
 import { toF } from './units';
 
@@ -23,6 +24,13 @@ export interface TempBar {
  * alpha can be varied here.
  */
 const WASH = 0.25;
+
+/**
+ * How far past the bar's bottom edge the digits' baseline is pushed — the same
+ * crop the tach and the grid cells use, so the reading is seated like every
+ * other number on the dash rather than floating in the middle of its band.
+ */
+const CROP_PX = 3;
 
 /**
  * The whole bar takes ONE colour, picked by where the reading sits — not a row
@@ -84,10 +92,41 @@ export function createTempBar(): TempBar {
   const wash = must<HTMLElement>(el, '[data-role="wash"]');
   const needle = must<HTMLElement>(el, '[data-role="needle"]');
   const value = must<HTMLElement>(el, '[data-role="value"]');
+  const readout = must<HTMLElement>(el, '.temp__readout');
+  const unit = must<HTMLElement>(el, '.temp__unit');
+  let seatedAt = '';
+
+  /*
+   * Seats the reading the way a grid cell seats its numeral: dropped until the
+   * feet of the digits are cut off by the bottom of the bar, and nudged so its
+   * last stroke of ink lands on the padding line rather than the right edge of
+   * the glyph's advance.
+   *
+   * The unit is lifted back out of the crop. It rides the digits' baseline, so
+   * it would otherwise lose three of its eleven pixels to the same cut — a
+   * third of a cap height, where on the digits it is a couple of percent. The
+   * numerals break the edge of the bar; the unit sits on it.
+   *
+   * Nothing here moves unless the font does, so it is keyed on the size rather
+   * than run on every frame.
+   */
+  const seat = (): void => {
+    const key = getComputedStyle(value).fontSize;
+    if (key === seatedAt || Number.parseFloat(key) === 0) return;
+    seatedAt = key;
+
+    readout.style.bottom = `${baselineDrop(value, CROP_PX).toFixed(2)}px`;
+    unit.style.bottom = `${CROP_PX}px`;
+
+    const overhang = rightBearing(unit, unit.textContent ?? '');
+    readout.style.transform =
+      Math.abs(overhang) > 0.1 ? `translateX(${overhang.toFixed(2)}px)` : '';
+  };
 
   return {
     el,
     update(state) {
+      seat();
       const frame = state.frame;
       const usable = frame !== null && state.connection !== 'disconnected';
       const c = usable && Number.isFinite(frame.coolantC) ? frame.coolantC : null;

@@ -85,3 +85,22 @@ export function leftBearing(el: HTMLElement, text: string): number {
   const { actualBoundingBoxLeft } = probe.measureText(text);
   return Number.isFinite(actualBoundingBoxLeft) ? -actualBoundingBoxLeft : 0;
 }
+
+
+/**
+ * How far short of its own advance a string's ink ends.
+ *
+ * The mirror of `leftBearing`, for text set against a right edge. Canvas
+ * reports the ink's right edge from the origin and `width` is the advance, so
+ * the difference is the gap the glyph leaves inside its own box. Shifting by
+ * that puts the last stroke of ink on the padding line instead of the invisible
+ * edge of the advance, which is what the eye measures the margin from.
+ */
+export function rightBearing(el: HTMLElement, text: string): number {
+  if (!probe || text === '') return 0;
+  const style = getComputedStyle(el);
+  probe.font = `${style.fontWeight} ${Number.parseFloat(style.fontSize)}px ${style.fontFamily}`;
+  const metrics = probe.measureText(text);
+  const { width, actualBoundingBoxRight } = metrics;
+  return Number.isFinite(actualBoundingBoxRight) ? width - actualBoundingBoxRight : 0;
+}
