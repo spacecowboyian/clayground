@@ -281,19 +281,13 @@ body {
   opacity: 0.85;
 }
 
+/* The band is labelled by its role="meter" aria-label, so the reading needs no
+   printed caption — it sits centred under the bar on its own. */
 .temp__readout {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: center;
   padding: 0.1rem var(--pad) 0;
-}
-
-.temp__label {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted-foreground);
 }
 
 .temp__value {

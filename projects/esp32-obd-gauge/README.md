@@ -21,8 +21,9 @@ Portrait, three bands, top to bottom:
    channel-by-channel midpoint of cold and nominal, so the first three read as
    one progression. Every zone but hot paints at half strength, so the band
    stays quiet until the engine is actually in trouble and one zone lights at
-   full saturation. The zones carry no printed names — colour and boundary
-   ticks say where you are, and the band is still spoken for screen readers.
+   full saturation. Nothing is captioned — no zone names, no "coolant" label;
+   colour and boundary ticks say where you are, the reading sits centred under
+   the bar, and the band is still spoken for screen readers.
 
    The scale bottoms out at **32 °F, not at the operating range**, so the bar is
    off its stop and climbing from the moment the engine fires.
