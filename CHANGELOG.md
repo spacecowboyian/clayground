@@ -11,6 +11,11 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### feat(esp32-obd-gauge)
+- **The coolant bar gets a label instead of a unit beside its number** — `COOLANT °F` at the top left, in the cells' label type: same size, weight, tracking and inset from the corner, unit riding alongside exactly as a cell's does. With the unit gone from the reading, the number moves right into the space it held and its last digit now sets the right margin.
+- **The label cannot take the cells' `--muted-foreground`.** That colour is chosen against the page; here it sits on the wash, where it measures 3.7:1 on blue, 3.3:1 on green, 3.1:1 on amber and 1.9:1 on red — all short of the 4.5:1 small text needs. `--foreground` clears it on three (8.5 / 7.5 / 7.2) and reaches 4.4:1 on the red, a shade under. So weight alone separates label from unit here, where a cell has colour to spend as well.
+- **The new right-hand bearing is averaged over all ten digits rather than read off the live reading.** The right edge is set by the LAST glyph, which is the ones digit and turns over twice a second, and the bearing swings 2.35–5.35px across the ten — enough to make the number visibly dance in place. One average holds it still, at the cost of landing up to 1.7px either side of the margin. (The left bearing is still read live: a leading digit changes rarely, and trailing letter-spacing does not touch a left edge.)
+
 ### fix(esp32-obd-gauge)
 - **The root element is painted, not just `body`.** On its own, `body`'s background propagates to the canvas and the whole viewport comes out dark — but that stops the moment the page is embedded in a host that styles the root itself, which is what the published build is. `body` then paints only its own box and the strip the safe-area inset leaves above the gauge shows the host's colour, which reads as a band of some other grey behind the tach. Reproduced under a deliberately white host that pads the root: the strip was the host's colour, and now computes to `#222222`. The tach's own surface and the grid cells were already identical — both sample `rgb(34,34,34)` — so this was the only surface that could differ.
 

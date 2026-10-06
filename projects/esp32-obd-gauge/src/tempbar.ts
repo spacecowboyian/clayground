@@ -9,7 +9,7 @@ import {
   COOLANT_SCALE_MID_C,
   COOLANT_WARM_C,
 } from './vehicle';
-import { baselineDrop, rightBearing } from './numerals';
+import { baselineDrop, digitRightBearing } from './numerals';
 import { BAND_LABEL, type TelemetryState, type TempBand } from './telemetry/types';
 import { toF } from './units';
 
@@ -85,27 +85,22 @@ export function createTempBar(): TempBar {
       <div class="temp__wash" data-role="wash"></div>
       ${MARKS.map((c) => `<span class="temp__mark" style="left:${pct(c).toFixed(2)}%"></span>`).join('')}
       <span class="temp__needle" data-role="needle"></span>
-      <span class="temp__readout"><span data-role="value">––</span><span
-        class="temp__unit">°F</span></span>
+      <span class="temp__label">Coolant <span class="temp__unit">°F</span></span>
+      <span class="temp__readout"><span data-role="value">––</span></span>
     </div>`;
 
   const wash = must<HTMLElement>(el, '[data-role="wash"]');
   const needle = must<HTMLElement>(el, '[data-role="needle"]');
   const value = must<HTMLElement>(el, '[data-role="value"]');
   const readout = must<HTMLElement>(el, '.temp__readout');
-  const unit = must<HTMLElement>(el, '.temp__unit');
   let seatedAt = '';
 
   /*
    * Seats the reading the way a grid cell seats its numeral: dropped until the
-   * feet of the digits are cut off by the bottom of the bar, and nudged so its
+   * feet of the digits are cut off by the bottom of the bar, and nudged so the
    * last stroke of ink lands on the padding line rather than the right edge of
-   * the glyph's advance.
-   *
-   * The unit is lifted back out of the crop. It rides the digits' baseline, so
-   * it would otherwise lose three of its eleven pixels to the same cut — a
-   * third of a cap height, where on the digits it is a couple of percent. The
-   * numerals break the edge of the bar; the unit sits on it.
+   * the glyph's advance. The unit is not beside it — it rides the label on the
+   * far side of the bar, exactly as a cell's does.
    *
    * Nothing here moves unless the font does, so it is keyed on the size rather
    * than run on every frame.
@@ -116,9 +111,8 @@ export function createTempBar(): TempBar {
     seatedAt = key;
 
     readout.style.bottom = `${baselineDrop(value, CROP_PX).toFixed(2)}px`;
-    unit.style.bottom = `${CROP_PX}px`;
 
-    const overhang = rightBearing(unit, unit.textContent ?? '');
+    const overhang = digitRightBearing(value);
     readout.style.transform =
       Math.abs(overhang) > 0.1 ? `translateX(${overhang.toFixed(2)}px)` : '';
   };

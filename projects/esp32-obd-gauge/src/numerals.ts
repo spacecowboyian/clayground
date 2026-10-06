@@ -88,19 +88,30 @@ export function leftBearing(el: HTMLElement, text: string): number {
 
 
 /**
- * How far short of its own advance a string's ink ends.
+ * How far short of its own advance a digit's ink ends, averaged over all ten.
  *
- * The mirror of `leftBearing`, for text set against a right edge. Canvas
+ * The mirror of `leftBearing`, for a numeral set against a right edge: canvas
  * reports the ink's right edge from the origin and `width` is the advance, so
  * the difference is the gap the glyph leaves inside its own box. Shifting by
- * that puts the last stroke of ink on the padding line instead of the invisible
- * edge of the advance, which is what the eye measures the margin from.
+ * that puts the last stroke of ink on the padding line rather than the
+ * invisible edge of the advance, which is what the eye measures a margin from.
+ *
+ * Unlike the left bearing this cannot be taken from the live reading. The right
+ * edge is set by the LAST glyph, which is the ones digit and turns over twice a
+ * second, and the bearing swings by 3px across the ten — enough to make the
+ * number visibly dance in place. One average for all of them holds still, at
+ * the cost of landing up to 1.7px either side of the line.
  */
-export function rightBearing(el: HTMLElement, text: string): number {
-  if (!probe || text === '') return 0;
+export function digitRightBearing(el: HTMLElement): number {
+  if (!probe) return 0;
   const style = getComputedStyle(el);
   probe.font = `${style.fontWeight} ${Number.parseFloat(style.fontSize)}px ${style.fontFamily}`;
-  const metrics = probe.measureText(text);
-  const { width, actualBoundingBoxRight } = metrics;
-  return Number.isFinite(actualBoundingBoxRight) ? width - actualBoundingBoxRight : 0;
+
+  let total = 0;
+  for (const digit of DIGITS) {
+    const { width, actualBoundingBoxRight } = probe.measureText(digit);
+    if (!Number.isFinite(actualBoundingBoxRight)) return 0;
+    total += width - actualBoundingBoxRight;
+  }
+  return total / DIGITS.length;
 }
