@@ -192,15 +192,66 @@ function fit(cell: Cell): void {
   cell.box.style.fontSize = '';
   const available = cell.box.clientWidth;
   if (available <= 0) return;
+  // Sized first, then cropped — the drop depends on the size that is chosen.
+  const crop = (): void => cropToBaseline(cell);
 
   // A couple of pixels of slack: sizing to exactly the available width leaves
   // sub-pixel rounding to shave the last glyph.
   const room = available - 2;
   const numeral = cell.value.getBoundingClientRect().width;
-  if (numeral <= room) return;
+  if (numeral <= room) {
+    crop();
+    return;
+  }
 
   const ceiling = Number.parseFloat(getComputedStyle(cell.box).fontSize);
   cell.box.style.fontSize = `${Math.floor(ceiling * Math.max(0.25, room / numeral))}px`;
+  crop();
+}
+
+/** How far past the cell's bottom edge the digits' baseline is pushed. */
+const CROP_PX = 3;
+
+/** One shared context; measuring text needs no canvas in the document. */
+const probe = document.createElement('canvas').getContext('2d');
+
+/**
+ * Drops the numeral so the bottom few pixels of the digits are cut off by the
+ * cell.
+ *
+ * The offset cannot be a constant. Each cell sizes its own numeral, so the
+ * empty descender space below the digits differs cell to cell, and the metrics
+ * differ again between the font a desktop browser resolves and the one iOS
+ * does. So it is derived from the font actually in use: with `line-height: 1`
+ * the baseline sits `(size - ascent + descent) / 2` above the bottom of its
+ * line box.
+ *
+ * Round digits also sit slightly below the baseline — 3, 5, 0 and 8 overshoot
+ * for optical correction where 2 and 4 are flat — which is worth 2px at this
+ * size and would otherwise make the crop vary by value. The overshoot is
+ * measured across all ten digits rather than the digits currently shown, so the
+ * numeral holds still as the reading changes instead of hopping a couple of
+ * pixels whenever a round digit rolls in.
+ */
+function cropToBaseline(cell: Cell): void {
+  const style = getComputedStyle(cell.box);
+  const size = Number.parseFloat(style.fontSize);
+  let gap = size * 0.2;
+  let overshoot = 0;
+
+  if (probe) {
+    probe.font = `${style.fontWeight} ${size}px ${style.fontFamily}`;
+    const m = probe.measureText('0123456789');
+    // Safari only grew these in 11.1 and they can still come back undefined.
+    if (Number.isFinite(m.fontBoundingBoxAscent) && Number.isFinite(m.fontBoundingBoxDescent)) {
+      gap = (size - m.fontBoundingBoxAscent + m.fontBoundingBoxDescent) / 2;
+    }
+    if (Number.isFinite(m.actualBoundingBoxDescent)) {
+      overshoot = Math.max(0, m.actualBoundingBoxDescent);
+    }
+  }
+
+  cell.box.style.bottom = `${-(gap - overshoot + CROP_PX).toFixed(2)}px`;
 }
 
 function loadSlots(): string[] {

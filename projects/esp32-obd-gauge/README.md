@@ -34,7 +34,9 @@ Portrait, three bands, top to bottom:
 
 3. **Six configurable tiles** — a full-bleed grid ruled by 1px lines, butted
    straight onto the coolant band. Each cell's reading runs as a large numeral
-   filling it top to bottom, with the label over it. **Press and hold any tile**
+   filling it top to bottom with the label over it, dropped far enough that
+   the bottom few pixels of the digits are cropped by the cell edge.
+   **Press and hold any tile**
    to choose what it shows from 13 readouts; the choice persists on that phone.
    A rule inside a cell's bottom edge marks it as a session value you can tap to
    reset.

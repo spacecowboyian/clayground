@@ -338,11 +338,14 @@ body {
 .tile__value {
   position: absolute;
   top: 0;
+  /* Overridden per cell by tilegrid.ts, which drops the box far enough that the
+     digits' baseline falls a few pixels past the cell's bottom edge and the
+     cell's own overflow crops them. */
   bottom: 0;
   left: var(--pad);
   right: var(--pad);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-start;
   gap: 0.1rem;
   overflow: hidden;
