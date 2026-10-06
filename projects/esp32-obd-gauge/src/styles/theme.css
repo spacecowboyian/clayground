@@ -37,22 +37,29 @@
   --rpm-red: #ef4444;
   --rpm-redline: #b91c1c;
 
-  --temp-cold: #3b82f6;
-  --temp-warming: #8b5cf6;
-  --temp-nominal: #10b981;
-  --temp-hot: #dc2626;
+  /*
+   * Coolant zones as channel triplets, not hex: every zone but hot is painted
+   * at half alpha over the track, and that needs an alpha channel to vary.
+   */
+  --temp-cold-rgb: 59 130 246;
+  --temp-cool-rgb: 139 92 246;
+  --temp-nominal-rgb: 16 185 129;
+  --temp-warm-rgb: 245 158 11;
+  --temp-hot-rgb: 220 38 38;
 
   /*
    * ── Band colours for TEXT ─────────────────────────────────────────────
    * Same four coolant zones, but brighter: these are read as small type, so
    * each is verified at >= 4.5:1 against --background for WCAG AA.
-   * cold 7.4:1 - warming 5.9:1 - normal 6.3:1 - hot 5.8:1.
-   * The fill tokens above would fail here (that blue is 4.3:1, that purple
-   * 3.8:1), which is why the two sets are separate.
+   * cold 7.4:1 - cool 5.9:1 - normal 6.3:1 - warm 9.5:1 - hot 5.8:1.
+   * The fill colours above would fail here (that blue is 4.3:1, that purple
+   * 3.8:1, and they are halved again by alpha), which is why the two sets are
+   * separate.
    */
   --band-cold: #38bdf8;
-  --band-warming: #a78bfa;
+  --band-cool: #a78bfa;
   --band-normal: #10b981;
+  --band-warm: #fbbf24;
   --band-hot: #f87171;
 
   /* Set per-band on the root by main.ts; everything else reads these. */
@@ -75,10 +82,11 @@
   --pad: 0.75rem;
 }
 
-:root[data-band='cold']    { --band: var(--band-cold);    --band-dim: #11283a; }
-:root[data-band='warming'] { --band: var(--band-warming); --band-dim: #241b3a; }
-:root[data-band='normal']  { --band: var(--band-normal);  --band-dim: #10312a; }
-:root[data-band='hot']     { --band: var(--band-hot);     --band-dim: #3a1c1c; }
+:root[data-band='cold']   { --band: var(--band-cold);   --band-dim: #11283a; }
+:root[data-band='cool']   { --band: var(--band-cool);   --band-dim: #241b3a; }
+:root[data-band='normal'] { --band: var(--band-normal); --band-dim: #10312a; }
+:root[data-band='warm']   { --band: var(--band-warm);   --band-dim: #3a2c0d; }
+:root[data-band='hot']    { --band: var(--band-hot);    --band-dim: #3a1c1c; }
 
 /* A dead or stale link must not look like a confident reading. */
 :root[data-link='stale'],

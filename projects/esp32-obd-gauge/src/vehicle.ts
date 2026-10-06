@@ -24,12 +24,29 @@ export const RPM_YELLOW = 4400;
 export const RPM_RED = 6000;
 
 /* ── Coolant, in Celsius (the PID's native unit); displayed in Fahrenheit ──
- * Thermostat opens ~82C/180F, normal running 85-96C/185-205F, fans pull it
- * back from ~102C/215F. Past 110C/230F you are cooking the head gasket.
+ * Five zones. Thermostat opens ~82C/180F, normal running 85-96C/185-205F, fans
+ * pull it back from ~104C/219F. Past 110C/230F you are cooking the head gasket.
  */
-export const COOLANT_MIN_C = 38;
-export const COOLANT_MAX_C = 121;
-export const COOLANT_COLD_C = 71;
-export const COOLANT_NOMINAL_C = 88;
-export const COOLANT_HOT_C = 102;
-export const COOLANT_CRITICAL_C = 110;
+export const COOLANT_MIN_C = 38; /* 100F */
+export const COOLANT_COLD_C = 71; /* 160F — cold to cool */
+export const COOLANT_NOMINAL_C = 85; /* 185F — cool to nominal */
+export const COOLANT_WARM_C = 96; /* 205F — nominal to warm */
+export const COOLANT_HOT_C = 104; /* 219F — warm to hot */
+export const COOLANT_CRITICAL_C = 110; /* 230F */
+export const COOLANT_MAX_C = 121; /* 250F */
+
+/**
+ * The temperature pinned to the middle of the bar: the centre of the nominal
+ * zone, so "where it should be" is "the middle of the screen". The scale is
+ * asymmetric around it — 52C of range below, 31C above.
+ */
+export const COOLANT_SCALE_MID_C = (COOLANT_NOMINAL_C + COOLANT_WARM_C) / 2;
+
+/**
+ * Shapes the scale either side of that centre. Above 1 the bar crawls near
+ * nominal and lunges toward either extreme: steady while the engine sits where
+ * it belongs, dramatic the moment it leaves. Set to 1 for a plain linear
+ * scale, or below 1 to invert it into a classic expanded-scale gauge that
+ * spends most of its width on the operating range.
+ */
+export const COOLANT_SCALE_EXP = 1.2;

@@ -26,12 +26,18 @@ export function createRpmMeter(): RpmMeter {
   el.setAttribute('aria-valuemin', '0');
   el.setAttribute('aria-valuemax', String(RPM_MAX));
 
-  const fillBackground = solidZones('to top', 0, RPM_MAX, [
-    { to: RPM_YELLOW, color: 'var(--rpm-green)' },
-    { to: RPM_RED, color: 'var(--rpm-yellow)' },
-    { to: RPM_REDLINE, color: 'var(--rpm-red)' },
-    { to: RPM_MAX, color: 'var(--rpm-redline)' },
-  ]);
+  // The tach scale stays linear; only the coolant band is shaped.
+  const fillBackground = solidZones(
+    'to top',
+    [
+      { to: RPM_YELLOW, color: 'var(--rpm-green)' },
+      { to: RPM_RED, color: 'var(--rpm-yellow)' },
+      { to: RPM_REDLINE, color: 'var(--rpm-red)' },
+      { to: RPM_MAX, color: 'var(--rpm-redline)' },
+    ],
+    0,
+    pct,
+  );
 
   el.innerHTML = `
     <div class="rpm__fill" data-role="fill" style="background:${fillBackground}"></div>

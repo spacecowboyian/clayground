@@ -16,10 +16,19 @@ Portrait, three bands, top to bottom:
    in peripheral vision, and a flashing light at eye level on a dash is a
    photosensitivity hazard.
 2. **Coolant band** — full bleed and square, butted straight onto the tach with
-   a 2px seam so the two read as one instrument. Grows left to right across
-   four flat zones with hard edges: blue cold, purple warming, green nominal,
-   red hot. Its labels and readout sit inside the band, on their own strips
-   below the colour — nothing is drawn over the zones.
+   a 2px seam so the two read as one instrument. Five flat zones with hard
+   edges: blue cold, purple cool, green norm, amber warm, red hot. Every zone
+   but hot paints at half strength, so the band stays quiet until the engine is
+   actually in trouble and one zone lights at full saturation. Labels and
+   readout sit inside the band, below the colour — nothing is drawn over the
+   zones.
+
+   Its scale is **not linear**. The centre of the nominal zone is pinned to the
+   middle of the screen, and each half is shaped by `COOLANT_SCALE_EXP`, so the
+   bar crawls near nominal (~0.42 %/°F) and lunges toward either end (~0.61
+   %/°F cold, ~1.03 %/°F hot): steady while the engine sits where it belongs,
+   dramatic the moment it leaves. Set the exponent to 1 for a linear scale, or
+   below 1 to invert it into a classic expanded-scale gauge.
 3. **Six configurable tiles** — **press and hold any tile** to choose what it
    shows from 13 readouts. The choice persists on that phone.
 
