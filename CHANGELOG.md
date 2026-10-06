@@ -11,6 +11,9 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.
 
 _Changes not yet pushed to `main` go here._
 
+### fix(esp32-obd-gauge)
+- **Every reading is now cut by the edge it sits on, whatever digits it is showing.** The seat anchored the lowest *ink* `cropPx` past the edge, which meant subtracting the round digits' overshoot — so `17` lost 1px where `75` lost 3, and flat readings sat all but flush. That overshoot exists precisely so round glyphs read as deep as flat ones, so the fix is to let it ride: the BASELINE is anchored instead, every reading loses at least 3px, and round digits go to 5px exactly as the face intends. Measured across all eight readings on screen. (All four containers already hid their overflow.)
+
 ### feat(esp32-obd-gauge)
 - **The tach reading is the grid's numeral too** — 4.5rem, seated at the bottom right of the region with its feet cropped at 3.00px, the same as the coolant reading and the cells. It was a viewport-scaled watermark running off both edges at up to 18rem; all three readings on the dash are now one size, right-aligned down the same edge.
 - **It is painted in the tach's own background colour.** On the unlit part of the region it therefore does not exist, and the fill is what makes it legible: where the colour has risen past it the number is punched out of that colour, so the reading appears exactly as far up as the engine has revved. Verified it also knocks out of the solid red the region takes at the shift point, by holding that overlay on and checking the stacking.

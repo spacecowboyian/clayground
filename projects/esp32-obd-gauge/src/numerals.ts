@@ -34,18 +34,26 @@ function measure(el: HTMLElement): {
 }
 
 /**
- * The `bottom` offset that drops a numeral until `cropPx` of its digits fall
- * past the bottom of its box.
+ * The `bottom` offset that drops a numeral's BASELINE `cropPx` past the bottom
+ * of its box, so every reading is cut off by the edge it sits on.
  *
  * The baseline sits `(lineHeight - ascent + descent) / 2` above the bottom of
- * its line box. Round digits then sit a little below the baseline — 3, 5, 0 and
- * 8 overshoot for optical correction where 2 and 4 are flat — so that is
- * subtracted, leaving the lowest ink exactly `cropPx` past the edge.
+ * its line box, and that is the whole calculation. An earlier version also
+ * subtracted the round digits' overshoot — 3, 5, 0, 6, 8 and 9 sit a little
+ * below the baseline where 1, 2, 4 and 7 are flat — to put the lowest ink
+ * exactly `cropPx` past the edge whatever was showing. That made the crop
+ * geometrically equal and optically wrong: a reading of 17 lost 1px where 75
+ * lost 3, so flat readings sat all but flush while round ones were visibly
+ * cut.
+ *
+ * The overshoot exists precisely so round glyphs read as deep as flat ones, so
+ * the fix is to let it ride: anchoring the baseline cuts every reading by at
+ * least `cropPx`, and the round digits go a little deeper exactly as the face
+ * intends. The container must hide its overflow for any of this to show.
  */
 export function baselineDrop(el: HTMLElement, cropPx: number): number {
   const { size, lineHeight, metrics } = measure(el);
   let gap = lineHeight - size * 0.8;
-  let overshoot = 0;
 
   if (metrics) {
     const { fontBoundingBoxAscent: ascent, fontBoundingBoxDescent: descent } = metrics;
@@ -53,12 +61,9 @@ export function baselineDrop(el: HTMLElement, cropPx: number): number {
     if (Number.isFinite(ascent) && Number.isFinite(descent)) {
       gap = (lineHeight - ascent + descent) / 2;
     }
-    if (Number.isFinite(metrics.actualBoundingBoxDescent)) {
-      overshoot = Math.max(0, metrics.actualBoundingBoxDescent);
-    }
   }
 
-  return -(gap - overshoot + cropPx);
+  return -(gap + cropPx);
 }
 
 /**
