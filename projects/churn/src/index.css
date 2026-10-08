@@ -1,0 +1,105 @@
+/* Import gearhead theme tokens (CSS custom properties) */
+@import '../node_modules/@gearhead/ui/src/styles/theme.css';
+@import '../node_modules/@gearhead/ui/src/styles/fonts.css';
+@import '@fontsource-variable/fraunces/full.css';
+@import '@fontsource-variable/fraunces/full-italic.css';
+
+/* Tailwind v4 — source both gearhead components and our own */
+@import 'tailwindcss' source(none);
+@source '../node_modules/@gearhead/ui/src/components/**/*.{ts,tsx}';
+@source './components/**/*.{ts,tsx}';
+@source './sections/**/*.{ts,tsx}';
+@source './App.tsx';
+
+/* Churn's world is an Amish quilt: solid jewel-tone cloth on a near-black
+   ground, bound in butter yellow. Gearhead's own tokens are re-pointed at the
+   same palette so Accordion / Dialog / Button sit in the world. */
+:root {
+  --quilt-ground: #15111a;
+  --quilt-ground-raised: #211a28;
+  --quilt-seam: #3a3044;
+  --quilt-plum: #5e2a5c;
+  --quilt-wine: #7a1f33;
+  --quilt-teal: #1f5e63;
+  --quilt-cobalt: #2d3f8f;
+  --quilt-moss: #3d5e2a;
+  --quilt-rose: #b0465c;
+  --quilt-violet: #4b2f7a;
+  --churn-butter: #f4c542;
+  --churn-butter-deep: #d8a51c;
+  --churn-paper: #f3ead6;
+  --churn-paper-shade: #e3d6b8;
+  --churn-ink: #1a1612;
+  --churn-muted: #b9aec4;
+  --churn-court: #6cc07a;
+  --churn-pass: #ef6a5a;
+  --font-churn-display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+
+  --background: var(--quilt-ground);
+  --foreground: var(--churn-paper);
+  --card: var(--quilt-ground-raised);
+  --card-foreground: var(--churn-paper);
+  --secondary: var(--quilt-seam);
+  --muted-foreground: var(--churn-muted);
+  --border: var(--quilt-seam);
+  --ring: var(--churn-butter);
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-color: var(--quilt-seam) var(--quilt-ground);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--quilt-ground);
+  color: var(--churn-paper);
+}
+
+::selection {
+  background: var(--churn-butter);
+  color: var(--churn-ink);
+}
+
+:focus-visible {
+  outline-color: var(--churn-butter);
+}
+
+.font-display {
+  font-family: var(--font-churn-display);
+  font-optical-sizing: auto;
+}
+
+/* Swipe cards: the drag transform is set inline; this only animates the
+   snap-back / fling once the pointer lets go. */
+.swipe-card {
+  touch-action: pan-y;
+  will-change: transform;
+}
+.swipe-card.is-settling {
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms ease-out;
+}
+
+/* The "Looking for" ticker: two copies of the strip, slid by half. */
+@keyframes churn-ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.ticker-track {
+  animation: churn-ticker 60s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .swipe-card.is-settling {
+    transition: none;
+  }
+  .ticker-track {
+    animation: none;
+  }
+}
