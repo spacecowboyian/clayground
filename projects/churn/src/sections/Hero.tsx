@@ -19,7 +19,7 @@ export function Hero() {
 
       <div className="mx-auto max-w-6xl px-4 pt-10 text-center sm:px-6 sm:pt-16">
         <h1 className="font-display text-[clamp(3.1rem,9vw,6rem)] font-semibold leading-[0.95] tracking-[-0.03em] text-balance">
-          Find your <em className="font-medium text-[var(--churn-butter)]">butter half.</em>
+          Find your <em className="font-medium text-[var(--churn-butter)]">butter</em> half.
         </h1>
         <p className="mx-auto mt-6 max-w-[38ch] text-lg leading-relaxed text-[var(--churn-muted)] sm:text-xl">
           The dating app for people who don&rsquo;t use apps. Swipe right to court, left to keep churning.
