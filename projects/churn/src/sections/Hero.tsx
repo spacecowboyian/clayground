@@ -3,6 +3,7 @@ import { PhoneFrame } from '../components/PhoneFrame/PhoneFrame';
 import { QuiltBlock } from '../components/QuiltBlock/QuiltBlock';
 import { SwipeDeck } from '../components/SwipeDeck/SwipeDeck';
 import { GetChurnDialog } from './GetChurnDialog';
+import dusk from '../assets/hero-buggy-dusk.webp';
 
 export function Hero() {
   return (
@@ -31,21 +32,30 @@ export function Hero() {
         </div>
       </div>
 
-      {/* The phone sits on a Center Diamond quilt: the hero's ground. */}
-      <div className="relative mx-auto mt-14 flex max-w-6xl justify-center px-4 pb-20 sm:mt-16">
-        <QuiltBlock
-          pattern="center-diamond"
-          colors={['var(--quilt-plum)', 'var(--quilt-wine)', 'var(--quilt-teal)']}
-          width={300}
-          height={300}
-          className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[min(150vw,820px)] -translate-x-1/2 -translate-y-[52%] rounded-sm"
+      {/* The phone sits on a Center Diamond quilt, laid over a buggy at dusk. */}
+      <div className="relative mt-20 sm:mt-28">
+        <img
+          src={dusk}
+          alt=""
+          width={1600}
+          height={900}
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_70%,transparent)]"
         />
-        <div className="relative">
-          <h2 className="sr-only">Try it: swipe through tonight&rsquo;s singles</h2>
-          <PhoneFrame>
-            <SwipeDeck />
-          </PhoneFrame>
-          <p className="mt-4 text-center text-sm text-[var(--churn-paper)]">Drag a card, or use the buttons.</p>
+        <div className="relative mx-auto flex max-w-6xl justify-center px-4 pb-20">
+          <QuiltBlock
+            pattern="center-diamond"
+            colors={['var(--quilt-plum)', 'var(--quilt-wine)', 'var(--quilt-teal)']}
+            width={300}
+            height={300}
+            className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[min(150vw,820px)] -translate-x-1/2 -translate-y-[52%] rounded-sm"
+          />
+          <div className="relative">
+            <h2 className="sr-only">Try it: swipe through tonight&rsquo;s singles</h2>
+            <PhoneFrame>
+              <SwipeDeck />
+            </PhoneFrame>
+            <p className="mt-4 text-center text-sm text-[var(--churn-paper)]">Drag a card, or use the buttons.</p>
+          </div>
         </div>
       </div>
     </header>

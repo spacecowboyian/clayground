@@ -1,4 +1,10 @@
-import type { SilhouetteKind } from '../components/Silhouette/Silhouette';
+import ezekiel from '../assets/sil-ezekiel.webp';
+import miriam from '../assets/sil-miriam.webp';
+import jebediah from '../assets/sil-jebediah.webp';
+import hannah from '../assets/sil-hannah.webp';
+import amos from '../assets/sil-amos.webp';
+import ruth from '../assets/sil-ruth.webp';
+import levi from '../assets/sil-levi.webp';
 import type { QuiltPattern } from '../components/QuiltBlock/QuiltBlock';
 
 export interface Profile {
@@ -6,9 +12,8 @@ export interface Profile {
   name: string;
   age: number;
   distance: string;
-  silhouette: SilhouetteKind;
-  /** Married Amish men grow a beard; single ones don't. Hence the bios. */
-  beard?: boolean;
+  /** Cut-paper silhouette portrait (transparent, facing right). */
+  portrait: string;
   quilt: QuiltPattern;
   /** Quilt cloth, outermost first. */
   colors: [string, string, string];
@@ -22,10 +27,10 @@ export interface Profile {
 export const profiles: Profile[] = [
   {
     id: 'ezekiel',
+    portrait: ezekiel,
     name: 'Ezekiel',
     age: 24,
     distance: '2 fields over',
-    silhouette: 'straw-hat',
     quilt: 'center-diamond',
     colors: ['var(--quilt-cobalt)', 'var(--quilt-wine)', 'var(--quilt-teal)'],
     bio: 'Raised 3 barns this summer. Can tell a Belgian from a Percheron at 200 yards. Looking for someone to sit with at the singing.',
@@ -35,10 +40,10 @@ export const profiles: Profile[] = [
   },
   {
     id: 'miriam',
+    portrait: miriam,
     name: 'Miriam',
     age: 22,
     distance: '11 mi · about 2 hrs by buggy',
-    silhouette: 'kapp',
     quilt: 'bars',
     colors: ['var(--quilt-plum)', 'var(--quilt-rose)', 'var(--quilt-violet)'],
     bio: 'I churn 40 lbs of butter a week and I still have time for you. No zippers, no drama.',
@@ -48,10 +53,10 @@ export const profiles: Profile[] = [
   },
   {
     id: 'jebediah',
+    portrait: jebediah,
     name: 'Jebediah',
     age: 27,
     distance: 'Next district',
-    silhouette: 'black-hat',
     quilt: 'nine-patch',
     colors: ['var(--quilt-moss)', 'var(--quilt-ground-raised)', 'var(--quilt-wine)'],
     bio: 'Looking for a wife so the beard can finally come in. Serious inquiries only.',
@@ -61,10 +66,10 @@ export const profiles: Profile[] = [
   },
   {
     id: 'hannah',
+    portrait: hannah,
     name: 'Hannah',
     age: 23,
     distance: '4 mi · past the covered bridge',
-    silhouette: 'bonnet',
     quilt: 'sunshine',
     colors: ['var(--quilt-teal)', 'var(--quilt-plum)', 'var(--churn-butter-deep)'],
     bio: 'Quilter. Canner. Will judge your jam. Rumspringa survivor: I saw a Walmart once and I did not care for it.',
@@ -74,10 +79,10 @@ export const profiles: Profile[] = [
   },
   {
     id: 'amos',
+    portrait: amos,
     name: 'Amos',
     age: 25,
     distance: '6 mi · down the gravel road',
-    silhouette: 'straw-hat',
     quilt: 'bars',
     colors: ['var(--quilt-wine)', 'var(--quilt-moss)', 'var(--quilt-cobalt)'],
     bio: 'I own my own horse (Doug). Doug comes first. I need you to be okay with that.',
@@ -87,10 +92,10 @@ export const profiles: Profile[] = [
   },
   {
     id: 'ruth',
+    portrait: ruth,
     name: 'Ruth',
     age: 21,
     distance: '1 mi · across the creek',
-    silhouette: 'kapp',
     quilt: 'center-diamond',
     colors: ['var(--quilt-violet)', 'var(--quilt-teal)', 'var(--quilt-rose)'],
     bio: 'Looking for someone to sit across from at a very long table for a very long time. Must love shoofly pie.',
@@ -100,11 +105,10 @@ export const profiles: Profile[] = [
   },
   {
     id: 'levi',
+    portrait: levi,
     name: 'Levi',
     age: 26,
     distance: '3 mi · near the mill',
-    silhouette: 'black-hat',
-    beard: true,
     quilt: 'sunshine',
     colors: ['var(--quilt-cobalt)', 'var(--quilt-rose)', 'var(--quilt-moss)'],
     bio: 'Hook-and-eye guy. Strong opinions on buttons. The beard is a long story, ask me about it.',

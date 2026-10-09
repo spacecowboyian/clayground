@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import { cn } from '@gearhead/ui';
+import fabric from '../../assets/texture-quilt.webp';
 
 export type QuiltPattern = 'center-diamond' | 'bars' | 'nine-patch' | 'sunshine';
 
@@ -13,10 +14,12 @@ interface QuiltBlockProps {
 }
 
 const BORDER = 16;
+const FABRIC_TILE = 120;
 
 /** Traditional Amish quilt layouts, drawn as plain geometry. */
 export function QuiltBlock({ pattern, colors, width = 200, height = 260, className }: QuiltBlockProps) {
   const clipId = useId();
+  const fabricId = useId();
   const [border, a, b] = colors;
   const x0 = BORDER;
   const y0 = BORDER;
@@ -31,10 +34,15 @@ export function QuiltBlock({ pattern, colors, width = 200, height = 260, classNa
         <clipPath id={clipId}>
           <rect x={x0} y={y0} width={w} height={h} />
         </clipPath>
+        {/* Cotton weave, tiled over the whole quilt so the geometry reads as cloth */}
+        <pattern id={fabricId} patternUnits="userSpaceOnUse" width={FABRIC_TILE} height={FABRIC_TILE}>
+          <image href={fabric} width={FABRIC_TILE} height={FABRIC_TILE} />
+        </pattern>
       </defs>
       <rect width={width} height={height} fill={border} />
       <rect x={x0} y={y0} width={w} height={h} fill={a} />
       <g clipPath={`url(#${clipId})`}>{field(pattern, { x0, y0, w, h, cx, cy, a, b, border })}</g>
+      <rect width={width} height={height} fill={`url(#${fabricId})`} style={{ mixBlendMode: 'soft-light' }} opacity="0.7" />
       {/* Quilting stitch just inside the border */}
       <rect
         x={x0 - 7}
