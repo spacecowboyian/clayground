@@ -10,7 +10,7 @@ export function PhoneFrame({ children, className }: PhoneFrameProps) {
   return (
     <div
       className={cn(
-        'relative mx-auto flex h-[620px] w-[330px] max-w-full flex-col rounded-[2.75rem] border-[9px] border-[var(--churn-ink)] bg-[var(--quilt-ground)] p-3 shadow-[0_30px_60px_rgb(0_0_0/0.55)]',
+        'relative mx-auto flex h-[620px] w-[330px] max-w-full flex-col rounded-[2.75rem] border-[9px] border-[var(--churn-ink)] bg-[var(--quilt-ground)] p-3 shadow-[0_0_18px_color-mix(in_srgb,var(--churn-butter)_28%,transparent),0_0_60px_color-mix(in_srgb,var(--churn-butter)_22%,transparent)]',
         className,
       )}
     >

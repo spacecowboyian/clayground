@@ -78,7 +78,7 @@ export function SwipeCard({ profile, isTop, depth, leaving, onSwipe }: SwipeCard
         </span>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--quilt-ground)] from-55% to-transparent px-4 pb-4 pt-12 text-[var(--churn-paper)]">
+      <div className="absolute inset-x-0 bottom-0 px-4 pb-4 text-[var(--churn-paper)]">
         <h3 className="font-display text-[1.7rem] font-semibold leading-none">
           {profile.name} <span className="font-normal">{profile.age}</span>
         </h3>

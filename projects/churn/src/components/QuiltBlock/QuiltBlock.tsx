@@ -14,17 +14,22 @@ interface QuiltBlockProps {
 }
 
 const BORDER = 16;
+/** Narrow inner border between the wide outer border and the field. */
+const INNER = 5;
 const FABRIC_TILE = 120;
+/** Spacing of the diagonal hand-quilting crosshatch over the field. */
+const HATCH = 11;
 
 /** Traditional Amish quilt layouts, drawn as plain geometry. */
 export function QuiltBlock({ pattern, colors, width = 200, height = 260, className }: QuiltBlockProps) {
   const clipId = useId();
   const fabricId = useId();
+  const hatchId = useId();
   const [border, a, b] = colors;
-  const x0 = BORDER;
-  const y0 = BORDER;
-  const w = width - BORDER * 2;
-  const h = height - BORDER * 2;
+  const x0 = BORDER + INNER;
+  const y0 = BORDER + INNER;
+  const w = width - x0 * 2;
+  const h = height - y0 * 2;
   const cx = width / 2;
   const cy = height / 2;
 
@@ -38,17 +43,34 @@ export function QuiltBlock({ pattern, colors, width = 200, height = 260, classNa
         <pattern id={fabricId} patternUnits="userSpaceOnUse" width={FABRIC_TILE} height={FABRIC_TILE}>
           <image href={fabric} width={FABRIC_TILE} height={FABRIC_TILE} />
         </pattern>
+        <pattern id={hatchId} patternUnits="userSpaceOnUse" width={HATCH} height={HATCH} patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2={HATCH} stroke="var(--churn-paper)" strokeOpacity="0.16" strokeWidth="0.6" strokeDasharray="2 1.6" />
+          <line x1="0" y1="0" x2={HATCH} y2="0" stroke="var(--churn-paper)" strokeOpacity="0.16" strokeWidth="0.6" strokeDasharray="2 1.6" />
+        </pattern>
       </defs>
       <rect width={width} height={height} fill={border} />
+      {/* Contrasting corner blocks where the borders meet, an Amish signature */}
+      {[
+        [0, 0],
+        [width - BORDER, 0],
+        [0, height - BORDER],
+        [width - BORDER, height - BORDER],
+      ].map(([x, y]) => (
+        <rect key={`${x}-${y}`} x={x} y={y} width={BORDER} height={BORDER} fill={b} />
+      ))}
+      <rect x={BORDER} y={BORDER} width={width - BORDER * 2} height={height - BORDER * 2} fill={b} />
       <rect x={x0} y={y0} width={w} height={h} fill={a} />
-      <g clipPath={`url(#${clipId})`}>{field(pattern, { x0, y0, w, h, cx, cy, a, b, border })}</g>
+      <g clipPath={`url(#${clipId})`}>
+        {field(pattern, { x0, y0, w, h, cx, cy, a, b, border })}
+        <rect x={x0} y={y0} width={w} height={h} fill={`url(#${hatchId})`} />
+      </g>
       <rect width={width} height={height} fill={`url(#${fabricId})`} style={{ mixBlendMode: 'soft-light' }} opacity="0.7" />
       {/* Quilting stitch just inside the border */}
       <rect
-        x={x0 - 7}
-        y={y0 - 7}
-        width={w + 14}
-        height={h + 14}
+        x={BORDER / 2}
+        y={BORDER / 2}
+        width={width - BORDER}
+        height={height - BORDER}
         fill="none"
         stroke="var(--churn-paper)"
         strokeOpacity="0.35"
