@@ -17,7 +17,7 @@ export function Faq() {
       <div className="mt-10 space-y-3">
         {faqs.map(({ q, a }) => (
           <Accordion key={q} title={<span className="text-base">{q}</span>}>
-            <p className="max-w-[60ch] px-4 pb-5 pt-1 text-[15px] leading-relaxed text-[var(--churn-muted)]">{a}</p>
+            <p className="px-4 pb-5 pt-1 text-[15px] leading-relaxed text-[var(--churn-muted)]">{a}</p>
           </Accordion>
         ))}
       </div>

@@ -4,9 +4,27 @@
     {
       "name": "print-queue",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 5173,
       "cwd": "projects/print-queue"
+    },
+    {
+      "name": "churn",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--host",
+        "--port",
+        "5180",
+        "--strictPort"
+      ],
+      "port": 5180,
+      "cwd": "projects/churn"
     }
   ]
 }

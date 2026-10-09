@@ -1,4 +1,4 @@
-import { Silhouette } from '../components/Silhouette/Silhouette';
+import wedding from '../assets/sil-wedding.webp';
 
 const more = [
   { quote: 'We matched, he wrote me a letter, I wrote back. Eight months later we were on page two.', who: 'Esther & Jonas', meta: 'Holmes County · courting' },
@@ -15,10 +15,13 @@ export function Stories() {
 
         <figure className="mt-14 grid items-center gap-10 md:grid-cols-[auto_1fr] md:gap-16">
           {/* The wedding silhouette: two profiles facing, cut from one sheet. */}
-          <div className="mx-auto flex aspect-[5/4] w-64 items-end justify-center overflow-hidden rounded-[50%] border-[3px] border-[var(--churn-ink)] bg-[var(--churn-paper-shade)] px-6 pt-8 sm:w-72">
-            <Silhouette kind="kapp" className="-mr-3 w-1/2 text-[var(--churn-ink)]" />
-            <Silhouette kind="black-hat" beard mirrored className="-ml-3 w-1/2 text-[var(--churn-ink)]" />
-          </div>
+          <img
+            src={wedding}
+            alt="Cut-paper silhouette of an Amish couple on a bench, a small heart between them and a barn behind."
+            width={1200}
+            height={960}
+            className="mx-auto aspect-[5/4] w-72 rounded-sm border-[3px] border-[var(--churn-ink)] sm:w-96"
+          />
           <div>
             <blockquote className="font-display text-[clamp(1.75rem,3.6vw,2.6rem)] font-medium leading-[1.15] tracking-[-0.02em] text-balance">
               &ldquo;I swiped right on Eli in March. By November we had raised a barn, a silo, and eleven goats.&rdquo;

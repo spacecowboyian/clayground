@@ -1,7 +1,6 @@
 import { cn } from '@gearhead/ui';
 import type { Profile } from '../../data/profiles';
 import { QuiltBlock } from '../QuiltBlock/QuiltBlock';
-import { Silhouette } from '../Silhouette/Silhouette';
 
 interface ProfileArtProps {
   profile: Profile;
@@ -29,7 +28,7 @@ export function Cameo({ profile, className }: ProfileArtProps) {
         className,
       )}
     >
-      <Silhouette kind={profile.silhouette} beard={profile.beard} className="mx-auto mt-[12%] w-[92%] text-[var(--churn-ink)]" />
+      <img src={profile.portrait} alt="" draggable={false} className="h-full w-full object-cover" />
     </div>
   );
 }

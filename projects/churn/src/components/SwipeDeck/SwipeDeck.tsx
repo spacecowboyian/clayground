@@ -4,6 +4,7 @@ import { Button, cn } from '@gearhead/ui';
 import { profiles, type Profile } from '../../data/profiles';
 import { SwipeCard, type SwipeDirection } from './SwipeCard';
 import { MatchPanel } from './MatchPanel';
+import emptyDistrict from '../../assets/empty-district.webp';
 
 const FLING_MS = 300;
 
@@ -33,6 +34,7 @@ export function SwipeDeck() {
       <div className="relative flex-1">
         {visible.length === 0 && (
           <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+            <img src={emptyDistrict} alt="" width={800} height={800} className="mb-2 w-40 rounded-md" />
             <p className="font-display text-xl text-[var(--churn-paper)]">That's everyone in the district.</p>
             <p className="text-sm text-muted-foreground">New singles arrive after Sunday service. Or after a very large wedding.</p>
             <Button variant="outline" onPress={() => setIndex(0)} className="mt-2">

@@ -2,6 +2,7 @@ import { Mail, Pin } from 'lucide-react';
 import { ChurnLogo } from '../components/ChurnLogo/ChurnLogo';
 import { QuiltBlock } from '../components/QuiltBlock/QuiltBlock';
 import { GetChurnDialog } from './GetChurnDialog';
+import bulletinBoard from '../assets/bulletin-board.webp';
 
 const badgeClass =
   'min-w-[13rem] justify-start gap-3 rounded-xl bg-[var(--churn-paper)] px-4 py-2.5 text-left text-[var(--churn-ink)] hover:bg-[var(--churn-paper-shade)]';
@@ -34,6 +35,14 @@ export function Footer() {
             Somebody out there is <em className="font-medium text-[var(--churn-butter)]">churning for you.</em>
           </h2>
           <p className="mt-5 text-lg">Available wherever bulletin boards are found.</p>
+          <img
+            src={bulletinBoard}
+            alt="A general-store bulletin board with a pinned card reading “CHURN, sign up here” among notices for honey, a buggy, and a quilting bee."
+            width={1200}
+            height={900}
+            loading="lazy"
+            className="mx-auto mt-8 w-full max-w-lg -rotate-1 drop-shadow-[0_18px_30px_rgb(0_0_0/0.5)]"
+          />
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Badge icon={<Pin className="h-6 w-6" aria-hidden="true" />} small="Pin it on the" big="Bulletin Board" />
             <Badge icon={<Mail className="h-6 w-6" aria-hidden="true" />} small="Send away for it by" big="Post" />
