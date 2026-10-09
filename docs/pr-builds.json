@@ -64,5 +64,12 @@
     "builds": {
       "churn": "https://spacecowboyian.github.io/clayground/churn/pr-80/"
     }
+  },
+  "81": {
+    "title": "feat(churn): full-quilt profile cards and lantern-lit hero",
+    "url": "https://github.com/spacecowboyian/clayground/pull/81",
+    "builds": {
+      "churn": "https://spacecowboyian.github.io/clayground/churn/pr-81/"
+    }
   }
 }
