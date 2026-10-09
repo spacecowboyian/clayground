@@ -40,7 +40,7 @@ export function Hero() {
             alt=""
             width={1600}
             height={900}
-            className="dusk-parallax absolute inset-x-0 -top-[30%] h-[160%] w-full object-cover opacity-60"
+            className="dusk-parallax absolute inset-x-0 -top-[30%] h-[160%] w-full scale-105 object-cover opacity-60 blur-[3px]"
           />
         </div>
         <div className="relative mx-auto flex max-w-6xl justify-center px-4 pb-20">
