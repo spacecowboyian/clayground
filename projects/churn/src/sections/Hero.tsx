@@ -7,7 +7,7 @@ import dusk from '../assets/hero-buggy-dusk.webp';
 
 export function Hero() {
   return (
-    <header className="overflow-hidden">
+    <header className="overflow-clip">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6" aria-label="Main">
         <ChurnLogo className="text-[1.75rem]" />
         <div className="flex items-center gap-6 text-sm text-[var(--churn-muted)]">
@@ -34,13 +34,15 @@ export function Hero() {
 
       {/* The phone sits on a Center Diamond quilt, laid over a buggy at dusk. */}
       <div className="relative mt-20 sm:mt-28">
-        <img
-          src={dusk}
-          alt=""
-          width={1600}
-          height={900}
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_70%,transparent)]"
-        />
+        <div className="pointer-events-none absolute inset-0 overflow-clip [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_70%,transparent)]">
+          <img
+            src={dusk}
+            alt=""
+            width={1600}
+            height={900}
+            className="dusk-parallax absolute inset-x-0 -top-[30%] h-[160%] w-full object-cover opacity-60"
+          />
+        </div>
         <div className="relative mx-auto flex max-w-6xl justify-center px-4 pb-20">
           <QuiltBlock
             pattern="center-diamond"

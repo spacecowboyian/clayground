@@ -103,3 +103,20 @@ body {
     animation: none;
   }
 }
+
+/* Hero dusk photo drifts slower than the page. Scroll-driven, so browsers
+   without animation-timeline just get a still image. Its ancestors use
+   overflow: clip, not hidden, so the page stays the view() scroller. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .dusk-parallax {
+      animation: dusk-parallax linear both;
+      animation-timeline: view();
+    }
+  }
+}
+
+@keyframes dusk-parallax {
+  from { transform: translateY(-18%); }
+  to { transform: translateY(18%); }
+}
