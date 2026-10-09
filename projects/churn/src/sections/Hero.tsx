@@ -1,6 +1,5 @@
 import { ChurnLogo } from '../components/ChurnLogo/ChurnLogo';
 import { PhoneFrame } from '../components/PhoneFrame/PhoneFrame';
-import { QuiltBlock } from '../components/QuiltBlock/QuiltBlock';
 import { SwipeDeck } from '../components/SwipeDeck/SwipeDeck';
 import { GetChurnDialog } from './GetChurnDialog';
 import dusk from '../assets/hero-buggy-dusk.webp';
@@ -32,7 +31,7 @@ export function Hero() {
         </div>
       </div>
 
-      {/* The phone sits on a Center Diamond quilt, laid over a buggy at dusk. */}
+      {/* The phone sits over a buggy at dusk. */}
       <div className="relative mt-20 sm:mt-28">
         <div className="pointer-events-none absolute inset-0 overflow-clip [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_70%,transparent)]">
           <img
@@ -40,17 +39,10 @@ export function Hero() {
             alt=""
             width={1600}
             height={900}
-            className="dusk-parallax absolute inset-x-0 -top-[30%] h-[160%] w-full scale-105 object-cover opacity-60 blur-[3px]"
+            className="dusk-parallax absolute inset-x-0 -top-[30%] h-[160%] w-full scale-105 object-cover opacity-80 blur-[3px] brightness-110"
           />
         </div>
         <div className="relative mx-auto flex max-w-6xl justify-center px-4 pb-20">
-          <QuiltBlock
-            pattern="center-diamond"
-            colors={['var(--quilt-plum)', 'var(--quilt-wine)', 'var(--quilt-teal)']}
-            width={300}
-            height={300}
-            className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[min(150vw,820px)] -translate-x-1/2 -translate-y-[52%] rounded-sm"
-          />
           <div className="relative">
             <h2 className="sr-only">Try it: swipe through tonight&rsquo;s singles</h2>
             <PhoneFrame>
