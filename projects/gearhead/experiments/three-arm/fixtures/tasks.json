@@ -1,0 +1,56 @@
+{
+  "outputContract": {
+    "files": "Return exactly one file, index.html, as a single fenced block labelled ```html. It must be self-contained: inline CSS and JS only, no network requests, no external fonts, images or scripts.",
+    "viewports": [
+      { "name": "desktop", "width": 1440, "height": 900 },
+      { "name": "mobile", "width": 390, "height": 844 }
+    ],
+    "requirements": [
+      "Valid HTML5 document with lang attribute, title and a main landmark.",
+      "Exactly one h1.",
+      "Usable at both viewports with no horizontal scrolling.",
+      "Dark-first presentation."
+    ]
+  },
+  "tasks": [
+    {
+      "id": "print-queue-dashboard",
+      "title": "Print queue dashboard",
+      "brief": "Build a dashboard page for a 3D-print order queue. It must show a page header, a row of four summary metrics, a searchable and filterable list of orders with a per-order status indicator, and a settings area with a quantity input, a priority selector, a notification switch and a Save button.",
+      "content": {
+        "pageTitle": "Print queue",
+        "pageDescription": "Track and manage open print orders.",
+        "breadcrumbs": ["Home", "Operations", "Print queue"],
+        "metrics": [
+          { "title": "Open orders", "value": "24", "trend": "+12% vs last week" },
+          { "title": "Printing now", "value": "6", "trend": "Steady" },
+          { "title": "Completed today", "value": "11", "trend": "+3 vs yesterday" },
+          { "title": "Failed prints", "value": "1", "trend": "-2 vs last week" }
+        ],
+        "filters": [
+          { "group": "Status", "options": ["In Queue", "Printing", "Done", "Cancelled"] },
+          { "group": "Material", "options": ["PLA", "PETG", "Resin"] }
+        ],
+        "searchPlaceholder": "Search orders",
+        "orders": [
+          { "id": "PQ-1042", "name": "Phone stand", "status": "In Queue" },
+          { "id": "PQ-1041", "name": "Gearbox housing", "status": "Printing" },
+          { "id": "PQ-1040", "name": "Cable clip set", "status": "Done" },
+          { "id": "PQ-1039", "name": "Drone frame", "status": "Cancelled" }
+        ],
+        "settings": {
+          "quantityLabel": "Quantity",
+          "priorityLabel": "Priority",
+          "priorityOptions": ["Low", "Normal", "High"],
+          "notificationLabel": "Email notifications",
+          "saveLabel": "Save changes"
+        }
+      },
+      "required": {
+        "text": ["Print queue", "Track and manage open print orders.", "Open orders", "Printing now", "Completed today", "Failed prints", "PQ-1042", "PQ-1041", "PQ-1040", "PQ-1039", "Phone stand", "Gearbox housing", "Cable clip set", "Drone frame", "Quantity", "Priority", "Email notifications", "Save changes", "In Queue", "Printing", "Done", "Cancelled"],
+        "landmarks": ["main", "nav", "h1"],
+        "controls": { "buttons": 1, "textInputs": 2, "checkboxLike": 1 }
+      }
+    }
+  ]
+}

@@ -1,0 +1,185 @@
+[
+  {
+    "id": "card", "name": "Card", "kind": "component", "section": "content-browsing", "version": "1.0.0",
+    "purpose": "Generic content container with an optional footer pinned to its bottom edge.",
+    "parts": [
+      { "name": "container", "description": "Card fill, 1px border, extra-large radius, column layout." },
+      { "name": "body", "description": "Grows to fill available height; 16px padding with 12px vertical spacing between children." },
+      { "name": "footer", "description": "Separated by a 1px top border; 16px horizontal and 8px vertical padding; always at the bottom even when body content is short.", "optional": true }
+    ],
+    "variants": [],
+    "states": ["static"],
+    "layout": ["In grids, equal-height cards keep footers aligned because the body stretches."],
+    "responsive": ["Fills the width its parent grants."],
+    "tokenBindings": [
+      { "part": "container", "role": "background", "token": "card" },
+      { "part": "container", "role": "border", "token": "border" },
+      { "part": "footer", "role": "divider", "token": "border" }
+    ],
+    "constraints": ["Not interactive by itself."],
+    "accessibility": ["Plain container; consumer supplies headings and landmarks."]
+  },
+  {
+    "id": "grid-list", "name": "GridList", "kind": "component", "section": "content-browsing", "version": "1.0.0",
+    "purpose": "Selectable, keyboard-navigable collection of items shown as a grid of cards.",
+    "parts": [
+      { "name": "list", "description": "Grid with 16px gaps: one column on narrow screens, three columns from 768px." },
+      { "name": "item", "description": "16px padding, card fill, 1px border, large radius, pointer cursor." }
+    ],
+    "variants": [{ "name": "item hover color", "values": ["orange", "blue", "green", "purple"], "default": "blue", "description": "Border color on hover and ring color on keyboard focus (2px ring, 1px offset)." }],
+    "states": ["default", "hover", "focused", "selected (when selection enabled)", "disabled"],
+    "layout": ["Items flow row-wise."],
+    "responsive": ["1 column below 768px; 3 columns at 768px and above."],
+    "tokenBindings": [
+      { "part": "item", "role": "background", "token": "card" },
+      { "part": "item", "role": "border", "token": "border" },
+      { "part": "item", "role": "border-hover", "token": "accent-blue", "when": "blue" },
+      { "part": "item", "role": "focus-ring", "token": "accent-blue", "when": "blue" }
+    ],
+    "constraints": ["Default hover color is blue."],
+    "accessibility": ["Grid list semantics; arrow keys move focus; Enter activates; selection announced."]
+  },
+  {
+    "id": "tag-group", "name": "TagGroup", "kind": "component", "section": "content-browsing", "version": "1.0.0",
+    "purpose": "A set of compact labels, optionally selectable or removable.",
+    "parts": [
+      { "name": "group label", "description": "Visually hidden, available to assistive technology only.", "optional": true },
+      { "name": "list", "description": "Wrapping row with 8px gaps." },
+      { "name": "tag", "description": "Pill: 12px horizontal and 4px vertical padding, 14px text, 1px border. When removable, shows a 12px X glyph 4px after the text." }
+    ],
+    "variants": [{ "name": "color", "values": ["default", "orange", "blue", "green", "purple"], "default": "default", "description": "Accent tags use the light accent fill, accent text and a 20% accent border; default uses secondary fill, foreground text and the standard border." }],
+    "states": ["default", "focused (2px ring, 1px offset)", "selected", "removable"],
+    "layout": ["Wraps to multiple lines."],
+    "responsive": ["Wraps within container."],
+    "tokenBindings": [
+      { "part": "tag", "role": "background", "token": "secondary", "when": "default" },
+      { "part": "tag", "role": "text", "token": "foreground", "when": "default" },
+      { "part": "tag", "role": "border", "token": "border", "when": "default" },
+      { "part": "tag", "role": "background", "token": "accent-blue-light", "when": "blue" },
+      { "part": "tag", "role": "text", "token": "accent-blue", "when": "blue" },
+      { "part": "tag", "role": "focus-ring", "token": "ring" }
+    ],
+    "constraints": ["Default color is neutral, not an accent."],
+    "accessibility": ["Tag group role with per-tag focus; Backspace or Delete removes when removable."]
+  },
+  {
+    "id": "page-header", "name": "PageHeader", "kind": "component", "section": "content-browsing", "version": "1.0.0",
+    "purpose": "Title block for a page with optional breadcrumbs, description and actions.",
+    "parts": [
+      { "name": "breadcrumbs", "description": "Navigation landmark above the title; ordered list of 14px muted-foreground items separated by '/'. Items with a link or handler are links that brighten to foreground on hover; the rest are plain foreground text.", "optional": true },
+      { "name": "title", "description": "Level-one heading, 24px medium-weight foreground, truncated to one line." },
+      { "name": "description", "description": "14px muted-foreground paragraph 4px below the title.", "optional": true },
+      { "name": "actions", "description": "Row of controls with 8px gap aligned to the right, never shrinking.", "optional": true }
+    ],
+    "variants": [],
+    "states": ["static"],
+    "layout": ["Column with 4px gap; title block and actions in a row aligned to the top with 16px gap; 24px bottom padding and a 1px bottom border."],
+    "responsive": ["No breakpoint-specific behavior; long titles truncate."],
+    "tokenBindings": [
+      { "part": "title", "role": "text", "token": "foreground" },
+      { "part": "description", "role": "text", "token": "muted-foreground" },
+      { "part": "breadcrumbs", "role": "text", "token": "muted-foreground" },
+      { "part": "breadcrumbs", "role": "current text", "token": "foreground" },
+      { "part": "page-header", "role": "bottom border", "token": "border" }
+    ],
+    "constraints": ["Exactly one level-one heading per page."],
+    "accessibility": ["Breadcrumb navigation labelled 'Breadcrumb'."]
+  },
+  {
+    "id": "filter-sidebar", "name": "FilterSidebar", "kind": "component", "section": "content-browsing", "version": "1.0.0",
+    "purpose": "Collapsible groups of checkbox filters with counts and a clear-all action.",
+    "parts": [
+      { "name": "container", "description": "Side region 224px wide that does not shrink; column with 16px gap." },
+      { "name": "header", "description": "Row with the word 'Filters' (14px medium foreground) and, when any filter is selected, a 'Clear all (N)' text button (12px, orange, underline on hover)." },
+      { "name": "group", "description": "Separated from the previous by a 1px top border and 16px padding. Heading button shows the group label (14px medium) and an up or down chevron (16px muted-foreground) for expanded or collapsed." },
+      { "name": "option", "description": "A checkbox (16px square, 2px border, white 10px check) with label (14px foreground, grows) and an optional count (12px muted-foreground) at the right; options are 8px apart." }
+    ],
+    "variants": [{ "name": "color", "values": ["orange", "blue", "green", "purple"], "default": "orange", "description": "Checked checkbox fill and border." }],
+    "states": ["group expanded (default) or collapsed", "option checked or not", "no selection (Clear all hidden)"],
+    "layout": ["Groups stack vertically."],
+    "responsive": ["Container does not shrink; ListPage hides it below 768px."],
+    "tokenBindings": [
+      { "part": "container", "role": "text", "token": "foreground" },
+      { "part": "group", "role": "divider", "token": "border" },
+      { "part": "header", "role": "clear-all text", "token": "accent-orange" },
+      { "part": "option", "role": "box fill", "token": "input" },
+      { "part": "option", "role": "checked fill and border", "token": "accent-orange", "when": "orange" },
+      { "part": "option", "role": "count text", "token": "muted-foreground" }
+    ],
+    "constraints": ["Default accent is orange.", "Group expansion is internal state, initially expanded unless the group opts out."],
+    "accessibility": ["Group toggles are buttons; checkboxes are labelled; the container is a complementary region."]
+  },
+  {
+    "id": "view-toggle", "name": "ViewToggle", "kind": "component", "section": "content-browsing", "version": "1.0.0",
+    "purpose": "Two-option segmented switch between list and grid presentations.",
+    "parts": [
+      { "name": "group", "description": "Joined pair of buttons labelled 'View mode'." },
+      { "name": "list button", "description": "Icon-only (16px list icon), accessible name 'List view', rounded on the left, no right border." },
+      { "name": "grid button", "description": "Icon-only (16px grid icon), accessible name 'Grid view', rounded on the right." }
+    ],
+    "variants": [{ "name": "color", "values": ["orange", "blue", "green", "purple"], "default": "orange", "description": "Selected button fill and border; icon turns white." }],
+    "states": ["selected", "unselected (secondary fill, muted-foreground icon)", "hover", "focus-visible"],
+    "layout": ["Buttons have 8px padding all around; exactly one is selected."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "group", "role": "unselected fill", "token": "secondary" },
+      { "part": "group", "role": "border", "token": "border" },
+      { "part": "group", "role": "unselected icon", "token": "muted-foreground" },
+      { "part": "group", "role": "selected fill and border", "token": "accent-orange", "when": "orange" }
+    ],
+    "constraints": ["Default accent is orange."],
+    "accessibility": ["Each button exposes pressed state and has an accessible name."]
+  },
+  {
+    "id": "stat-card", "name": "StatCard", "kind": "component", "section": "content-browsing", "version": "1.0.0",
+    "purpose": "Displays one headline metric with optional trend and icon.",
+    "parts": [
+      { "name": "container", "description": "20px padding, card fill, 1px border, extra-large radius, column with 12px gap." },
+      { "name": "title", "description": "14px muted-foreground text at the top left." },
+      { "name": "icon tile", "description": "Top right: 20px icon in the accent color on a light accent fill, 8px padding, large radius.", "optional": true },
+      { "name": "value", "description": "30px medium-weight foreground number with tight line height, bottom left." },
+      { "name": "trend", "description": "Bottom right: 14px direction icon (up, down, flat) and a 12px medium-weight value.", "optional": true },
+      { "name": "caption", "description": "12px muted-foreground line below; shows the trend's label if provided, otherwise the description.", "optional": true }
+    ],
+    "variants": [
+      { "name": "color", "values": ["orange", "blue", "green", "purple"], "default": "blue", "description": "Icon and its tile. Trend colors: down is always accent-red and neutral is muted-foreground; up is accent-green, except orange where up is orange." }
+    ],
+    "states": ["static"],
+    "layout": ["Title row, then value/trend row aligned to the bottom, then caption."],
+    "responsive": ["Fills the grid cell it is placed in."],
+    "tokenBindings": [
+      { "part": "container", "role": "background", "token": "card" },
+      { "part": "container", "role": "border", "token": "border" },
+      { "part": "title", "role": "text", "token": "muted-foreground" },
+      { "part": "value", "role": "text", "token": "foreground" },
+      { "part": "icon tile", "role": "background", "token": "accent-blue-light", "when": "blue" },
+      { "part": "icon tile", "role": "icon", "token": "accent-blue", "when": "blue" },
+      { "part": "trend", "role": "up text", "token": "accent-green" },
+      { "part": "trend", "role": "down text", "token": "accent-red" },
+      { "part": "caption", "role": "text", "token": "muted-foreground" }
+    ],
+    "constraints": ["Default color is blue.", "The caption prefers the trend label over the description."],
+    "accessibility": ["Trend direction should not rely on color alone; the icon and signed value convey it."]
+  },
+  {
+    "id": "empty-state", "name": "EmptyState", "kind": "component", "section": "content-browsing", "version": "1.0.0",
+    "purpose": "Placeholder shown when a view has nothing to display.",
+    "parts": [
+      { "name": "icon", "description": "Centered, muted-foreground at 40% opacity.", "optional": true },
+      { "name": "title", "description": "Level-three heading, 16px medium foreground." },
+      { "name": "description", "description": "14px muted-foreground, centered, max width 24rem.", "optional": true },
+      { "name": "action", "description": "A call-to-action control.", "optional": true }
+    ],
+    "variants": [],
+    "states": ["static"],
+    "layout": ["Centered column with 16px gap, 64px vertical and 24px horizontal padding; title and description 4px apart."],
+    "responsive": ["Centered at any width."],
+    "tokenBindings": [
+      { "part": "icon", "role": "color", "token": "muted-foreground" },
+      { "part": "title", "role": "text", "token": "foreground" },
+      { "part": "description", "role": "text", "token": "muted-foreground" }
+    ],
+    "constraints": ["No background or border of its own."],
+    "accessibility": ["Icon is decorative; title provides the meaning."]
+  }
+]

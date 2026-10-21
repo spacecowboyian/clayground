@@ -1,0 +1,150 @@
+[
+  {
+    "id": "button", "name": "Button", "kind": "component", "section": "actions-navigation", "version": "1.0.0",
+    "purpose": "Triggers an action. Offers six visual emphasis levels and five accent colors.",
+    "parts": [
+      { "name": "container", "description": "Inline, centered row holding content with 8px gap between children; fully rounded to the large radius." },
+      { "name": "content", "description": "Text label and/or icon." }
+    ],
+    "variants": [
+      { "name": "variant", "values": ["primary", "secondary", "outline", "ghost", "destructive", "icon"], "default": "primary", "description": "primary = solid accent fill, white text. secondary = no fill, accent-colored text, light accent tint on hover. outline = transparent with 1px border and foreground text, muted fill on hover. ghost = transparent with muted-foreground text, secondary fill and foreground text on hover. destructive = destructive fill with destructive-foreground text, slightly translucent on hover. icon = padding only (8px all sides), no fill or color of its own." },
+      { "name": "color", "values": ["orange", "blue", "green", "purple", "red"], "default": "orange", "description": "Accent used by primary and secondary only; other variants ignore it." }
+    ],
+    "states": ["default", "hover", "focus-visible (2px ring with 2px offset against page background)", "disabled (50% opacity, not-allowed cursor)"],
+    "layout": ["Padding is 16px horizontal and 8px vertical for every variant except icon.", "Sizes to its content; does not stretch unless placed in a stretching container."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "container", "role": "background", "token": "accent-orange", "when": "primary+orange" },
+      { "part": "container", "role": "background-hover", "token": "accent-orange-hover", "when": "primary+orange" },
+      { "part": "container", "role": "background", "token": "accent-blue", "when": "primary+blue" },
+      { "part": "container", "role": "background-hover", "token": "accent-blue-hover", "when": "primary+blue" },
+      { "part": "container", "role": "background", "token": "accent-green", "when": "primary+green" },
+      { "part": "container", "role": "background-hover", "token": "accent-green-hover", "when": "primary+green" },
+      { "part": "container", "role": "background", "token": "accent-purple", "when": "primary+purple" },
+      { "part": "container", "role": "background-hover", "token": "accent-purple-hover", "when": "primary+purple" },
+      { "part": "container", "role": "background", "token": "accent-red", "when": "primary+red" },
+      { "part": "container", "role": "background-hover", "token": "accent-red-hover", "when": "primary+red" },
+      { "part": "container", "role": "text", "token": "accent-orange", "when": "secondary+orange (other colors use matching accent-*)" },
+      { "part": "container", "role": "background-hover", "token": "accent-orange-light", "when": "secondary+orange (other colors use matching accent-*-light)" },
+      { "part": "container", "role": "border", "token": "border", "when": "outline" },
+      { "part": "container", "role": "text", "token": "foreground", "when": "outline" },
+      { "part": "container", "role": "background-hover", "token": "muted", "when": "outline" },
+      { "part": "container", "role": "text", "token": "muted-foreground", "when": "ghost" },
+      { "part": "container", "role": "background-hover", "token": "secondary", "when": "ghost" },
+      { "part": "container", "role": "background", "token": "destructive", "when": "destructive" },
+      { "part": "container", "role": "text", "token": "destructive-foreground", "when": "destructive" },
+      { "part": "container", "role": "focus-ring", "token": "ring" }
+    ],
+    "constraints": ["Primary text is always white regardless of accent.", "Default is primary orange, not blue."],
+    "accessibility": ["Native button semantics; operable with Enter and Space.", "Icon-only usage needs an accessible name.", "Visible focus ring only for keyboard focus."]
+  },
+  {
+    "id": "toggle-button", "name": "ToggleButton", "kind": "component", "section": "actions-navigation", "version": "1.0.0",
+    "purpose": "A button that holds an on/off pressed state.",
+    "parts": [{ "name": "container", "description": "Inline row with 8px gap, 16px by 8px padding, large radius, 1px border, secondary fill." }],
+    "variants": [{ "name": "color", "values": ["orange", "blue", "green", "purple"], "default": "blue", "description": "Accent applied to fill and border when selected; text becomes white." }],
+    "states": ["unselected", "selected", "hover (muted fill)", "focus-visible (2px ring with offset)", "disabled"],
+    "layout": ["Sizes to content."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "container", "role": "background", "token": "secondary", "when": "unselected" },
+      { "part": "container", "role": "text", "token": "foreground", "when": "unselected" },
+      { "part": "container", "role": "border", "token": "border", "when": "unselected" },
+      { "part": "container", "role": "background-hover", "token": "muted", "when": "unselected" },
+      { "part": "container", "role": "background+border", "token": "accent-blue", "when": "selected+blue (other colors use matching accent-*)" },
+      { "part": "container", "role": "focus-ring", "token": "ring" }
+    ],
+    "constraints": ["Default accent is blue."],
+    "accessibility": ["Exposes pressed state to assistive technology.", "Space and Enter toggle."]
+  },
+  {
+    "id": "link", "name": "Link", "kind": "component", "section": "actions-navigation", "version": "1.0.0",
+    "purpose": "Inline navigation text.",
+    "parts": [{ "name": "text", "description": "Inline anchor text, underlined on hover, small rounded focus ring." }],
+    "variants": [{ "name": "color", "values": ["blue", "green", "orange", "purple", "default"], "default": "blue", "description": "Accent text color with the matching hover shade; default uses foreground and turns muted-foreground on hover." }],
+    "states": ["default", "hover (darker accent and underline)", "focus-visible (2px ring)"],
+    "layout": ["Inline with surrounding text."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "text", "role": "text", "token": "accent-blue", "when": "blue" },
+      { "part": "text", "role": "text-hover", "token": "accent-blue-hover", "when": "blue" },
+      { "part": "text", "role": "text", "token": "foreground", "when": "default" },
+      { "part": "text", "role": "text-hover", "token": "muted-foreground", "when": "default" },
+      { "part": "text", "role": "focus-ring", "token": "ring" }
+    ],
+    "constraints": ["Default is blue."],
+    "accessibility": ["Real anchor with href for navigation.", "Keyboard activatable with Enter."]
+  },
+  {
+    "id": "breadcrumbs", "name": "Breadcrumbs", "kind": "component", "section": "actions-navigation", "version": "1.0.0",
+    "purpose": "Shows the path to the current page.",
+    "parts": [
+      { "name": "list", "description": "Horizontal row, 8px gap, 14px text." },
+      { "name": "item", "description": "A link followed by a separator, except the last." },
+      { "name": "separator", "description": "Text separator, default '/' , muted-foreground." }
+    ],
+    "variants": [{ "name": "separator", "values": ["any string"], "default": "/", "description": "Character shown between items." }],
+    "states": ["ancestor item: muted-foreground, turns blue on hover, underline on focus", "current item: foreground, not interactive"],
+    "layout": ["Single line, vertically centered."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "item", "role": "text", "token": "muted-foreground", "when": "ancestor" },
+      { "part": "item", "role": "text-hover", "token": "accent-blue", "when": "ancestor" },
+      { "part": "item", "role": "text", "token": "foreground", "when": "current" },
+      { "part": "separator", "role": "text", "token": "muted-foreground" }
+    ],
+    "constraints": ["The last item is marked as the current page and ignores pointer input."],
+    "accessibility": ["Navigation landmark with ordered path semantics.", "Current item announced as current page."]
+  },
+  {
+    "id": "tabs", "name": "Tabs", "kind": "component", "section": "actions-navigation", "version": "1.0.0",
+    "purpose": "Switches between panels of related content; one panel visible at a time.",
+    "parts": [
+      { "name": "root", "description": "Full-width wrapper." },
+      { "name": "tab-bar", "description": "Horizontal row of tabs with a 1px bottom border." },
+      { "name": "tab", "description": "Label with 16px by 8px padding, 14px text, transparent 2px bottom border." },
+      { "name": "panel", "description": "Content area with 16px padding and 14px foreground text." }
+    ],
+    "variants": [{ "name": "tab color", "values": ["orange", "blue", "green", "purple"], "default": "blue", "description": "Color of selected tab's underline and text." }],
+    "states": ["unselected (muted-foreground)", "hover (foreground)", "selected (accent underline and accent text)", "disabled"],
+    "layout": ["Tab bar above panel."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "tab-bar", "role": "border", "token": "border" },
+      { "part": "tab", "role": "text", "token": "muted-foreground", "when": "unselected" },
+      { "part": "tab", "role": "text-hover", "token": "foreground" },
+      { "part": "tab", "role": "underline+text", "token": "accent-blue", "when": "selected+blue (other colors use matching accent-*)" },
+      { "part": "panel", "role": "text", "token": "foreground" }
+    ],
+    "constraints": ["Default accent is blue.", "Arrow keys move between tabs."],
+    "accessibility": ["Tab list, tab, and tab panel roles with selection state.", "Arrow-key navigation within the tab list."]
+  },
+  {
+    "id": "menu", "name": "Menu", "kind": "component", "section": "actions-navigation", "version": "1.0.0",
+    "purpose": "A trigger that opens a popover list of actions.",
+    "parts": [
+      { "name": "trigger", "description": "Any button supplied by the consumer." },
+      { "name": "popover", "description": "Floating panel, minimum width 12rem, popover fill, 1px border, large radius, large shadow, clipped corners." },
+      { "name": "item", "description": "Row with 12px gap between optional leading icon and label; 12px by 8px padding; small radius." },
+      { "name": "separator", "description": "1px horizontal rule with 4px vertical margin." }
+    ],
+    "variants": [
+      { "name": "item variant", "values": ["default", "destructive"], "default": "default", "description": "Destructive items use destructive text and a faint destructive tint on hover and focus." },
+      { "name": "item hover color", "values": ["orange", "blue", "green", "purple"], "default": "blue", "description": "Hover and keyboard focus show the light accent fill with accent text." }
+    ],
+    "states": ["closed", "open", "item hover or focus", "item disabled"],
+    "layout": ["List padded by 4px inside the popover."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "popover", "role": "background", "token": "popover" },
+      { "part": "popover", "role": "border", "token": "border" },
+      { "part": "item", "role": "text", "token": "popover-foreground", "when": "default" },
+      { "part": "item", "role": "background-hover", "token": "accent-blue-light", "when": "blue (other colors use matching accent-*-light)" },
+      { "part": "item", "role": "text-hover", "token": "accent-blue", "when": "blue" },
+      { "part": "item", "role": "text", "token": "destructive", "when": "destructive" },
+      { "part": "separator", "role": "background", "token": "border" }
+    ],
+    "constraints": ["Opens on trigger press; Escape closes."],
+    "accessibility": ["Menu and menuitem roles.", "Arrow keys move focus; typeahead supported; focus returns to trigger on close."]
+  }
+]

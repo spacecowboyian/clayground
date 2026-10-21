@@ -1,0 +1,19 @@
+{
+  "name": "gearhead-three-arm-experiment",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "tokens": "node scripts/extract-tokens.mjs",
+    "bundles": "node scripts/build-bundles.mjs",
+    "generate": "node scripts/generate.mjs",
+    "evaluate": "node scripts/evaluate.mjs",
+    "test": "node --test test/e2e.test.mjs"
+  },
+  "dependencies": {
+    "node-html-parser": "^6.1.13"
+  },
+  "optionalDependencies": {
+    "playwright-core": "^1.49.0"
+  }
+}

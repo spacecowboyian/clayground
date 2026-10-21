@@ -1,0 +1,259 @@
+[
+  {
+    "id": "text-field", "name": "TextField", "kind": "component", "section": "forms-selection", "version": "1.0.0",
+    "purpose": "Single-line text input with optional label, help text and error message.",
+    "parts": [
+      { "name": "label", "description": "14px foreground text above the input.", "optional": true },
+      { "name": "input", "description": "40px tall, 12px horizontal padding, input fill, 1px border, large radius, placeholder in muted-foreground." },
+      { "name": "description", "description": "12px muted-foreground help text below the input.", "optional": true },
+      { "name": "error", "description": "12px destructive text, shown only when invalid." }
+    ],
+    "variants": [{ "name": "focus color", "values": ["orange", "blue", "green", "purple"], "default": "blue", "description": "Color of the 2px focus ring around the input." }],
+    "states": ["default", "focused (2px accent ring, no offset)", "invalid (error text shown)", "disabled"],
+    "layout": ["Vertical stack with 8px gap between parts."],
+    "responsive": ["Fills available width of its container."],
+    "tokenBindings": [
+      { "part": "input", "role": "background", "token": "input" },
+      { "part": "input", "role": "border", "token": "border" },
+      { "part": "input", "role": "text", "token": "foreground" },
+      { "part": "input", "role": "placeholder", "token": "muted-foreground" },
+      { "part": "input", "role": "focus-ring", "token": "accent-blue", "when": "blue (other colors use matching accent-*)" },
+      { "part": "label", "role": "text", "token": "foreground" },
+      { "part": "description", "role": "text", "token": "muted-foreground" },
+      { "part": "error", "role": "text", "token": "destructive" }
+    ],
+    "constraints": ["Default focus color is blue."],
+    "accessibility": ["Label programmatically tied to input.", "Description and error linked via described-by."]
+  },
+  {
+    "id": "text-area", "name": "TextArea", "kind": "component", "section": "forms-selection", "version": "1.0.0",
+    "purpose": "Multi-line text input.",
+    "parts": [
+      { "name": "label", "description": "14px foreground text.", "optional": true },
+      { "name": "textarea", "description": "12px horizontal and 8px vertical padding, input fill, 1px border, large radius, vertically resizable." },
+      { "name": "description", "description": "12px muted-foreground help text.", "optional": true },
+      { "name": "error", "description": "12px destructive text when invalid." }
+    ],
+    "variants": [
+      { "name": "focus color", "values": ["orange", "blue", "green", "purple"], "default": "blue", "description": "2px focus ring color." },
+      { "name": "rows", "values": ["number"], "default": "4", "description": "Visible line count." }
+    ],
+    "states": ["default", "focused", "invalid", "disabled"],
+    "layout": ["Vertical stack with 8px gap."],
+    "responsive": ["Fills container width."],
+    "tokenBindings": [
+      { "part": "textarea", "role": "background", "token": "input" },
+      { "part": "textarea", "role": "border", "token": "border" },
+      { "part": "textarea", "role": "text", "token": "foreground" },
+      { "part": "textarea", "role": "placeholder", "token": "muted-foreground" },
+      { "part": "textarea", "role": "focus-ring", "token": "accent-blue", "when": "blue" },
+      { "part": "error", "role": "text", "token": "destructive" }
+    ],
+    "constraints": ["Default is 4 rows, blue focus."],
+    "accessibility": ["Same labelling and error association as TextField."]
+  },
+  {
+    "id": "search-field", "name": "SearchField", "kind": "component", "section": "forms-selection", "version": "1.0.0",
+    "purpose": "Text input specialised for search, with a leading magnifier icon and a clear button.",
+    "parts": [
+      { "name": "label", "description": "14px foreground text.", "optional": true },
+      { "name": "input", "description": "Full width; 40px left padding to clear the icon, 32px right padding for the clear button, 8px vertical padding, input fill, 1px border, large radius." },
+      { "name": "search icon", "description": "16px magnifier inset 12px from the left, vertically centered, muted-foreground, non-interactive." },
+      { "name": "clear button", "description": "14px X icon inset 8px from the right; hidden while input is empty." },
+      { "name": "description", "description": "12px muted-foreground help text.", "optional": true }
+    ],
+    "variants": [
+      { "name": "focus color", "values": ["orange", "blue", "green", "purple"], "default": "purple", "description": "2px focus ring color." },
+      { "name": "placeholder", "values": ["string"], "default": "Search...", "description": "Placeholder text." }
+    ],
+    "states": ["empty", "has value (clear button visible)", "focused", "disabled"],
+    "layout": ["Vertical stack with 8px gap; input wrapper positions icons absolutely over the input."],
+    "responsive": ["Fills available width."],
+    "tokenBindings": [
+      { "part": "input", "role": "background", "token": "input" },
+      { "part": "input", "role": "border", "token": "border" },
+      { "part": "input", "role": "text", "token": "foreground" },
+      { "part": "input", "role": "focus-ring", "token": "accent-purple", "when": "purple (other colors use matching accent-*)" },
+      { "part": "search icon", "role": "icon", "token": "muted-foreground" },
+      { "part": "clear button", "role": "icon", "token": "muted-foreground" },
+      { "part": "clear button", "role": "icon-hover", "token": "foreground" }
+    ],
+    "constraints": ["Default focus color is purple, unlike TextField."],
+    "accessibility": ["Search role; clear button has an accessible name; Escape clears."]
+  },
+  {
+    "id": "number-field", "name": "NumberField", "kind": "component", "section": "forms-selection", "version": "1.0.0",
+    "purpose": "Numeric input with stepper buttons.",
+    "parts": [
+      { "name": "label", "description": "14px foreground text.", "optional": true },
+      { "name": "group", "description": "40px tall horizontal group." },
+      { "name": "input", "description": "Flexible width, 12px horizontal padding, input fill, 1px border, rounded on left corners only." },
+      { "name": "steppers", "description": "Vertical pair attached to the input's right edge, bordered, rounded on right corners: '+' on top, '-' below separated by a 1px rule; secondary fill, muted on hover, 12px text." },
+      { "name": "description", "description": "12px muted-foreground help text.", "optional": true }
+    ],
+    "variants": [{ "name": "focus color", "values": ["orange", "blue", "green", "purple"], "default": "orange", "description": "2px focus ring on the input." }],
+    "states": ["default", "focused", "invalid", "disabled", "at min or max (corresponding stepper disabled)"],
+    "layout": ["Vertical stack with 8px gap; steppers share the group's height equally."],
+    "responsive": ["Fills container width."],
+    "tokenBindings": [
+      { "part": "input", "role": "background", "token": "input" },
+      { "part": "input", "role": "border", "token": "border" },
+      { "part": "input", "role": "focus-ring", "token": "accent-orange", "when": "orange" },
+      { "part": "steppers", "role": "background", "token": "secondary" },
+      { "part": "steppers", "role": "background-hover", "token": "muted" },
+      { "part": "steppers", "role": "text", "token": "foreground" },
+      { "part": "steppers", "role": "border", "token": "border" }
+    ],
+    "constraints": ["Default focus color is orange.", "Stepper glyphs are plain '+' and '-' characters."],
+    "accessibility": ["Spin button semantics; Up/Down arrows step; steppers have accessible names."]
+  },
+  {
+    "id": "select", "name": "Select", "kind": "component", "section": "forms-selection", "version": "1.0.0",
+    "purpose": "Choose one option from a dropdown list.",
+    "parts": [
+      { "name": "label", "description": "14px foreground text.", "optional": true },
+      { "name": "trigger", "description": "40px tall full-width button, 12px horizontal padding, input fill, 1px border, large radius; selected value or placeholder on the left, a 16px muted-foreground chevron on the right." },
+      { "name": "description", "description": "12px muted-foreground help text.", "optional": true },
+      { "name": "error", "description": "12px destructive text.", "optional": true },
+      { "name": "popover", "description": "Same width as the trigger; popover fill, 1px border, large radius, large shadow." },
+      { "name": "option", "description": "12px by 8px padding, small radius, popover-foreground text." }
+    ],
+    "variants": [
+      { "name": "hover color", "values": ["orange", "blue", "green", "purple"], "default": "blue", "description": "Hovered/focused option shows light accent fill with accent text." },
+      { "name": "placeholder", "values": ["string"], "default": "Select an option", "description": "Shown when nothing is selected." }
+    ],
+    "states": ["closed", "open", "invalid (trigger border becomes destructive)", "disabled"],
+    "layout": ["Vertical stack with 8px gap; list scrolls beyond 15rem height, 4px inner padding."],
+    "responsive": ["Fills container width."],
+    "tokenBindings": [
+      { "part": "trigger", "role": "background", "token": "input" },
+      { "part": "trigger", "role": "background-hover", "token": "secondary" },
+      { "part": "trigger", "role": "border", "token": "border" },
+      { "part": "trigger", "role": "border", "token": "destructive", "when": "invalid" },
+      { "part": "trigger", "role": "focus-ring", "token": "ring" },
+      { "part": "popover", "role": "background", "token": "popover" },
+      { "part": "option", "role": "background-hover", "token": "accent-blue-light", "when": "blue" },
+      { "part": "option", "role": "text-hover", "token": "accent-blue", "when": "blue" }
+    ],
+    "constraints": ["Focus ring uses the neutral ring token, not an accent."],
+    "accessibility": ["Listbox popup with selected option; arrow keys and typeahead; Escape closes."]
+  },
+  {
+    "id": "combo-box", "name": "ComboBox", "kind": "component", "section": "forms-selection", "version": "1.0.0",
+    "purpose": "Text input with a filterable list of suggestions.",
+    "parts": [
+      { "name": "label", "description": "14px foreground text.", "optional": true },
+      { "name": "input", "description": "Flexible width, 12px horizontal and 8px vertical padding, 36px right padding for the chevron, input fill, 1px border, large radius." },
+      { "name": "chevron button", "description": "16px muted-foreground chevron inset 8px from the right." },
+      { "name": "popover", "description": "Same width as the field; popover fill, border, shadow." },
+      { "name": "option", "description": "12px by 8px padding with light accent hover." }
+    ],
+    "variants": [
+      { "name": "hover color", "values": ["orange", "blue", "green", "purple"], "default": "purple", "description": "Option hover color." },
+      { "name": "focus color", "values": ["orange", "blue", "green", "purple"], "default": "purple", "description": "Input focus ring color." }
+    ],
+    "states": ["closed", "open and filtering", "focused", "disabled"],
+    "layout": ["Vertical stack with 8px gap."],
+    "responsive": ["Fills container width."],
+    "tokenBindings": [
+      { "part": "input", "role": "background", "token": "input" },
+      { "part": "input", "role": "border", "token": "border" },
+      { "part": "input", "role": "focus-ring", "token": "accent-purple", "when": "purple" },
+      { "part": "popover", "role": "background", "token": "popover" },
+      { "part": "option", "role": "background-hover", "token": "accent-purple-light", "when": "purple" },
+      { "part": "option", "role": "text-hover", "token": "accent-purple", "when": "purple" }
+    ],
+    "constraints": ["Defaults to purple for both hover and focus, unlike Select."],
+    "accessibility": ["Combobox role with listbox popup; arrow keys navigate; Enter selects."]
+  },
+  {
+    "id": "checkbox", "name": "Checkbox", "kind": "component", "section": "forms-selection", "version": "1.0.0",
+    "purpose": "Boolean choice that is independent of other choices.",
+    "parts": [
+      { "name": "box", "description": "20px square, 2px border, small corner radius, input fill; contains a 12px white check mark that is invisible when unchecked." },
+      { "name": "label", "description": "14px foreground text, 8px to the right of the box.", "optional": true }
+    ],
+    "variants": [{ "name": "color", "values": ["orange", "blue", "green", "purple"], "default": "blue", "description": "Fill and border of the box when checked." }],
+    "states": ["unchecked", "checked", "indeterminate", "focus-visible", "disabled"],
+    "layout": ["Horizontal, vertically centered, 8px gap."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "box", "role": "background", "token": "input", "when": "unchecked" },
+      { "part": "box", "role": "border", "token": "border", "when": "unchecked" },
+      { "part": "box", "role": "background+border", "token": "accent-blue", "when": "checked+blue" },
+      { "part": "label", "role": "text", "token": "foreground" }
+    ],
+    "constraints": ["Default is blue."],
+    "accessibility": ["Native checkbox semantics; Space toggles; label click toggles."]
+  },
+  {
+    "id": "radio-group", "name": "RadioGroup", "kind": "component", "section": "forms-selection", "version": "1.0.0",
+    "purpose": "Choose exactly one option from a small visible set.",
+    "parts": [
+      { "name": "group label", "description": "14px foreground text above the options.", "optional": true },
+      { "name": "radio", "description": "20px circle with 2px border and input fill; selected shows a 10px filled inner dot." },
+      { "name": "radio label", "description": "14px foreground text, 8px right of the circle." }
+    ],
+    "variants": [{ "name": "color", "values": ["orange", "blue", "green", "purple", "red"], "default": "blue", "description": "Border and inner dot color when selected; red uses the destructive token." }],
+    "states": ["unselected", "selected", "focus-visible", "disabled"],
+    "layout": ["Vertical list with 12px spacing between radios."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "radio", "role": "background", "token": "input" },
+      { "part": "radio", "role": "border", "token": "border", "when": "unselected" },
+      { "part": "radio", "role": "border+dot", "token": "accent-blue", "when": "selected+blue" },
+      { "part": "radio", "role": "border+dot", "token": "destructive", "when": "selected+red" },
+      { "part": "radio label", "role": "text", "token": "foreground" }
+    ],
+    "constraints": ["Default is blue."],
+    "accessibility": ["Radio group role; arrow keys move selection; only the selected radio is in the tab order."]
+  },
+  {
+    "id": "switch", "name": "Switch", "kind": "component", "section": "forms-selection", "version": "1.0.0",
+    "purpose": "Immediate on/off setting.",
+    "parts": [
+      { "name": "track", "description": "48px wide, 24px tall pill with 1px border." },
+      { "name": "thumb", "description": "20px white circle with small shadow, 2px inset; slides 24px to the right when on." },
+      { "name": "label", "description": "14px foreground text, 12px right of the track.", "optional": true }
+    ],
+    "variants": [{ "name": "color", "values": ["orange", "blue", "green", "purple"], "default": "blue", "description": "Track fill when on." }],
+    "states": ["off (secondary fill)", "on (accent fill)", "focus-visible", "disabled"],
+    "layout": ["Horizontal, vertically centered."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "track", "role": "background", "token": "secondary", "when": "off" },
+      { "part": "track", "role": "border", "token": "border" },
+      { "part": "track", "role": "background", "token": "accent-blue", "when": "on+blue" },
+      { "part": "label", "role": "text", "token": "foreground" }
+    ],
+    "constraints": ["Default is blue.", "Thumb is always white."],
+    "accessibility": ["Switch role with checked state; Space toggles."]
+  },
+  {
+    "id": "slider", "name": "Slider", "kind": "component", "section": "forms-selection", "version": "1.0.0",
+    "purpose": "Pick a numeric value on a continuous range.",
+    "parts": [
+      { "name": "header", "description": "Row with the label on the left and the current value on the right in 14px muted-foreground.", "optional": true },
+      { "name": "track", "description": "8px tall fully rounded bar, secondary fill." },
+      { "name": "fill", "description": "Accent-colored portion from the start to the thumb." },
+      { "name": "thumb", "description": "20px white circle, 2px accent border, medium shadow; focus shows a 2px accent ring with 2px offset." }
+    ],
+    "variants": [
+      { "name": "color", "values": ["orange", "blue", "green", "purple"], "default": "orange", "description": "Fill and thumb border color." },
+      { "name": "show value", "values": ["true", "false"], "default": "true", "description": "Whether the value readout is displayed." },
+      { "name": "value format", "values": ["function"], "default": "value followed by %", "description": "Default readout is the number plus a percent sign." }
+    ],
+    "states": ["default", "dragging", "focus-visible", "disabled"],
+    "layout": ["Header above a 24px tall row, 8px vertical gap."],
+    "responsive": ["Fills container width."],
+    "tokenBindings": [
+      { "part": "track", "role": "background", "token": "secondary" },
+      { "part": "fill", "role": "background", "token": "accent-orange", "when": "orange" },
+      { "part": "thumb", "role": "border+focus-ring", "token": "accent-orange", "when": "orange" },
+      { "part": "header", "role": "label text", "token": "foreground" },
+      { "part": "header", "role": "value text", "token": "muted-foreground" }
+    ],
+    "constraints": ["Default is orange.", "Default readout appends a percent sign."],
+    "accessibility": ["Slider role with value; arrow keys step; Home/End jump."]
+  }
+]

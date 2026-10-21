@@ -1,0 +1,126 @@
+[
+  {
+    "id": "dialog", "name": "Dialog", "kind": "component", "section": "disclosure-feedback", "version": "1.0.0",
+    "purpose": "Modal window over a dimmed page for focused tasks or confirmations.",
+    "parts": [
+      { "name": "overlay", "description": "Full-viewport scrim, 50% black, above all content." },
+      { "name": "panel", "description": "Card fill, 1px border, extra-large shadow; column layout." },
+      { "name": "header", "description": "Row with a 20px foreground title on the left and a close button (20px X icon, muted-foreground) on the right; 24px horizontal padding, 24px top and 16px bottom, 1px bottom border." },
+      { "name": "body", "description": "Scrollable area, 24px horizontal and 20px vertical padding, 14px muted-foreground text." },
+      { "name": "footer", "description": "Right-aligned row of actions with 12px gap, 24px by 16px padding, 1px top border.", "optional": true }
+    ],
+    "variants": [{ "name": "size", "values": ["md", "xl"], "default": "md", "description": "Maximum panel width on wide screens: md is 28rem, xl is 42rem." }],
+    "states": ["closed", "open"],
+    "layout": ["Centered on wide screens with 16px outer margin and max height of viewport minus 32px; rounded large corners."],
+    "responsive": ["Below the small breakpoint (640px) the panel fills the whole viewport with no radius and no margin; from 640px up it is centered."],
+    "tokenBindings": [
+      { "part": "panel", "role": "background", "token": "card" },
+      { "part": "panel", "role": "border", "token": "border" },
+      { "part": "header", "role": "title text", "token": "foreground" },
+      { "part": "header", "role": "close icon", "token": "muted-foreground" },
+      { "part": "header", "role": "close hover background", "token": "secondary" },
+      { "part": "body", "role": "text", "token": "muted-foreground" },
+      { "part": "panel", "role": "max-width md", "token": "modal-max-w" },
+      { "part": "panel", "role": "max-width xl", "token": "modal-max-w-xl" }
+    ],
+    "constraints": ["Focus is trapped inside while open and returns to the trigger on close.", "Escape closes."],
+    "accessibility": ["Dialog role named by its title.", "Close button must be reachable and labelled."]
+  },
+  {
+    "id": "tooltip", "name": "Tooltip", "kind": "component", "section": "disclosure-feedback", "version": "1.0.0",
+    "purpose": "Short label shown when a trigger is hovered or focused.",
+    "parts": [
+      { "name": "trigger", "description": "Any focusable element." },
+      { "name": "bubble", "description": "14px text, 12px by 8px padding, popover fill, 1px border, large radius, large shadow; fades and zooms in." }
+    ],
+    "variants": [
+      { "name": "placement", "values": ["top", "bottom", "left", "right"], "default": "top", "description": "Side of the trigger." },
+      { "name": "delay", "values": ["milliseconds"], "default": "500", "description": "Hover delay before appearing." }
+    ],
+    "states": ["hidden", "visible"],
+    "layout": ["Floating next to trigger."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "bubble", "role": "background", "token": "popover" },
+      { "part": "bubble", "role": "text", "token": "popover-foreground" },
+      { "part": "bubble", "role": "border", "token": "border" }
+    ],
+    "constraints": ["Content is non-interactive."],
+    "accessibility": ["Appears on keyboard focus as well as hover; describes the trigger."]
+  },
+  {
+    "id": "accordion", "name": "Accordion", "kind": "component", "section": "disclosure-feedback", "version": "1.0.0",
+    "purpose": "A single collapsible section with a heading trigger.",
+    "parts": [
+      { "name": "container", "description": "1px border, extra-large radius, clipped corners." },
+      { "name": "trigger", "description": "Full-width row, 16px horizontal and 12px vertical padding, card fill; title on the left in 14px medium-weight foreground text with an optional badge beside it, and a 16px chevron on the right that rotates 180 degrees when open." },
+      { "name": "panel", "description": "Content area with card fill, shown only when open." }
+    ],
+    "variants": [],
+    "states": ["collapsed", "expanded", "trigger hover (secondary fill)", "focus-visible (inset 2px ring)", "disabled"],
+    "layout": ["Stack of trigger then panel; multiple Accordions are stacked by the consumer."],
+    "responsive": ["Fills container width."],
+    "tokenBindings": [
+      { "part": "container", "role": "border", "token": "border" },
+      { "part": "trigger", "role": "background", "token": "card" },
+      { "part": "trigger", "role": "background-hover", "token": "secondary" },
+      { "part": "trigger", "role": "text", "token": "foreground" },
+      { "part": "trigger", "role": "chevron", "token": "muted-foreground" },
+      { "part": "trigger", "role": "focus-ring", "token": "ring" },
+      { "part": "panel", "role": "background", "token": "card" }
+    ],
+    "constraints": ["Title is wrapped in a heading element."],
+    "accessibility": ["Trigger exposes expanded state and controls the panel; Enter and Space toggle."]
+  },
+  {
+    "id": "progress-bar", "name": "ProgressBar", "kind": "component", "section": "disclosure-feedback", "version": "1.0.0",
+    "purpose": "Shows completion of a task as a horizontal bar.",
+    "parts": [
+      { "name": "header", "description": "Row with label (14px foreground) left and value text (14px muted-foreground) right.", "optional": true },
+      { "name": "track", "description": "Full-width 8px tall fully rounded bar, secondary fill, clipped." },
+      { "name": "fill", "description": "Accent bar sized to the percentage; width animates over 300ms." }
+    ],
+    "variants": [
+      { "name": "color", "values": ["orange", "blue", "green", "purple", "red"], "default": "blue", "description": "Fill color." },
+      { "name": "show value", "values": ["true", "false"], "default": "true", "description": "Value text visibility." }
+    ],
+    "states": ["0 to 100 percent", "indeterminate"],
+    "layout": ["Vertical stack with 8px gap."],
+    "responsive": ["Fills container width."],
+    "tokenBindings": [
+      { "part": "track", "role": "background", "token": "secondary" },
+      { "part": "fill", "role": "background", "token": "accent-blue", "when": "blue" },
+      { "part": "fill", "role": "background", "token": "accent-red", "when": "red" },
+      { "part": "header", "role": "label text", "token": "foreground" },
+      { "part": "header", "role": "value text", "token": "muted-foreground" }
+    ],
+    "constraints": ["Default is blue."],
+    "accessibility": ["Progress bar role with current, minimum, maximum and readable value text; needs a label."]
+  },
+  {
+    "id": "order-status-timeline", "name": "OrderStatusTimeline", "kind": "component", "section": "disclosure-feedback", "version": "1.0.0",
+    "purpose": "Shows an order moving through three stages, or a cancelled badge.",
+    "parts": [
+      { "name": "step", "description": "Column with a 28px circle (12px bold number, or a check mark when complete) above a 12px centered, non-wrapping label." },
+      { "name": "connector", "description": "2px tall line between consecutive steps filling the space; top-aligned to the circle's vertical center." },
+      { "name": "cancelled badge", "description": "Replaces the timeline: inline pill, 12px horizontal and 6px vertical padding, large radius, 14px medium text, an X glyph then the word Cancelled." }
+    ],
+    "variants": [{ "name": "status", "values": ["waiting", "in_progress", "complete", "cancelled"], "default": "(required)", "description": "Steps are labelled In Queue, Printing, Done. waiting activates step 1; in_progress marks step 1 done and activates step 2; complete marks all three done; cancelled shows only the badge." }],
+    "states": ["step complete (green fill, white check, green medium-weight label)", "step active (orange fill, white number, orange medium-weight label)", "step pending (secondary fill, 1px border, muted-foreground number and label)", "connector done (green) or pending (border color)"],
+    "layout": ["Horizontal row; steps are evenly separated by flexible connectors."],
+    "responsive": ["No breakpoint-specific behavior."],
+    "tokenBindings": [
+      { "part": "step", "role": "complete fill", "token": "accent-green" },
+      { "part": "step", "role": "active fill", "token": "accent-orange" },
+      { "part": "step", "role": "pending fill", "token": "secondary" },
+      { "part": "step", "role": "pending border and pending text", "token": "border" },
+      { "part": "step", "role": "pending text", "token": "muted-foreground" },
+      { "part": "connector", "role": "done", "token": "accent-green" },
+      { "part": "connector", "role": "pending", "token": "border" },
+      { "part": "cancelled badge", "role": "background", "token": "accent-red-light" },
+      { "part": "cancelled badge", "role": "text", "token": "accent-red" }
+    ],
+    "constraints": ["Domain-specific: stage labels are fixed.", "No color prop; colors are fixed by status."],
+    "accessibility": ["Container labelled with the current status.", "Active step marked as the current step."]
+  }
+]

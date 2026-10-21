@@ -1,0 +1,77 @@
+[
+  {
+    "id": "list-page", "name": "ListPage", "kind": "pattern", "section": "page-patterns", "version": "1.0.0",
+    "purpose": "Browsing page with a header, optional filters, search, a list/grid view switch and a content area.",
+    "parts": [
+      { "name": "page", "description": "Full-height column with 24px gap and 24px padding on the page background." },
+      { "name": "header", "description": "Uses the PageHeader definition (title, description, breadcrumbs, actions)." },
+      { "name": "filters", "description": "Uses the FilterSidebar definition (orange by default); present only when filter groups exist.", "optional": true },
+      { "name": "toolbar", "description": "Row with 12px gap: SearchField (orange focus ring, placeholder 'Search...' by default) filling the width, then a ViewToggle (orange, default mode list)." },
+      { "name": "content", "description": "Fills remaining space; supplied by the consumer." }
+    ],
+    "variants": [
+      { "name": "view mode", "values": ["list", "grid"], "default": "list", "description": "Reported to the consumer, which decides how to render content." },
+      { "name": "filter color", "values": ["orange", "blue", "green", "purple"], "default": "orange", "description": "FilterSidebar accent." },
+      { "name": "view toggle color", "values": ["orange", "blue", "green", "purple"], "default": "orange", "description": "ViewToggle accent." }
+    ],
+    "states": ["no filters selected", "filters selected", "search active"],
+    "layout": ["Below the header: a row with filters at the left (224px) and the main column (toolbar over content) taking the rest; 24px gap between them."],
+    "responsive": ["The filter sidebar is hidden below 768px and shown from 768px up; the main column then spans the full width."],
+    "tokenBindings": [
+      { "part": "page", "role": "background", "token": "background" }
+    ],
+    "constraints": ["The search field here overrides SearchField's default purple with orange."],
+    "accessibility": ["One level-one heading; search labelled; view toggle named 'View mode'."]
+  },
+  {
+    "id": "details-page", "name": "DetailsPage", "kind": "pattern", "section": "page-patterns", "version": "1.0.0",
+    "purpose": "Page for a single record: header with status badge, optional body, titled field sections and a side panel.",
+    "parts": [
+      { "name": "page", "description": "Full-height column with 24px gap and 24px padding on the page background." },
+      { "name": "header", "description": "Uses the PageHeader definition. The status badge appears beside the actions at the right of the header." },
+      { "name": "badge", "description": "Pill, 10px horizontal and 2px vertical padding, 12px medium text; light accent fill with accent text; default color blue; red is also allowed.", "optional": true },
+      { "name": "body panel", "description": "Panel with card fill, 1px border, extra-large radius, 24px padding, for free content.", "optional": true },
+      { "name": "section", "description": "Same panel style. Optional 16px medium title, then a definition list in two columns from 640px up (24px column and 16px row gap); each entry has a 12px uppercase muted-foreground term and a 14px foreground value.", "optional": true },
+      { "name": "side panel", "description": "Fixed 288px column with 16px gap, supplied by the consumer.", "optional": true }
+    ],
+    "variants": [{ "name": "badge color", "values": ["orange", "blue", "green", "purple", "red"], "default": "blue", "description": "Badge palette." }],
+    "states": ["static"],
+    "layout": ["Main column (body panel then sections, 24px apart) at left taking the remaining width; side panel at right with 24px gap."],
+    "responsive": ["Side panel hidden below 768px; field grid is a single column below 640px."],
+    "tokenBindings": [
+      { "part": "page", "role": "background", "token": "background" },
+      { "part": "section", "role": "panel fill", "token": "card" },
+      { "part": "section", "role": "panel border", "token": "border" },
+      { "part": "section", "role": "term text", "token": "muted-foreground" },
+      { "part": "section", "role": "value text", "token": "foreground" },
+      { "part": "badge", "role": "background", "token": "accent-blue-light", "when": "blue" },
+      { "part": "badge", "role": "text", "token": "accent-blue", "when": "blue" }
+    ],
+    "constraints": ["The badge appears in the header actions area, not inside the title."],
+    "accessibility": ["Fields use a description list; side panel is a complementary landmark."]
+  },
+  {
+    "id": "dashboard-page", "name": "DashboardPage", "kind": "pattern", "section": "page-patterns", "version": "1.0.0",
+    "purpose": "Overview page: header, a row of metric cards, and one or two content panels.",
+    "parts": [
+      { "name": "page", "description": "Full-height column with 24px gap and 24px padding on the page background." },
+      { "name": "header", "description": "Uses the PageHeader definition." },
+      { "name": "stats", "description": "Grid of StatCard definitions with 16px gaps.", "optional": true },
+      { "name": "primary panel", "description": "Flexible-width panel: card fill, 1px border, extra-large radius, 24px padding.", "optional": true },
+      { "name": "secondary panel", "description": "Fixed 320px wide panel with the same styling.", "optional": true }
+    ],
+    "variants": [],
+    "states": ["static"],
+    "layout": ["Stats grid, then a row with the primary panel and (to its right, 24px gap) the secondary panel."],
+    "responsive": ["Stats grid is 1 column below 640px, 2 columns from 640px, 4 columns from 1024px. The secondary panel is hidden below 768px."],
+    "tokenBindings": [
+      { "part": "page", "role": "background", "token": "background" },
+      { "part": "primary panel", "role": "background", "token": "card" },
+      { "part": "primary panel", "role": "border", "token": "border" },
+      { "part": "secondary panel", "role": "background", "token": "card" },
+      { "part": "secondary panel", "role": "border", "token": "border" }
+    ],
+    "constraints": ["Each stat card keeps its own default color (blue) unless specified."],
+    "accessibility": ["One level-one heading; panels need their own headings supplied by the consumer."]
+  }
+]
