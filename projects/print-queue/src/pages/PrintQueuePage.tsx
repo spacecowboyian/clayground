@@ -5,6 +5,7 @@ import { StatusBadge } from '../components/StatusBadge/StatusBadge'
 import { WorkOrderForm } from '../components/WorkOrderForm/WorkOrderForm'
 import { ErrorModal } from '../components/ErrorModal/ErrorModal'
 import { AppHeader } from '../components/AppHeader/AppHeader'
+import { WakataItemStatusSelect } from '../components/WakataItemStatusSelect'
 import { useAppDispatch, useAppSelector } from '../store'
 import { fetchOrders, editOrder as editOrderThunk, clearOrdersError } from '../store/ordersSlice'
 import { fetchInventory, editFilament as editFilamentThunk, clearInventoryError } from '../store/inventorySlice'
@@ -35,12 +36,6 @@ interface PrintQueueRow {
   filamentUsageG: number
   itemStatus: PrintItemStatus
 }
-
-const ITEM_STATUS_OPTIONS: Array<{ id: PrintItemStatus; label: string }> = [
-  { id: 'queue',    label: 'Queue' },
-  { id: 'printing', label: 'Printing' },
-  { id: 'complete', label: 'Complete' },
-]
 
 export function PrintQueuePage({
   onLogout, onPrintQueue, onOrders, onModels, onFilaments, onSettings,
@@ -475,18 +470,14 @@ function ItemStatusSelect({
   onChange,
 }: {
   row: PrintQueueRow
-  onChange: (row: PrintQueueRow, status: PrintItemStatus) => void
+  onChange: (row: PrintQueueRow, status: PrintItemStatus) => Promise<void>
 }) {
   return (
-    <select
+    <WakataItemStatusSelect
       value={row.itemStatus}
-      onChange={e => void onChange(row, e.target.value as PrintItemStatus)}
-      className="bg-[var(--input)] border border-[var(--border)] text-sm rounded px-2 py-1 text-[var(--foreground)] cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--accent-orange)]"
-    >
-      {ITEM_STATUS_OPTIONS.map(o => (
-        <option key={o.id} value={o.id}>{o.label}</option>
-      ))}
-    </select>
+      label={`Item status for ${row.item}, order #${row.orderNumber}`}
+      onChange={status => onChange(row, status)}
+    />
   )
 }
 

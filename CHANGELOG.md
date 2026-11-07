@@ -65,6 +65,12 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.6.0] – 2026-11-06
+
+### feat(print-queue)
+- Replace only the print-queue item-status control with a Wakata Select derived locally from the pinned `@wakata/ds` package. The local styling matches Gearhead's 101 × 29px select; shared Gearhead and Wakata defaults stay unchanged.
+- Add a plain-HTML workflow proof using the same package and local Select treatment. The React wrapper handles one `wk-change` per committed selection, restores the committed value after a failed update, and ignores a second selection while a request is pending.
+
 ## [1.5.0] – 2026-03-12
 
 ### feat(print-queue)
