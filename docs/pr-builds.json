@@ -71,13 +71,5 @@
     "builds": {
       "churn": "https://spacecowboyian.github.io/clayground/churn/pr-81/"
     }
-  },
-  "93": {
-    "title": "feat(print-queue): test Wakata status select in Gearhead app",
-    "url": "https://github.com/spacecowboyian/clayground/pull/93",
-    "builds": {
-      "print-queue": "https://spacecowboyian.github.io/clayground/print-queue/pr-93/",
-      "somethings-happening": "https://spacecowboyian.github.io/clayground/somethings-happening/pr-93/"
-    }
   }
 }
