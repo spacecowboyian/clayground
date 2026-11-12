@@ -74,6 +74,9 @@ _Changes not yet pushed to `main` go here._
 - Use the project-local Wakata Card for semantic content surfaces (summary stats, item and order cards, AMS slots, empty states, settings panels, login), keeping tables and structural list wrappers native. Use Wakata Status for inline errors and Dialog alert mode for blocking load errors.
 - Keep the Orders toolbar compact with 34px Wakata small buttons and search field using a local theme size override; restore padding on local Wakata text inputs; integrate 48px number-field steppers within the field outline; and place AMS slot selectors in each Card's bottom actions area, including the empty-slot state.
 
+### ci(print-queue)
+- Build the password-free fake-data demo alongside the standard password-protected print-queue PR preview and add its direct link to the preview comment.
+
 ## [1.6.0] – 2026-11-06
 
 ### feat(print-queue)
