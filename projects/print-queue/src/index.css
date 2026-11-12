@@ -1,13 +1,12 @@
-/* Import gearhead theme tokens (CSS custom properties) */
-@import '../node_modules/@gearhead/ui/src/styles/theme.css';
-@import '../node_modules/@gearhead/ui/src/styles/fonts.css';
+/* Keep the app's established palette and spacing as local consumer theme tokens. */
+@import './styles/theme.css';
 
-/* Tailwind v4 — source both gearhead components and our own */
+/* Tailwind v4 — source this app's components and pages. */
 @import 'tailwindcss' source(none);
-@source '../node_modules/@gearhead/ui/src/components/**/*.{ts,tsx}';
 @source './components/**/*.{ts,tsx}';
 @source './pages/**/*.{ts,tsx}';
 @source './App.tsx';
+@source './wakata-workflow.ts';
 
 @import 'tw-animate-css';
 
@@ -16,4 +15,22 @@
    while navigating between tabs. */
 html {
   scrollbar-gutter: stable;
+}
+
+/* Print-queue-only Wakata fork: the native slotted select inherits document
+   styles, so set its compact Gearhead dimensions in the consumer stylesheet. */
+pq-item-status-select > select[slot='input'] {
+  box-sizing: border-box;
+  width: auto;
+  min-height: 0;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 3px;
+  appearance: auto;
+  background: var(--input);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 14px;
+  line-height: normal;
+  cursor: pointer;
 }

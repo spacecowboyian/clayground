@@ -1,0 +1,72 @@
+/* Gearhead-matching dark look for the <wk-dialog> content root. */
+@layer components {
+  .pq-wk-dialog {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    background: var(--card);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.4);
+    outline: none;
+    overflow: hidden;
+  }
+  @media (min-width: 640px) {
+    .pq-wk-dialog {
+      width: 100%;
+      height: auto;
+      max-height: calc(100dvh - 2rem);
+      max-width: var(--modal-max-w);
+      border-radius: 0.5rem;
+    }
+    .pq-wk-dialog--xl { max-width: var(--modal-max-w-xl); }
+  }
+  .pq-wk-dialog__header {
+    flex: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .pq-wk-dialog__title { margin: 0; font-size: 1.25rem; line-height: 1.75rem; color: var(--foreground); }
+  .pq-wk-dialog__close {
+    margin-left: auto;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    color: var(--muted-foreground);
+    background: transparent;
+    cursor: pointer;
+  }
+  .pq-wk-dialog__close:hover { background: var(--secondary); }
+  .pq-wk-dialog__close:focus-visible { outline: 2px solid var(--ring, var(--accent-orange)); }
+  .pq-wk-dialog__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+  }
+  .pq-wk-dialog__footer {
+    flex: none;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+}
+
+@layer components {
+  .pq-wk-dialog--alert { border-color: var(--destructive); }
+  @media (min-width: 640px) {
+    .pq-wk-dialog--alert { border-radius: 1rem; }
+  }
+  .pq-wk-dialog--alert .pq-wk-dialog__header { border-bottom: 0; padding-bottom: 0; }
+  .pq-wk-dialog--alert .pq-wk-dialog__title { font-size: 1rem; font-weight: 600; display: flex; gap: 0.75rem; align-items: center; }
+  .pq-wk-dialog--alert .pq-wk-dialog__footer { border-top: 0; }
+  .pq-wk-dialog__alert-icon { flex: none; width: 1.5rem; height: 1.5rem; color: var(--destructive); }
+  .pq-wk-dialog__alert-desc { margin: 0; line-height: 1.625; }
+}

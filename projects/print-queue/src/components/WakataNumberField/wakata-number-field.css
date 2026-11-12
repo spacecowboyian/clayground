@@ -1,0 +1,45 @@
+@layer components {
+  .pq-wk-number-field {
+    position: relative;
+    min-width: 0;
+  }
+  .pq-wk-number-field__input { display: block; width: 100%; min-width: 0; }
+  :where(wk-number-field).pq-wk-field > [slot='input'] { padding-inline-start: 0.75rem; }
+  /* Reserve room so typed text never runs under the stepper. */
+  .pq-wk-number-field__input > [slot='input'] {
+    min-height: 48px;
+    height: 48px;
+    padding-inline-end: 2.5rem;
+  }
+  /* Anchor from the top (label line + margin) so a currency preview or feedback below the input never shifts it. */
+  .pq-wk-number-field__stepper {
+    position: absolute;
+    right: 1px;
+    top: calc(1.25rem + 0.5rem + 1px);
+    display: flex;
+    flex-direction: column;
+    width: 2rem;
+    height: 46px;
+    overflow: hidden;
+    border-left: 1px solid var(--border);
+    border-radius: 0 calc(0.5rem - 1px) calc(0.5rem - 1px) 0;
+  }
+  wk-button.pq-wk-button.pq-wk-number-field__step {
+    display: flex;
+    flex: none;
+    width: 100%;
+    height: 24px;
+    min-height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--secondary);
+    color: var(--foreground);
+    font-size: 0.875rem;
+    line-height: 1;
+  }
+  wk-button.pq-wk-button.pq-wk-number-field__step + wk-button.pq-wk-button.pq-wk-number-field__step {
+    border-top: 1px solid var(--border);
+  }
+  wk-button.pq-wk-button.pq-wk-number-field__step:hover { background: var(--muted); }
+}

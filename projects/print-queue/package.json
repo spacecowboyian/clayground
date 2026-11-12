@@ -11,10 +11,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@gearhead/ui": "file:../gearhead",
     "@reduxjs/toolkit": "^2.11.2",
     "@supabase/supabase-js": "^2.99.1",
+    "@wakata/ds": "file:vendor/wakata-ds-0.0.0.tgz",
     "clsx": "2.1.1",
+    "lit": "3.3.1",
     "lucide-react": "0.487.0",
     "react": "^19.0.0",
     "react-aria-components": "^1.15.1",

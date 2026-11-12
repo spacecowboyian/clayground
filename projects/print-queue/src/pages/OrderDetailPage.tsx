@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Button, OrderStatusTimeline } from '@gearhead/ui'
+import { OrderStatusTimeline } from '../components/OrderStatusTimeline/OrderStatusTimeline'
+import { Button } from '../components/WakataButton/WakataButton'
+import { Link } from '../components/WakataLink/WakataLink'
+import { PqBadge, type StatusTone } from '../components/StatusBadge/StatusBadge'
 import { getOrder, updatePaymentStatus } from '../lib/storage'
 import { listFilaments } from '../lib/inventory'
 import { ErrorModal } from '../components/ErrorModal/ErrorModal'
@@ -76,13 +79,16 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
   }
 
   const shareUrl = `${window.location.origin}${window.location.pathname}#/order/${order.id}`
+  const loadedOrderId = order.id
 
   const filamentMap = new Map(filaments.map(f => [f.id, f]))
 
   /** Effective payment state — uses payment_status when present, falls back to paid bool */
   const paymentStatus: PaymentStatus = order.payment_status ?? (order.paid ? 'paid' : 'unpaid')
 
-  const venmoUrl = `https://venmo.com/ian-jennings-17?txn=pay&amount=${(order.price ?? 5).toFixed(2)}&note=${encodeURIComponent(order.id)}`
+  const venmoUrl = import.meta.env.VITE_PRINT_QUEUE_DEMO === 'true'
+    ? 'https://example.com/demo-payment'
+    : `https://venmo.com/ian-jennings-17?txn=pay&amount=${(order.price ?? 5).toFixed(2)}&note=${encodeURIComponent(order.id)}`
 
   async function copyLink() {
     await navigator.clipboard.writeText(shareUrl)
@@ -92,7 +98,7 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
     setPaymentUpdating(true)
     setPaymentError(null)
     try {
-      const updated = await updatePaymentStatus(order.id, 'verifying_payment')
+      const updated = await updatePaymentStatus(loadedOrderId, 'verifying_payment')
       setOrder(updated)
     } catch (err) {
       setPaymentError(extractMessage(err, 'Failed to update payment status'))
@@ -124,38 +130,34 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
           <div className="px-6 py-3 border-b border-[var(--border)] flex items-center justify-between">
             <span className="text-sm text-[var(--muted-foreground)]">Payment</span>
             {paymentStatus === 'paid' && (
-              <span className="text-sm font-semibold text-[var(--accent-green)]">✓ Paid</span>
+              <PqBadge tone="green">✓ Paid</PqBadge>
             )}
             {paymentStatus === 'verifying_payment' && (
-              <span className="text-sm font-semibold text-[var(--accent-orange)]">⏳ Verifying Payment</span>
+              <PqBadge tone="orange">⏳ Verifying Payment</PqBadge>
             )}
             {paymentStatus === 'unpaid' && (
-              <span className="text-sm font-semibold text-[var(--accent-red)]">✗ Not Paid</span>
+              <PqBadge tone="red">✗ Not Paid</PqBadge>
             )}
           </div>
 
           {/* Venmo + payment actions (unpaid orders only) */}
           {paymentStatus === 'unpaid' && (
             <div className="px-6 py-4 border-b border-[var(--border)] space-y-3">
-              <a
-                href={venmoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full rounded-lg px-4 py-2.5 text-sm font-semibold bg-[#3D95CE] text-white hover:bg-[#2d7ab8] transition-colors"
-              >
+              <Link href={venmoUrl} appearance="cta">
                 <span>💸</span>
                 Pay via Venmo
-              </a>
+              </Link>
               {paymentError && (
                 <p className="text-xs text-[var(--destructive)] text-center">{paymentError}</p>
               )}
-              <button
-                onClick={() => void handleSentPayment()}
-                disabled={paymentUpdating}
-                className="w-full rounded-lg px-4 py-2 text-sm text-[var(--muted-foreground)] border border-[var(--border)] hover:bg-[var(--secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              <Button
+                variant="outline"
+                onPress={() => void handleSentPayment()}
+                isDisabled={paymentUpdating}
+                className="w-full text-sm text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"
               >
                 {paymentUpdating ? 'Updating…' : "I've Sent Payment"}
-              </button>
+              </Button>
             </div>
           )}
 
@@ -222,14 +224,9 @@ export function OrderDetailPage({ orderId, onBack }: OrderDetailPageProps) {
             {order.model_url && (
               <div className="px-6 py-4 flex justify-between items-start gap-4">
                 <span className="text-sm text-[var(--muted-foreground)] shrink-0 pt-0.5">Model</span>
-                <a
-                  href={order.model_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-[var(--accent-blue)] hover:underline text-right break-all"
-                >
+                <Link href={order.model_url} className="text-sm text-right break-all">
                   View on MakerWorld ↗
-                </a>
+                </Link>
               </div>
             )}
             {order.notes && <Field label="Notes" value={order.notes} />}
@@ -264,13 +261,11 @@ function Field({ label, value }: { label: string; value: string }) {
 }
 
 function ItemStatusBadge({ status }: { status: PrintItemStatus }) {
-  const config: Record<PrintItemStatus, { label: string; className: string }> = {
-    queue:    { label: 'Queued',   className: 'text-[var(--muted-foreground)]' },
-    printing: { label: 'Printing', className: 'text-[var(--accent-orange)]' },
-    complete: { label: 'Complete', className: 'text-[var(--accent-green)]' },
+  const config: Record<PrintItemStatus, { label: string; tone: StatusTone }> = {
+    queue:    { label: 'Queued',   tone: 'muted' },
+    printing: { label: 'Printing', tone: 'orange' },
+    complete: { label: 'Complete', tone: 'green' },
   }
-  const { label, className } = config[status]
-  return (
-    <span className={`text-xs font-medium shrink-0 ${className}`}>{label}</span>
-  )
+  const { label, tone } = config[status]
+  return <PqBadge tone={tone}>{label}</PqBadge>
 }

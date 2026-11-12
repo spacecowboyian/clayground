@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Dialog, Accordion } from '@gearhead/ui'
+import { Card } from '../components/WakataCard/WakataCard'
+import { Accordion } from '../components/WakataAccordion/WakataAccordion'
+import { Button } from '../components/WakataButton/WakataButton'
+import { Dialog } from '../components/WakataDialog/WakataDialog'
+import { SearchField } from '../components/WakataTextField/WakataTextField'
 import { DollarSign, GripVertical, Pencil, Plus, Printer, Search, Trash2, X } from 'lucide-react'
 import { StatusBadge } from '../components/StatusBadge/StatusBadge'
 import { WorkOrderForm } from '../components/WorkOrderForm/WorkOrderForm'
@@ -19,6 +23,7 @@ import {
 import { fetchInventory, clearInventoryError } from '../store/inventorySlice'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus } from '../types/WorkOrder'
 import { colorNameToHex } from '../utils/colors'
+import './dashboard-toolbar.css'
 
 const STATUS_FILTERS: Array<WorkOrderStatus | 'All'> = ['All', 'waiting', 'in_progress', 'complete']
 const STATUS_FILTER_LABELS: Record<WorkOrderStatus | 'All', string> = {
@@ -247,55 +252,61 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
 
         {/* Toolbar */}
         <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="pq-orders-toolbar flex flex-wrap items-center gap-3">
             <div className="flex gap-1 flex-wrap">
               {STATUS_FILTERS.map(f => (
-                <button
+                <Button
                   key={f}
-                  onClick={() => setFilter(f)}
-                  className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                  variant={statusFilter === f ? 'primary' : 'ghost'}
+                  appearance="filter"
+                  onPress={() => setFilter(f)}
+                  className={`px-3 py-1.5 text-sm ${
                     statusFilter === f
-                      ? 'bg-[var(--accent-orange)] text-white'
-                      : 'bg-[var(--secondary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                      ? ''
+                      : 'hover:text-[var(--foreground)]'
                   }`}
                 >
                   {STATUS_FILTER_LABELS[f]}
-                </button>
+                </Button>
               ))}
             </div>
 
             {/* Search input */}
             <div className="relative flex items-center">
               <Search className="absolute left-2.5 w-3.5 h-3.5 text-[var(--muted-foreground)] pointer-events-none" />
-              <input
-                type="search"
+              <SearchField
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                onChange={setSearchQuery}
                 placeholder="Search orders…"
                 aria-label="Search orders by customer or item"
-                className="pl-8 pr-7 py-1.5 rounded-lg text-sm bg-[var(--secondary)] border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-orange)] w-44 sm:w-52"
+                focusColor="orange"
+                compact
+                size="small"
+                className="w-44 sm:w-52"
               />
               {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
+                <Button
+                  variant="ghost"
+                  appearance="icon"
+                  onPress={() => setSearchQuery('')}
                   aria-label="Clear search"
-                  className="absolute right-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                  className="absolute right-2 !p-0 hover:!bg-transparent hover:text-[var(--foreground)]"
                 >
                   <X className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               )}
             </div>
 
             {/* Add Order button — desktop (sm+) */}
             <div className="ml-auto hidden sm:flex items-center gap-2">
               {hasBambuToken && (
-                <Button variant="outline" onPress={() => setBambuOpen(true)}>
-                  <Printer className="w-4 h-4" />
+                <Button variant="outline" size="small" className="px-3 py-1.5 text-sm gap-1" onPress={() => setBambuOpen(true)}>
+                  <Printer className="w-3.5 h-3.5" />
                   Import from Bambu
                 </Button>
               )}
-              <Button variant="primary" color="orange" onPress={() => setAddOpen(true)}>
-                <Plus className="w-4 h-4" />
+              <Button variant="primary" color="orange" size="small" className="px-3 py-1.5 text-sm gap-1" onPress={() => setAddOpen(true)}>
+                <Plus className="w-3.5 h-3.5" />
                 Add Order
               </Button>
             </div>
@@ -304,12 +315,12 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
           {/* Add Order / Import buttons — mobile full width */}
           <div className="sm:hidden space-y-2">
             {hasBambuToken && (
-              <Button variant="outline" className="w-full justify-center" onPress={() => setBambuOpen(true)}>
+              <Button variant="outline" className="pq-orders-toolbar__action w-full justify-center" onPress={() => setBambuOpen(true)}>
                 <Printer className="w-4 h-4" />
                 Import from Bambu
               </Button>
             )}
-            <Button variant="primary" color="orange" className="w-full justify-center" onPress={() => setAddOpen(true)}>
+            <Button variant="primary" color="orange" className="pq-orders-toolbar__action w-full justify-center" onPress={() => setAddOpen(true)}>
               <Plus className="w-4 h-4" />
               Add Order
             </Button>
@@ -384,12 +395,15 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
                             <GripVertical className="w-4 h-4" />
                           </td>
                           <Td>
-                            <button
-                              onClick={() => onViewOrder(order.id)}
-                              className="font-medium text-[var(--accent-blue)] hover:underline text-left tabular-nums"
+                            <Button
+                              variant="secondary"
+                              color="blue"
+                              appearance="plain"
+                              onPress={() => onViewOrder(order.id)}
+                              className="text-sm font-medium text-left tabular-nums"
                             >
                               #{order.order_number}
-                            </button>
+                            </Button>
                           </Td>
                           <Td>
                             <span className="font-medium text-[var(--foreground)]">{order.customer}</span>
@@ -472,12 +486,15 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
                           className="border-b border-[var(--border)] bg-[var(--card)] hover:bg-[var(--secondary)] transition-colors"
                         >
                           <Td>
-                            <button
-                              onClick={() => onViewOrder(order.id)}
-                              className="font-medium text-[var(--accent-blue)] hover:underline text-left tabular-nums"
+                            <Button
+                              variant="secondary"
+                              color="blue"
+                              appearance="plain"
+                              onPress={() => onViewOrder(order.id)}
+                              className="text-sm font-medium text-left tabular-nums"
                             >
                               #{order.order_number}
-                            </button>
+                            </Button>
                           </Td>
                           <Td>
                             <span className="font-medium text-[var(--foreground)]">{order.customer}</span>
@@ -561,12 +578,15 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
                           className="border-b border-[var(--border)] bg-[var(--card)] hover:bg-[var(--secondary)] transition-colors opacity-80"
                         >
                           <Td>
-                            <button
-                              onClick={() => onViewOrder(order.id)}
-                              className="font-medium text-[var(--accent-blue)] hover:underline text-left tabular-nums"
+                            <Button
+                              variant="secondary"
+                              color="blue"
+                              appearance="plain"
+                              onPress={() => onViewOrder(order.id)}
+                              className="text-sm font-medium text-left tabular-nums"
                             >
                               #{order.order_number}
-                            </button>
+                            </Button>
                           </Td>
                           <Td>
                             <span className="font-medium text-[var(--foreground)]">{order.customer}</span>
@@ -633,7 +653,6 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
           isOpen
           size="xl"
           onOpenChange={open => { if (!open) setBambuOpen(false) }}
-          trigger={<span />}
           title="Import from Bambu"
         >
           <BambuImportDialog
@@ -654,7 +673,6 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
           isOpen
           size="xl"
           onOpenChange={open => { if (!open) setBambuPrefill(null) }}
-          trigger={<span />}
           title={`New Order — ${bambuPrefill.item || 'New Print'}`}
         >
           <WorkOrderForm
@@ -703,7 +721,6 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
           isOpen
           size="xl"
           onOpenChange={open => { if (!open) setAddOpen(false) }}
-          trigger={<span />}
           title="New Work Order"
         >
           <WorkOrderForm
@@ -723,7 +740,6 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
           isOpen
           size="xl"
           onOpenChange={open => { if (!open) setEditOrder(null) }}
-          trigger={<span />}
           title="Edit Work Order"
         >
           <WorkOrderForm
@@ -743,7 +759,6 @@ export function DashboardPage({ onLogout, onViewOrder, onPrintQueue, onOrders, o
         <Dialog
           isOpen
           onOpenChange={open => { if (!open) setDeleteTarget(null) }}
-          trigger={<span />}
           title="Delete Order"
           footer={
             <>
@@ -776,16 +791,19 @@ interface MobileCardProps {
 function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: MobileCardProps) {
   const paymentStatus = order.payment_status ?? (order.paid ? 'paid' : 'unpaid')
   return (
-    <div className={`bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3 ${muted ? 'opacity-80' : ''}`}>
+    <Card className={muted ? 'opacity-80' : ''} bodyClassName="space-y-3">
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={onView}
-              className="text-xs font-medium text-[var(--accent-blue)] hover:underline tabular-nums"
+            <Button
+              variant="secondary"
+              color="blue"
+              appearance="plain"
+              onPress={onView}
+              className="text-xs font-medium tabular-nums"
             >
               #{order.order_number}
-            </button>
+            </Button>
             <p className="font-medium text-[var(--foreground)]">{orderItemLabel(order)}</p>
           </div>
           <p className="text-sm text-[var(--muted-foreground)]">{order.customer}</p>
@@ -817,14 +835,16 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
       )}
 
       <div className="flex items-center justify-end gap-1 pt-1 border-t border-[var(--border)]">
-        <button
-          onClick={onTogglePaid}
+        <Button
+          variant="ghost"
+          appearance="icon"
+          onPress={onTogglePaid}
           className={`p-1.5 rounded transition-colors ${
             order.paid
-              ? 'text-[var(--accent-green)]'
+              ? '[--wk-text:var(--accent-green)]'
               : paymentStatus === 'verifying_payment'
-                ? 'text-[var(--accent-orange)] hover:bg-[var(--accent-orange-light)]'
-                : 'text-[var(--muted-foreground)] hover:text-[var(--accent-green)]'
+                ? '[--wk-text:var(--accent-orange)] hover:bg-[var(--accent-orange-light)]'
+                : '[--wk-text:var(--muted-foreground)] hover:[--wk-text:var(--accent-green)]'
           }`}
           title={
             order.paid
@@ -842,25 +862,29 @@ function MobileCard({ order, onView, onEdit, onDelete, onTogglePaid, muted }: Mo
           }
         >
           <DollarSign className="w-4 h-4" />
-        </button>
-        <button
-          onClick={onEdit}
-          className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
+        </Button>
+        <Button
+          variant="ghost"
+          appearance="icon"
+          onPress={onEdit}
+          className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] [--wk-text:var(--muted-foreground)] hover:[--wk-text:var(--accent-orange)] transition-colors"
           title="Edit"
           aria-label="Edit"
         >
           <Pencil className="w-4 h-4" />
-        </button>
-        <button
-          onClick={onDelete}
-          className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+        </Button>
+        <Button
+          variant="ghost"
+          appearance="icon"
+          onPress={onDelete}
+          className="p-1.5 rounded hover:bg-[var(--accent-red-light)] [--wk-text:var(--muted-foreground)] hover:[--wk-text:var(--destructive)] transition-colors"
           title="Delete"
           aria-label="Delete"
         >
           <Trash2 className="w-4 h-4" />
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   )
 }
 
@@ -885,14 +909,16 @@ function OrderActions({ order, onEdit, onDelete, onTogglePaid }: OrderActionsPro
           ⏳ Verifying
         </span>
       )}
-      <button
-        onClick={onTogglePaid}
+      <Button
+        variant="ghost"
+        appearance="icon"
+        onPress={onTogglePaid}
         className={`p-1.5 rounded transition-colors ${
           order.paid
-            ? 'text-[var(--accent-green)] hover:bg-[var(--secondary)]'
+            ? '[--wk-text:var(--accent-green)] hover:bg-[var(--secondary)]'
             : paymentStatus === 'verifying_payment'
-              ? 'text-[var(--accent-orange)] hover:bg-[var(--accent-orange-light)]'
-              : 'text-[var(--muted-foreground)] hover:text-[var(--accent-green)] hover:bg-[var(--secondary)]'
+              ? '[--wk-text:var(--accent-orange)] hover:bg-[var(--accent-orange-light)]'
+              : '[--wk-text:var(--muted-foreground)] hover:[--wk-text:var(--accent-green)] hover:bg-[var(--secondary)]'
         }`}
         title={
           order.paid
@@ -910,21 +936,27 @@ function OrderActions({ order, onEdit, onDelete, onTogglePaid }: OrderActionsPro
         }
       >
         <DollarSign className="w-4 h-4" />
-      </button>
-      <button
-        onClick={onEdit}
-        className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
+      </Button>
+      <Button
+        variant="ghost"
+        appearance="icon"
+        onPress={onEdit}
+        className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] [--wk-text:var(--muted-foreground)] hover:[--wk-text:var(--accent-orange)] transition-colors"
         title="Edit"
+        aria-label="Edit"
       >
         <Pencil className="w-4 h-4" />
-      </button>
-      <button
-        onClick={onDelete}
-        className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+      </Button>
+      <Button
+        variant="ghost"
+        appearance="icon"
+        onPress={onDelete}
+        className="p-1.5 rounded hover:bg-[var(--accent-red-light)] [--wk-text:var(--muted-foreground)] hover:[--wk-text:var(--destructive)] transition-colors"
         title="Delete"
+        aria-label="Delete"
       >
         <Trash2 className="w-4 h-4" />
-      </button>
+      </Button>
     </div>
   )
 }
@@ -1018,9 +1050,9 @@ function StatCard({ label, value, accent = 'green' }: StatCardProps) {
     muted:  'text-[var(--muted-foreground)]',
   }
   return (
-    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
+    <Card>
       <p className={`text-2xl font-bold ${typeof value === 'string' || typeof value === 'number' ? colors[accent] : ''}`}>{value}</p>
       <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{label}</p>
-    </div>
+    </Card>
   )
 }

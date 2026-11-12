@@ -1,4 +1,6 @@
-import { Button } from '@gearhead/ui'
+import { useId } from 'react'
+import { Button } from '../WakataButton/WakataButton'
+import { Dialog } from '../WakataDialog/WakataDialog'
 import { AlertCircle } from 'lucide-react'
 
 interface ErrorModalProps {
@@ -11,40 +13,21 @@ interface ErrorModalProps {
 }
 
 /**
- * Full-screen overlay modal shown when data cannot be loaded from Supabase.
+ * Alert dialog (wk-dialog alert mode) shown when data cannot be loaded from Supabase.
  * Provides a Retry button to re-trigger the failed fetch.
  */
 export function ErrorModal({ error, onRetry, onDismiss }: ErrorModalProps) {
+  const descId = useId()
   return (
-    <div
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="error-modal-title"
-      aria-describedby="error-modal-desc"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-    >
-      <div className="bg-[var(--card)] border border-[var(--destructive)] rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5">
-        {/* Icon + title */}
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-6 h-6 shrink-0 text-[var(--destructive)] mt-0.5" aria-hidden="true" />
-          <div>
-            <h2
-              id="error-modal-title"
-              className="text-base font-semibold text-[var(--foreground)]"
-            >
-              Unable to load data
-            </h2>
-            <p
-              id="error-modal-desc"
-              className="mt-1 text-sm text-[var(--muted-foreground)] leading-relaxed"
-            >
-              {error}
-            </p>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-3 pt-1">
+    <Dialog
+      isOpen
+      isAlertDialog
+      describedById={descId}
+      title="Unable to load data"
+      className="pq-wk-dialog--alert"
+      onOpenChange={open => { if (!open) onDismiss?.() }}
+      footer={
+        <>
           <Button variant="primary" color="orange" onPress={onRetry} className="flex-1 justify-center">
             Retry
           </Button>
@@ -53,8 +36,13 @@ export function ErrorModal({ error, onRetry, onDismiss }: ErrorModalProps) {
               Dismiss
             </Button>
           )}
-        </div>
+        </>
+      }
+    >
+      <div className="flex items-start gap-3">
+        <AlertCircle className="pq-wk-dialog__alert-icon" aria-hidden="true" />
+        <p id={descId} className="pq-wk-dialog__alert-desc">{error}</p>
       </div>
-    </div>
+    </Dialog>
   )
 }

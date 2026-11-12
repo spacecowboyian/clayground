@@ -1,0 +1,7 @@
+/* Light-DOM hex input inherits the shared .pq-wk-field dark look; keep control height aligned with other fields. */
+@layer components {
+  wk-color-picker.pq-wk-color-picker > [slot='input'] {
+    min-height: 2.5rem;
+    padding-inline: 0.75rem;
+  }
+}

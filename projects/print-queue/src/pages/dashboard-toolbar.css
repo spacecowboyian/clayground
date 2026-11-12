@@ -1,0 +1,18 @@
+/* The existing compact toolbar tunes Wakata's named small size for this app. */
+@layer components {
+  .pq-orders-toolbar,
+  wk-button.pq-wk-button.pq-orders-toolbar__action {
+    --wk-control-min-height-small: 34px;
+    --wk-button-padding-small: 4px 12px;
+    --wk-button-font-size-small: 14px;
+  }
+
+  .pq-orders-toolbar wk-button.pq-wk-button:not([data-pq-appearance='icon']),
+  wk-button.pq-wk-button.pq-orders-toolbar__action {
+    box-sizing: border-box;
+    min-height: var(--wk-control-min-height-small);
+    padding: var(--wk-button-padding-small);
+    font-size: var(--wk-button-font-size-small);
+    line-height: 20px;
+  }
+}

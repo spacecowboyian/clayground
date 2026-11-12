@@ -1,0 +1,57 @@
+/* Gearhead-matching dark look for <wk-text-field> / <wk-text-area>. */
+@layer components {
+  .pq-wk-field {
+    --wk-text: var(--foreground);
+    --wk-surface: var(--input);
+    --wk-border: var(--border);
+    --wk-danger: var(--destructive);
+    --wk-disabled-bg: var(--input);
+    --wk-disabled-text: var(--muted-foreground);
+    --wk-disabled-border: var(--border);
+    --wk-radius: 0.5rem;
+    --wk-focus: var(--accent-blue);
+    font-size: 1rem;
+  }
+  .pq-wk-field[data-pq-focus='orange'] { --wk-focus: var(--accent-orange); }
+  .pq-wk-field[data-pq-focus='green'] { --wk-focus: var(--accent-green); }
+  .pq-wk-field[data-pq-focus='purple'] { --wk-focus: var(--accent-purple); }
+
+  .pq-wk-field > [slot='label'] {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+    margin-block-end: 0.5rem;
+    color: var(--foreground);
+  }
+  .pq-wk-field > [slot='help-text'] {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+  }
+  .pq-wk-field > [slot='input'] { color: var(--foreground); }
+  .pq-wk-field > [slot='input']::placeholder { color: var(--muted-foreground); }
+  wk-text-field.pq-wk-field > [slot='input'] { min-height: 2.5rem; }
+  /* Light-DOM inputs lose Wakata's shadow padding to the app reset. */
+  :where(wk-text-field).pq-wk-field > [slot='input'] { padding-inline: 0.75rem; }
+  :where(wk-text-area).pq-wk-field > [slot='input'] { padding: 0.5rem 0.75rem; }
+  .pq-wk-field[disabled] { opacity: 0.5; }
+
+  .pq-wk-search > [slot='label'] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    margin: 0;
+  }
+  .pq-wk-search--compact {
+    --wk-surface: var(--secondary);
+    --wk-radius: 0.5rem;
+  }
+  wk-text-field.pq-wk-field.pq-wk-search--compact > [slot='input'] {
+    min-height: var(--wk-control-min-height-small, 36px);
+    height: var(--wk-control-min-height-small, 36px);
+    padding: 4px 28px 4px 32px;
+    font-size: 0.875rem;
+  }
+}

@@ -94,6 +94,12 @@ jobs:
               (cd "${dir}" && npm ci && npx vite build \
                 --base="/clayground/${project}/pr-${PR_NUMBER}/" \
                 --outDir "$OUT_DIR")
+              # print-queue also gets the password-free in-memory demo.
+              if [ "${project}" = "print-queue" ]; then
+                (cd "${dir}" && npx vite build -c vite.demo.config.ts \
+                  --base="/clayground/${project}/pr-${PR_NUMBER}/demo/" \
+                  --outDir "$OUT_DIR/demo" --emptyOutDir)
+              fi
             fi
           done
 
@@ -167,6 +173,14 @@ jobs:
                 lines.push(
                   `- **${d}**: https://spacecowboyian.github.io/clayground/${d}/pr-${pr}/`
                 );
+                if (
+                  d === 'print-queue' &&
+                  fs.existsSync(`main-branch/docs/${d}/pr-${pr}/demo`)
+                ) {
+                  lines.push(
+                    `- **${d} demo**: https://spacecowboyian.github.io/clayground/${d}/pr-${pr}/demo/demo.html`
+                  );
+                }
               }
             }
             const body = [

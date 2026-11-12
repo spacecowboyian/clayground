@@ -1,0 +1,30 @@
+/* Project-local Gearhead look for <wk-badge> / <wk-status>, via public theme hooks. */
+@layer components {
+  wk-badge.pq-wk-badge {
+    --wk-radius: 9999px;
+    --wk-font: inherit;
+    --wk-accent: transparent;
+    --wk-positive: transparent;
+    --wk-danger: transparent;
+    --wk-surface: var(--muted);
+    --wk-text: var(--muted-foreground);
+    flex-shrink: 0;
+  }
+  wk-badge.pq-wk-badge::part(badge) { padding: 0.125rem 0.5rem; font-size: 0.75rem; font-weight: 500; line-height: 1rem; }
+
+  wk-badge.pq-wk-badge[data-pq-tone='blue'] { --wk-surface: var(--accent-blue-light); --wk-text: var(--accent-blue); }
+  wk-badge.pq-wk-badge[data-pq-tone='green'] { --wk-surface: var(--accent-green-light); --wk-text: var(--accent-green); }
+  wk-badge.pq-wk-badge[data-pq-tone='red'] { --wk-surface: var(--accent-red-light); --wk-text: var(--destructive); }
+  wk-badge.pq-wk-badge[data-pq-tone='orange'] { --wk-surface: var(--accent-orange-light); --wk-text: var(--accent-orange); }
+
+  wk-status.pq-wk-status {
+    --wk-accent: var(--destructive);
+    --wk-danger: var(--destructive);
+    --wk-surface: var(--accent-red-light);
+    --wk-text: var(--destructive);
+    --wk-radius: 0.5rem;
+    --wk-font: inherit;
+    display: block;
+    font-size: 0.875rem;
+  }
+}
