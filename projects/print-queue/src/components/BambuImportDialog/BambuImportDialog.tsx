@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Button } from '@gearhead/ui'
+import { Button } from '../WakataButton/WakataButton'
 import { Printer } from 'lucide-react'
+import type { WorkOrderStatus } from '../../types/WorkOrder'
+import '@wakata/ds/status/define'
+import '../StatusBadge/status-badge.css'
 import {
   fetchBambuTasks,
   cleanPrintTitle,
@@ -16,7 +19,7 @@ export interface BambuPrefillData {
   item: string
   color: string
   notes: string
-  status: string
+  status: WorkOrderStatus
   price: number
 }
 
@@ -121,14 +124,16 @@ export function BambuImportDialog({ accessToken, corsProxy, onImport, onClose }:
       )}
 
       {!loading && error && (
-        <div className="rounded-lg border border-[var(--destructive)] bg-[var(--accent-red-light)] p-4 text-sm text-[var(--destructive)] space-y-2">
-          <p className="font-medium">Failed to load Bambu prints</p>
-          <p>{error}</p>
-          <p className="text-xs text-[var(--muted-foreground)]">
-            Tip: Set a CORS proxy URL in{' '}
-            <span className="font-medium text-[var(--foreground)]">Farm Settings → Bambu Integration</span>.
-          </p>
-        </div>
+        <wk-status class="pq-wk-status" variant="danger">
+          <div className="space-y-2">
+            <p className="font-medium">Failed to load Bambu prints</p>
+            <p>{error}</p>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Tip: Set a CORS proxy URL in{' '}
+              <span className="font-medium text-[var(--foreground)]">Farm Settings → Bambu Integration</span>.
+            </p>
+          </div>
+        </wk-status>
       )}
 
       {!loading && !error && tasks.length === 0 && (

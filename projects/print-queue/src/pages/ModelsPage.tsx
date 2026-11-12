@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Dialog, Card, SearchField } from '@gearhead/ui'
+import { SearchField } from '../components/WakataTextField/WakataTextField'
+import { Card } from '../components/WakataCard/WakataCard'
+import { Button } from '../components/WakataButton/WakataButton'
+import { Link } from '../components/WakataLink/WakataLink'
+import { Dialog } from '../components/WakataDialog/WakataDialog'
 import { Pencil, Plus, Trash2, ExternalLink } from 'lucide-react'
 import { totalFilamentUsageG } from '../lib/costing'
 import { ModelForm } from '../components/ModelForm/ModelForm'
@@ -147,9 +151,9 @@ export function ModelsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilam
             </Button>
 
             {models.length === 0 ? (
-              <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-8 text-center">
+              <Card padding="2xl" bodyClassName="text-center">
                 <p className="text-[var(--muted-foreground)]">No models yet. Add your first model to get started.</p>
-              </div>
+              </Card>
             ) : isSearching ? (
               <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
                 {searchResults.length === 0 ? (
@@ -221,27 +225,26 @@ export function ModelsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilam
                         footer={
                           <div className="flex items-center gap-2">
                             {model.model_url && (
-                              <a href={model.model_url} target="_blank" rel="noopener noreferrer"
-                                className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors" title="Open model">
-                                <ExternalLink className="w-4 h-4" />
-                              </a>
+                              <Link href={model.model_url} appearance="icon" label="Open model">
+                                <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                              </Link>
                             )}
-                            <button onClick={() => setEditModel(model)}
-                              className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors" title="Edit">
+                            <Button variant="ghost" appearance="icon" onPress={() => setEditModel(model)}
+                              className="hover:bg-[var(--accent-orange-light)] hover:text-[var(--accent-orange)] hover:[--wk-text:var(--accent-orange)]" title="Edit" aria-label="Edit">
                               <Pencil className="w-4 h-4" />
-                            </button>
-                            <button onClick={() => setDeleteModelTarget(model)}
-                              className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors" title="Delete">
+                            </Button>
+                            <Button variant="destructive" appearance="icon" onPress={() => setDeleteModelTarget(model)}
+                              title="Delete" aria-label="Delete">
                               <Trash2 className="w-4 h-4" />
-                            </button>
+                            </Button>
                           </div>
                         }
                       >
                         {model.image_url && (
                           model.model_url ? (
-                            <a href={model.model_url} target="_blank" rel="noopener noreferrer" className="block" title="Open model">
-                              <img src={model.image_url} alt={model.name} className="w-full h-32 object-cover rounded-lg border border-[var(--border)] hover:opacity-80 transition-opacity" />
-                            </a>
+                            <Link href={model.model_url} appearance="media">
+                              <img src={model.image_url} alt={`Open model: ${model.name}`} className="w-full h-32 object-cover rounded-lg border border-[var(--border)] hover:opacity-80 transition-opacity" />
+                            </Link>
                           ) : (
                             <img src={model.image_url} alt={model.name} className="w-full h-32 object-cover rounded-lg border border-[var(--border)]" />
                           )
@@ -291,9 +294,9 @@ export function ModelsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilam
                 {models.length > 6 && !showAllDefault && (
                   <p className="text-xs text-center text-[var(--muted-foreground)]">
                     Showing 6 of {models.length} models ·{' '}
-                    <button className="text-[var(--accent-orange)] hover:underline" onClick={() => setShowAllDefault(true)}>
+                    <Button variant="secondary" appearance="plain" className="align-baseline" onPress={() => setShowAllDefault(true)}>
                       Show all
-                    </button>
+                    </Button>
                     {' '}or search above to filter
                   </p>
                 )}
@@ -304,17 +307,17 @@ export function ModelsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilam
       </main>
 
       {addModelOpen && (
-        <Dialog isOpen size="xl" onOpenChange={open => { if (!open) setAddModelOpen(false) }} trigger={<span />} title="Add Model">
+        <Dialog isOpen size="xl" onOpenChange={open => { if (!open) setAddModelOpen(false) }} title="Add Model">
           <ModelForm onSave={handleCreateModel} onCancel={() => setAddModelOpen(false)} filaments={filaments} />
         </Dialog>
       )}
       {editModel && (
-        <Dialog isOpen size="xl" onOpenChange={open => { if (!open) setEditModel(null) }} trigger={<span />} title="Edit Model">
+        <Dialog isOpen size="xl" onOpenChange={open => { if (!open) setEditModel(null) }} title="Edit Model">
           <ModelForm initial={editModel} onSave={handleEditModel} onCancel={() => setEditModel(null)} filaments={filaments} />
         </Dialog>
       )}
       {deleteModelTarget && (
-        <Dialog isOpen onOpenChange={open => { if (!open) setDeleteModelTarget(null) }} trigger={<span />} title="Delete Model"
+        <Dialog isOpen onOpenChange={open => { if (!open) setDeleteModelTarget(null) }} title="Delete Model"
           footer={
             <>
               <Button variant="outline" onPress={() => setDeleteModelTarget(null)}>Cancel</Button>
@@ -333,19 +336,18 @@ function ModelActions({ model, onEdit, onDelete }: { model: PrintModel; onEdit: 
   return (
     <div className="flex items-center justify-end gap-1">
       {model.model_url && (
-        <a href={model.model_url} target="_blank" rel="noopener noreferrer"
-          className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors" title="Open model">
-          <ExternalLink className="w-4 h-4" />
-        </a>
+        <Link href={model.model_url} appearance="icon" label="Open model">
+          <ExternalLink className="w-4 h-4" aria-hidden="true" />
+        </Link>
       )}
-      <button onClick={() => onEdit(model)}
-        className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors" title="Edit">
+      <Button variant="ghost" appearance="icon" onPress={() => onEdit(model)}
+        className="hover:bg-[var(--accent-orange-light)] hover:text-[var(--accent-orange)] hover:[--wk-text:var(--accent-orange)]" title="Edit" aria-label="Edit">
         <Pencil className="w-4 h-4" />
-      </button>
-      <button onClick={() => onDelete(model)}
-        className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors" title="Delete">
+      </Button>
+      <Button variant="destructive" appearance="icon" onPress={() => onDelete(model)}
+        title="Delete" aria-label="Delete">
         <Trash2 className="w-4 h-4" />
-      </button>
+      </Button>
     </div>
   )
 }

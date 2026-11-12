@@ -1,0 +1,17 @@
+/* Gearhead-matching dark look for <wk-switch>. */
+@layer components {
+  .pq-wk-switch {
+    --wk-text: var(--foreground);
+    --wk-surface: var(--secondary);
+    --wk-focus: var(--accent-blue);
+    --wk-disabled-text: var(--muted-foreground);
+    --wk-disabled-border: var(--border);
+    display: inline-block;
+  }
+  .pq-wk-switch[data-pq-color='orange'] { --pq-switch-on: var(--accent-orange); }
+  .pq-wk-switch[data-pq-color='blue'] { --pq-switch-on: var(--accent-blue); }
+  .pq-wk-switch[data-pq-color='green'] { --pq-switch-on: var(--accent-green); }
+  .pq-wk-switch[data-pq-color='purple'] { --pq-switch-on: var(--accent-purple); }
+  .pq-wk-switch[checked] { --wk-surface: var(--pq-switch-on); }
+  .pq-wk-switch[disabled] { opacity: 0.5; }
+}

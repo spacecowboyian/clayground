@@ -1,0 +1,19 @@
+/* Project-local Gearhead look for <wk-progress>, via public theme hooks and its data-wk-progress state. */
+@layer components {
+  wk-progress.pq-wk-progress {
+    --wk-accent: var(--accent-orange);
+    --wk-text: var(--muted-foreground);
+    font-size: 0.875rem;
+  }
+  /* The Tailwind reset zeroes slotted li padding, which beats Wakata's ::slotted rule; restore room for the marker. */
+  wk-progress.pq-wk-progress > li {
+    padding-inline-start: 2rem;
+  }
+  wk-progress.pq-wk-progress > li[data-wk-progress='completed'] {
+    --wk-text: var(--accent-green);
+    color: var(--accent-green);
+  }
+  wk-progress.pq-wk-progress > li[data-wk-progress='current'] {
+    color: var(--accent-orange);
+  }
+}

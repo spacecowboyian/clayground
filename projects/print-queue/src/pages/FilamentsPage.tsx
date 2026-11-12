@@ -1,5 +1,10 @@
 import { useCallback, useEffect } from 'react'
-import { Button, Dialog, Accordion } from '@gearhead/ui'
+import { Card } from '../components/WakataCard/WakataCard'
+import { Select } from '../components/WakataSelect/WakataSelect'
+import { Accordion } from '../components/WakataAccordion/WakataAccordion'
+import { Button } from '../components/WakataButton/WakataButton'
+import { Link } from '../components/WakataLink/WakataLink'
+import { Dialog } from '../components/WakataDialog/WakataDialog'
 import { Pencil, Plus, ShoppingCart, Trash2 } from 'lucide-react'
 import { computeFilamentStats } from '../lib/inventory'
 import { FilamentForm } from '../components/FilamentForm/FilamentForm'
@@ -164,9 +169,9 @@ export function FilamentsPage({ onLogout, onPrintQueue, onOrders, onModels, onFi
               </Button>
 
               {filaments.length === 0 ? (
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-8 text-center">
+                <Card padding="2xl" bodyClassName="text-center">
                   <p className="text-[var(--muted-foreground)]">No filaments yet. Add your first filament to get started.</p>
-                </div>
+                </Card>
               ) : (
                 <>
                   <div className="space-y-2">
@@ -229,17 +234,17 @@ export function FilamentsPage({ onLogout, onPrintQueue, onOrders, onModels, onFi
       </main>
 
       {addFilamentOpen && (
-        <Dialog isOpen size="xl" onOpenChange={open => { if (!open) setAddFilamentOpen(false) }} trigger={<span />} title="Add Filament">
+        <Dialog isOpen size="xl" onOpenChange={open => { if (!open) setAddFilamentOpen(false) }} title="Add Filament">
           <FilamentForm onSave={handleCreateFilament} onCancel={() => setAddFilamentOpen(false)} />
         </Dialog>
       )}
       {editFilament && (
-        <Dialog isOpen size="xl" onOpenChange={open => { if (!open) setEditFilament(null) }} trigger={<span />} title="Edit Filament">
+        <Dialog isOpen size="xl" onOpenChange={open => { if (!open) setEditFilament(null) }} title="Edit Filament">
           <FilamentForm initial={editFilament} onSave={handleEditFilament} onCancel={() => setEditFilament(null)} />
         </Dialog>
       )}
       {deleteFilamentTarget && (
-        <Dialog isOpen onOpenChange={open => { if (!open) setDeleteFilamentTarget(null) }} trigger={<span />} title="Delete Filament"
+        <Dialog isOpen onOpenChange={open => { if (!open) setDeleteFilamentTarget(null) }} title="Delete Filament"
           footer={
             <>
               <Button variant="outline" onPress={() => setDeleteFilamentTarget(null)}>Cancel</Button>
@@ -266,19 +271,42 @@ interface AmsSlotTileProps {
 
 function AmsSlotTile({ slot, loaded, filaments, onAssign, onClear }: AmsSlotTileProps) {
   return (
-    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3">
+    <Card
+      className="pq-ams-slot-card"
+      bodyClassName="space-y-3"
+      footer={
+        <Select
+          aria-label={`Loaded filament for slot ${slot}`}
+          compact
+          selectedKey={loaded?.id ?? ''}
+          onSelectionChange={key => {
+            if (key) onAssign(key)
+            else onClear()
+          }}
+          options={[
+            { id: '', label: '— Empty —' },
+            ...(loaded && !filaments.some(f => f.id === loaded.id)
+              ? [{ id: loaded.id, label: `${loaded.color} (${loaded.material})` }]
+              : []),
+            ...filaments.map(f => ({ id: f.id, label: `${f.color} (${f.material})` })),
+          ]}
+        />
+      }
+    >
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
           Slot {slot}
         </span>
         {loaded && (
-          <button
-            onClick={onClear}
-            className="text-xs text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+          <Button
+            variant="ghost"
+            appearance="plain"
+            onPress={onClear}
+            className="text-xs hover:text-[var(--destructive)] hover:[--wk-text:var(--destructive)]"
             title="Clear slot"
           >
             Clear
-          </button>
+          </Button>
         )}
       </div>
 
@@ -294,23 +322,15 @@ function AmsSlotTile({ slot, loaded, filaments, onAssign, onClear }: AmsSlotTile
           </div>
         </div>
       ) : (
-        <p className="text-sm text-[var(--muted-foreground)] italic">Empty</p>
+        <div className="flex items-center gap-2">
+          <span className="w-4 h-4 rounded-full border border-[var(--border)] shrink-0 opacity-40" aria-hidden="true" />
+          <div>
+            <p className="text-sm text-[var(--muted-foreground)] italic">Empty</p>
+            <p className="text-xs text-[var(--muted-foreground)]">No filament loaded</p>
+          </div>
+        </div>
       )}
-
-      <select
-        value={loaded?.id ?? ''}
-        onChange={e => {
-          if (e.target.value) onAssign(e.target.value)
-          else onClear()
-        }}
-        className="w-full bg-[var(--input)] border border-[var(--border)] text-sm rounded px-2 py-1.5 text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-orange)]"
-      >
-        <option value="">— Empty —</option>
-        {filaments.map(f => (
-          <option key={f.id} value={f.id}>{f.color} ({f.material})</option>
-        ))}
-      </select>
-    </div>
+    </Card>
   )
 }
 
@@ -379,19 +399,18 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       {f.purchase_url && (
-                        <a href={f.purchase_url} target="_blank" rel="noopener noreferrer"
-                          className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors" title="Buy filament">
-                          <ShoppingCart className="w-4 h-4" />
-                        </a>
+                        <Link href={f.purchase_url} appearance="icon" label="Buy filament">
+                          <ShoppingCart className="w-4 h-4" aria-hidden="true" />
+                        </Link>
                       )}
-                      <button onClick={() => onEdit(f)}
-                        className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors" title="Edit">
+                      <Button variant="ghost" appearance="icon" onPress={() => onEdit(f)}
+                        className="hover:bg-[var(--accent-orange-light)] hover:text-[var(--accent-orange)] hover:[--wk-text:var(--accent-orange)]" title="Edit" aria-label="Edit">
                         <Pencil className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => onDelete(f)}
-                        className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors" title="Delete">
+                      </Button>
+                      <Button variant="destructive" appearance="icon" onPress={() => onDelete(f)}
+                        title="Delete" aria-label="Delete">
                         <Trash2 className="w-4 h-4" />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -421,10 +440,11 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
                     </span>
                   )}
                 </div>
-                <button onClick={() => onToggleStock(f)} className="p-1 rounded shrink-0 hover:opacity-70 transition-opacity"
-                  title={f.status === 'in_stock' ? 'In Stock (click to cycle)' : f.status === 'on_order' ? 'On Order (click to cycle)' : 'Out of Stock (click to cycle)'}>
+                <Button variant="ghost" appearance="icon" onPress={() => onToggleStock(f)} className="shrink-0 !p-1 hover:opacity-70"
+                  title={f.status === 'in_stock' ? 'In Stock (click to cycle)' : f.status === 'on_order' ? 'On Order (click to cycle)' : 'Out of Stock (click to cycle)'}
+                  aria-label={f.status === 'in_stock' ? 'In Stock (click to cycle)' : f.status === 'on_order' ? 'On Order (click to cycle)' : 'Out of Stock (click to cycle)'}>
                   <span className={`block w-3 h-3 rounded-full ${f.status === 'in_stock' ? 'bg-[var(--accent-green)]' : f.status === 'on_order' ? 'bg-[var(--accent-orange)]' : 'bg-[var(--destructive)]'}`} />
-                </button>
+                </Button>
               </div>
               <div className="flex items-start justify-between gap-3">
                 <p className="text-xs text-[var(--muted-foreground)] min-w-0">{f.brand ? `${f.brand} · ` : ''}{f.material}</p>
@@ -449,19 +469,18 @@ function FilamentTable({ filaments, stats, onEdit, onDelete, onToggleStock, mute
               </div>
               <div className="flex items-center justify-end gap-1 pt-1">
                 {f.purchase_url && (
-                  <a href={f.purchase_url} target="_blank" rel="noopener noreferrer"
-                    className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors" title="Buy">
-                    <ShoppingCart className="w-4 h-4" />
-                  </a>
+                  <Link href={f.purchase_url} appearance="icon" label="Buy filament">
+                    <ShoppingCart className="w-4 h-4" aria-hidden="true" />
+                  </Link>
                 )}
-                <button onClick={() => onEdit(f)}
-                  className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors" title="Edit">
+                <Button variant="ghost" appearance="icon" onPress={() => onEdit(f)}
+                  className="hover:bg-[var(--accent-orange-light)] hover:text-[var(--accent-orange)] hover:[--wk-text:var(--accent-orange)]" title="Edit" aria-label="Edit">
                   <Pencil className="w-4 h-4" />
-                </button>
-                <button onClick={() => onDelete(f)}
-                  className="p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors" title="Delete">
+                </Button>
+                <Button variant="destructive" appearance="icon" onPress={() => onDelete(f)}
+                  title="Delete" aria-label="Delete">
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             </div>
           )

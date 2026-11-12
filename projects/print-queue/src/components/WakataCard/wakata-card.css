@@ -1,0 +1,19 @@
+/* Local Wakata Card extension retains the catalog's bottom-aligned actions. */
+@layer components {
+  .pq-wk-card {
+    --wk-surface: var(--card);
+    --wk-border: var(--border);
+    --wk-text: var(--foreground);
+    --wk-radius: 0.75rem;
+    padding: 1rem;
+  }
+  .pq-wk-card--sm { padding: 0.5rem; }
+  .pq-wk-card--lg { padding: 1.25rem; }
+  .pq-wk-card--xl { padding: 1.5rem; }
+  .pq-wk-card--2xl { padding: 2rem; }
+  .pq-wk-card__body > * + * { margin-top: 0.75rem; }
+  .pq-wk-card__footer {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+}

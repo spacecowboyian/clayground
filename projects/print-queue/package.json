@@ -11,7 +11,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@gearhead/ui": "file:../gearhead",
     "@reduxjs/toolkit": "^2.11.2",
     "@supabase/supabase-js": "^2.99.1",
     "@wakata/ds": "file:vendor/wakata-ds-0.0.0.tgz",

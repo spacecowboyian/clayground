@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Dialog } from '@gearhead/ui'
+import { Card } from '../components/WakataCard/WakataCard'
+import { Select } from '../components/WakataSelect/WakataSelect'
+import { Button } from '../components/WakataButton/WakataButton'
+import { Dialog } from '../components/WakataDialog/WakataDialog'
 import { Pencil, ShoppingBag } from 'lucide-react'
 import { StatusBadge } from '../components/StatusBadge/StatusBadge'
 import { WorkOrderForm } from '../components/WorkOrderForm/WorkOrderForm'
@@ -329,20 +332,26 @@ export function PrintQueuePage({
                               <div className="flex items-center justify-end gap-1">
                                 {order && (
                                   <>
-                                    <button
-                                      onClick={() => setEditOrder(order)}
-                                      className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
+                                    <Button
+                                      variant="ghost"
+                                      appearance="icon"
+                                      onPress={() => setEditOrder(order)}
+                                      className="hover:bg-[var(--accent-orange-light)] hover:text-[var(--accent-orange)] hover:[--wk-text:var(--accent-orange)]"
                                       title="Edit order"
+                                      aria-label="Edit order"
                                     >
                                       <ShoppingBag className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                      onClick={() => setEditOrder(order)}
-                                      className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      appearance="icon"
+                                      onPress={() => setEditOrder(order)}
+                                      className="hover:bg-[var(--accent-blue-light)] hover:text-[var(--accent-blue)] hover:[--wk-text:var(--accent-blue)]"
                                       title="Edit item"
+                                      aria-label="Edit item"
                                     >
                                       <Pencil className="w-4 h-4" />
-                                    </button>
+                                    </Button>
                                   </>
                                 )}
                               </div>
@@ -359,9 +368,9 @@ export function PrintQueuePage({
                   {group.rows.map(row => {
                     const order = orders.find(o => o.id === row.orderId)
                     return (
-                      <div
+                      <Card
                         key={`${row.orderId}-${row.itemIndex}`}
-                        className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-2"
+                        bodyClassName="space-y-2"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div>
@@ -378,24 +387,30 @@ export function PrintQueuePage({
                           <ItemStatusSelect row={row} onChange={handleItemStatusChange} />
                           {order && (
                             <div className="flex gap-1">
-                              <button
-                                onClick={() => setEditOrder(order)}
-                                className="p-1.5 rounded hover:bg-[var(--accent-orange-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-orange)] transition-colors"
+                              <Button
+                                variant="ghost"
+                                appearance="icon"
+                                onPress={() => setEditOrder(order)}
+                                className="hover:bg-[var(--accent-orange-light)] hover:text-[var(--accent-orange)] hover:[--wk-text:var(--accent-orange)]"
                                 title="Edit order"
+                                aria-label="Edit order"
                               >
                                 <ShoppingBag className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => setEditOrder(order)}
-                                className="p-1.5 rounded hover:bg-[var(--accent-blue-light)] text-[var(--muted-foreground)] hover:text-[var(--accent-blue)] transition-colors"
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                appearance="icon"
+                                onPress={() => setEditOrder(order)}
+                                className="hover:bg-[var(--accent-blue-light)] hover:text-[var(--accent-blue)] hover:[--wk-text:var(--accent-blue)]"
                                 title="Edit item"
+                                aria-label="Edit item"
                               >
                                 <Pencil className="w-4 h-4" />
-                              </button>
+                              </Button>
                             </div>
                           )}
                         </div>
-                      </div>
+                      </Card>
                     )
                   })}
                 </div>
@@ -417,7 +432,6 @@ export function PrintQueuePage({
           isOpen
           size="xl"
           onOpenChange={open => { if (!open) setEditOrder(null) }}
-          trigger={<span />}
           title="Edit Work Order"
         >
           <WorkOrderForm
@@ -493,19 +507,42 @@ interface AmsSlotTileProps {
 
 function AmsSlotTile({ slot, loaded, filaments, onAssign, onClear }: AmsSlotTileProps) {
   return (
-    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4 space-y-3">
+    <Card
+      className="pq-ams-slot-card"
+      bodyClassName="space-y-3"
+      footer={
+        <Select
+          aria-label={`Loaded filament for slot ${slot}`}
+          compact
+          selectedKey={loaded?.id ?? ''}
+          onSelectionChange={key => {
+            if (key) onAssign(key)
+            else onClear()
+          }}
+          options={[
+            { id: '', label: '— Empty —' },
+            ...(loaded && !filaments.some(f => f.id === loaded.id)
+              ? [{ id: loaded.id, label: `${loaded.color} (${loaded.material})` }]
+              : []),
+            ...filaments.map(f => ({ id: f.id, label: `${f.color} (${f.material})` })),
+          ]}
+        />
+      }
+    >
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
           Slot {slot}
         </span>
         {loaded && (
-          <button
-            onClick={onClear}
-            className="text-xs text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
+          <Button
+            variant="ghost"
+            appearance="plain"
+            onPress={onClear}
+            className="text-xs hover:text-[var(--destructive)] hover:[--wk-text:var(--destructive)]"
             title="Clear slot"
           >
             Clear
-          </button>
+          </Button>
         )}
       </div>
 
@@ -521,23 +558,15 @@ function AmsSlotTile({ slot, loaded, filaments, onAssign, onClear }: AmsSlotTile
           </div>
         </div>
       ) : (
-        <p className="text-sm text-[var(--muted-foreground)] italic">Empty</p>
+        <div className="flex items-center gap-2">
+          <span className="w-4 h-4 rounded-full border border-[var(--border)] shrink-0 opacity-40" aria-hidden="true" />
+          <div>
+            <p className="text-sm text-[var(--muted-foreground)] italic">Empty</p>
+            <p className="text-xs text-[var(--muted-foreground)]">No filament loaded</p>
+          </div>
+        </div>
       )}
-
-      <select
-        value={loaded?.id ?? ''}
-        onChange={e => {
-          if (e.target.value) onAssign(e.target.value)
-          else onClear()
-        }}
-        className="w-full bg-[var(--input)] border border-[var(--border)] text-sm rounded px-2 py-1.5 text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-orange)]"
-      >
-        <option value="">— Empty —</option>
-        {filaments.map(f => (
-          <option key={f.id} value={f.id}>{f.color} ({f.material})</option>
-        ))}
-      </select>
-    </div>
+    </Card>
   )
 }
 

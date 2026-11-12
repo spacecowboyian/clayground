@@ -1,0 +1,13 @@
+wk-accordion.pq-accordion {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--card);
+  --wk-text: var(--foreground);
+  --wk-border: transparent;
+  --wk-focus: var(--ring, var(--accent-orange));
+}
+wk-accordion.pq-accordion wk-accordion-item { font-size: 0.875rem; background: var(--card); }
+wk-accordion.pq-accordion wk-accordion-item:hover { background: var(--secondary); }
+.pq-accordion__title { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; }

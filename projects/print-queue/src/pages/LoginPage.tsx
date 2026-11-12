@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { Button, TextField } from '@gearhead/ui'
+import { Card } from '../components/WakataCard/WakataCard'
+import { TextField } from '../components/WakataTextField/WakataTextField'
+import { Button } from '../components/WakataButton/WakataButton'
 import { login } from '../lib/auth'
 
 interface LoginPageProps {
@@ -40,7 +42,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
         </div>
 
         {/* Login card */}
-        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-6 space-y-4">
+        <Card padding="xl" bodyClassName="space-y-4">
           <div onKeyDown={handleKey}>
             <TextField
               label="Password"
@@ -63,7 +65,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
           >
             Unlock Dashboard
           </Button>
-        </div>
+        </Card>
 
         <p className="text-center text-xs text-[var(--muted-foreground)]">
           Need to view a specific order?{' '}

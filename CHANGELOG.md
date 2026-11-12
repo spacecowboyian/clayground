@@ -65,6 +65,15 @@ _Changes not yet pushed to `main` go here._
 
 ---
 
+## [1.7.0] – 2026-11-12
+
+### feat(print-queue)
+- Replace the print-queue app's Gearhead controls with Wakata Button, TextField, TextArea, Select, Dialog, Switch, Card, Link, ColorPicker, NumberField, Accordion, Progress, Badge, and Status elements through project-local React bindings and compositions. Preserve the existing dark theme, make the header wrap on phones, and remove the Gearhead package dependency.
+- Add a local, password-free fake-data demo for visual and workflow review. It uses in-memory data and hides account connection controls; it does not contact the live backend.
+- Give eligible external model, purchase, and payment links the app's visual treatment and accessible names for icon-only links.
+- Use the project-local Wakata Card for semantic content surfaces (summary stats, item and order cards, AMS slots, empty states, settings panels, login), keeping tables and structural list wrappers native. Use Wakata Status for inline errors and Dialog alert mode for blocking load errors.
+- Keep the Orders toolbar compact with 34px Wakata small buttons and search field using a local theme size override; restore padding on local Wakata text inputs; integrate 48px number-field steppers within the field outline; and place AMS slot selectors in each Card's bottom actions area, including the empty-slot state.
+
 ## [1.6.0] – 2026-11-06
 
 ### feat(print-queue)

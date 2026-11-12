@@ -1,5 +1,9 @@
 import { useState } from 'react'
-import { Button, TextField, TextArea, NumberField, Select, Switch } from '@gearhead/ui'
+import { NumberField } from '../WakataNumberField/WakataNumberField'
+import { Switch } from '../WakataSwitch/WakataSwitch'
+import { Select } from '../WakataSelect/WakataSelect'
+import { TextField, TextArea } from '../WakataTextField/WakataTextField'
+import { Button } from '../WakataButton/WakataButton'
 import { Plus, Trash2 } from 'lucide-react'
 import type { PrintModel, PrintModelInput, Filament, ModelFilamentRequirement } from '../../types/Inventory'
 
@@ -131,14 +135,10 @@ export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormPro
             Filament Requirements
           </label>
           {requirements.length < MAX_FILAMENT_REQUIREMENTS && (
-            <button
-              type="button"
-              onClick={addRequirement}
-              className="text-xs text-[var(--accent-orange)] hover:underline flex items-center gap-1"
-            >
+            <Button variant="secondary" appearance="plain" onPress={addRequirement}>
               <Plus className="w-3 h-3" />
               Add filament
-            </button>
+            </Button>
           )}
         </div>
         <p className="text-xs text-[var(--muted-foreground)]">
@@ -156,8 +156,7 @@ export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormPro
                   options={filamentOptions}
                   selectedKey={req.filament_id ?? '__none__'}
                   onSelectionChange={key => {
-                    const val = key as string
-                    updateRequirement(idx, { filament_id: val === '__none__' ? null : val })
+                    updateRequirement(idx, { filament_id: key === '__none__' ? null : key })
                   }}
                 />
               </div>
@@ -171,14 +170,16 @@ export function ModelForm({ initial, filaments, onSave, onCancel }: ModelFormPro
                 />
               </div>
               {requirements.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeRequirement(idx)}
-                  className="mb-1 p-1.5 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors shrink-0"
+                <Button
+                  variant="destructive"
+                  appearance="icon"
+                  onPress={() => removeRequirement(idx)}
+                  aria-label="Remove"
                   title="Remove"
+                  className="mb-1 shrink-0"
                 >
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </Button>
               )}
             </div>
           ))}

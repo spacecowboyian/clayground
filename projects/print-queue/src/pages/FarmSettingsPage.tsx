@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { Button, NumberField, TextField } from '@gearhead/ui'
+import { Card } from '../components/WakataCard/WakataCard'
+import { NumberField } from '../components/WakataNumberField/WakataNumberField'
+import { TextField } from '../components/WakataTextField/WakataTextField'
+import { Button } from '../components/WakataButton/WakataButton'
 import { DEFAULT_FARM_SETTINGS } from '../types/FarmSettings'
 import { useAppDispatch, useAppSelector } from '../store'
 import { updateSettings } from '../store/settingsSlice'
@@ -16,6 +19,7 @@ interface FarmSettingsPageProps {
 }
 
 export function FarmSettingsPage({ onLogout, onPrintQueue, onOrders, onModels, onFilaments, onSettings }: FarmSettingsPageProps) {
+  const isDemo = import.meta.env.VITE_PRINT_QUEUE_DEMO === 'true'
   const dispatch  = useAppDispatch()
   const settings  = useAppSelector(state => state.settings.settings)
   const [saved, setSaved]         = useState(false)
@@ -92,7 +96,7 @@ export function FarmSettingsPage({ onLogout, onPrintQueue, onOrders, onModels, o
             </p>
           </div>
 
-          <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-5 space-y-5">
+          <Card padding="lg" bodyClassName="space-y-5">
             <div className="space-y-2">
               <NumberField
                 label="Labor Rate ($/hour)"
@@ -115,9 +119,9 @@ export function FarmSettingsPage({ onLogout, onPrintQueue, onOrders, onModels, o
                 Reset to defaults
               </Button>
             </div>
-          </div>
+          </Card>
 
-          <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-5 space-y-3">
+          <Card padding="lg" bodyClassName="space-y-3">
             <h3 className="text-sm font-medium text-[var(--foreground)]">How cost is calculated</h3>
             <div className="text-xs text-[var(--muted-foreground)] space-y-2">
               <p>
@@ -137,10 +141,15 @@ export function FarmSettingsPage({ onLogout, onPrintQueue, onOrders, onModels, o
                 Roll cost and roll size are set per filament.
               </p>
             </div>
-          </div>
+          </Card>
         </section>
 
-        {/* Bambu Integration */}
+        {isDemo ? (
+          <p className="text-sm text-[var(--muted-foreground)]">
+            Printer account connections are unavailable in this fake-data demo.
+          </p>
+        ) : (
+        /* Bambu Integration */
         <section className="max-w-md space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-[var(--foreground)]">Bambu Integration</h2>
@@ -149,7 +158,7 @@ export function FarmSettingsPage({ onLogout, onPrintQueue, onOrders, onModels, o
             </p>
           </div>
 
-          <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-5 space-y-5">
+          <Card padding="lg" bodyClassName="space-y-5">
             <div className="space-y-2">
               <TextField
                 label="Access Token"
@@ -198,8 +207,9 @@ export function FarmSettingsPage({ onLogout, onPrintQueue, onOrders, onModels, o
                 {saved ? '✓ Saved' : 'Save Settings'}
               </Button>
             </div>
-          </div>
+          </Card>
         </section>
+        )}
       </main>
     </div>
   )

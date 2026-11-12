@@ -1,0 +1,152 @@
+import type { PrintModel, PrintModelInput, Filament, FilamentInput, FilamentStats } from '../types/Inventory'
+import type { WorkOrder } from '../types/WorkOrder'
+import { initialFilaments, initialModels } from './data'
+
+let models: PrintModel[] = initialModels()
+let filaments: Filament[] = initialFilaments()
+let counter = 5000
+
+const now = () => new Date().toISOString()
+const nextId = () => `00000000-0000-4000-8000-${String(++counter).padStart(12, '0')}`
+
+export async function listModels(): Promise<PrintModel[]> {
+  return structuredClone([...models].sort((a, b) => a.name.localeCompare(b.name)))
+}
+
+export async function createModel(input: PrintModelInput): Promise<PrintModel> {
+  const created: PrintModel = { ...structuredClone(input), id: nextId(), created_at: now(), updated_at: now() }
+  models = [...models, created]
+  return structuredClone(created)
+}
+
+export async function updateModel(id: string, patch: Partial<PrintModelInput>): Promise<PrintModel> {
+  const idx = models.findIndex(m => m.id === id)
+  if (idx < 0) throw new Error('Model not found')
+  models[idx] = { ...models[idx], ...structuredClone(patch), updated_at: now() }
+  return structuredClone(models[idx])
+}
+
+export async function deleteModel(id: string): Promise<void> {
+  models = models.filter(m => m.id !== id)
+}
+
+export async function listFilaments(): Promise<Filament[]> {
+  return structuredClone([...filaments].sort((a, b) => a.color.localeCompare(b.color)))
+}
+
+export async function createFilament(input: FilamentInput): Promise<Filament> {
+  const created: Filament = { ...structuredClone(input), id: nextId(), created_at: now(), updated_at: now() }
+  filaments = [...filaments, created]
+  return structuredClone(created)
+}
+
+export async function updateFilament(id: string, patch: Partial<FilamentInput>): Promise<Filament> {
+  const idx = filaments.findIndex(f => f.id === id)
+  if (idx < 0) throw new Error('Filament not found')
+  filaments[idx] = { ...filaments[idx], ...structuredClone(patch), updated_at: now() }
+  return structuredClone(filaments[idx])
+}
+
+export async function deleteFilament(id: string): Promise<void> {
+  filaments = filaments.filter(f => f.id !== id)
+}
+
+const ACTIVE_STATUSES   = new Set<string>(['waiting', 'in_progress'])
+const COMPLETE_STATUSES = new Set<string>(['complete'])
+
+/**
+ * Compute per-filament inventory stats (consumed, reserved, remaining) based
+ * on the current list of work orders and models.
+ *
+ * For multi-item orders, consumed/reserved is determined by each item's own
+ * status ('complete' = consumed, 'queue'/'printing' = reserved). For legacy
+ * single-item orders the order-level status is used instead.
+ *
+ * Cancelled orders are excluded entirely.
+ */
+export function computeFilamentStats(
+  filaments: Filament[],
+  orders: WorkOrder[],
+  models: PrintModel[],
+): FilamentStats[] {
+  const modelMap = new Map(models.map(m => [m.id, m]))
+
+  return filaments.map(f => {
+    let consumed_g = 0
+    let reserved_g = 0
+
+    for (const order of orders) {
+      if (order.status === 'cancelled') continue
+
+      if (order.order_items && order.order_items.length > 0) {
+        for (const item of order.order_items) {
+          const isItemComplete = item.status === 'complete'
+          const isItemActive   = item.status === 'queue' || item.status === 'printing'
+          if (!isItemComplete && !isItemActive) continue
+
+          const model = item.model_id ? modelMap.get(item.model_id) : null
+
+          if (item.filament_selections && item.filament_selections.length > 0 && model) {
+            // Multi-slot order: attribute grams per slot to the correct filament
+            for (let i = 0; i < item.filament_selections.length; i++) {
+              const sel = item.filament_selections[i]
+              const matches = sel.filament_id
+                ? sel.filament_id === f.id
+                : sel.color.toLowerCase() === f.color.toLowerCase()
+              if (!matches) continue
+
+              const req = model.filament_requirements[i]
+              const grams = req ? req.quantity_g * (item.quantity ?? 1) : 0
+              if (isItemComplete) consumed_g += grams
+              else                reserved_g += grams
+            }
+          } else {
+            // Single-filament item (legacy or single-requirement model)
+            const matches = item.filament_id
+              ? item.filament_id === f.id
+              : item.color.toLowerCase() === f.color.toLowerCase()
+            if (!matches) continue
+
+            if (!model) continue
+
+            // Compute grams attributed to this filament for the item.
+            // After migration 006 all model requirements have filament_id=null
+            // (colour-agnostic). For both new-style items (explicit filament_id)
+            // and legacy items (colour-string only) we therefore sum the
+            // null-filament_id requirements. If — for pre-migration models — some
+            // requirements still carry a specific filament_id, we fall back to
+            // the total across all requirements so the estimate is still useful.
+            const nullReqs = model.filament_requirements.filter(r => r.filament_id === null)
+            const reqG = nullReqs.length > 0
+              ? nullReqs.reduce((sum, r) => sum + r.quantity_g, 0)
+              : model.filament_requirements.reduce((sum, r) => sum + r.quantity_g, 0)
+            const totalG = reqG * (item.quantity ?? 1)
+
+            if (isItemComplete) consumed_g += totalG
+            else                reserved_g += totalG
+          }
+        }
+      } else {
+        // Legacy single-item order — use order-level status
+        const isActive   = ACTIVE_STATUSES.has(order.status)
+        const isComplete = COMPLETE_STATUSES.has(order.status)
+        if (!isActive && !isComplete) continue
+
+        if (order.color.toLowerCase() !== f.color.toLowerCase()) continue
+        const model = order.model_id ? modelMap.get(order.model_id) : null
+        const totalG = model
+          ? model.filament_requirements.reduce((sum, r) => sum + r.quantity_g, 0)
+          : 0
+        if (isComplete) consumed_g += totalG
+        else            reserved_g += totalG
+      }
+    }
+
+    return {
+      filament_id: f.id,
+      consumed_g,
+      reserved_g,
+      remaining_g: f.current_quantity_g - reserved_g - consumed_g,
+    }
+  })
+}

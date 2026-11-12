@@ -1,5 +1,9 @@
 import { useMemo, useState } from 'react'
-import { Button, TextField, Select, Switch, TextArea, NumberField } from '@gearhead/ui'
+import { NumberField } from '../WakataNumberField/WakataNumberField'
+import { Switch } from '../WakataSwitch/WakataSwitch'
+import { Select } from '../WakataSelect/WakataSelect'
+import { TextField, TextArea } from '../WakataTextField/WakataTextField'
+import { Button } from '../WakataButton/WakataButton'
 import { Plus, Trash2 } from 'lucide-react'
 import type { WorkOrder, WorkOrderInput, WorkOrderStatus, OrderItem } from '../../types/WorkOrder'
 import type { PrintModel, Filament } from '../../types/Inventory'
@@ -388,14 +392,10 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-[var(--foreground)]">Items</label>
-          <button
-            type="button"
-            onClick={addItem}
-            className="text-xs text-[var(--accent-orange)] hover:underline flex items-center gap-1"
-          >
+          <Button variant="secondary" appearance="plain" onPress={addItem}>
             <Plus className="w-3 h-3" />
             Add item
-          </button>
+          </Button>
         </div>
 
         <div className="space-y-3">
@@ -415,15 +415,15 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
                     <span className="text-xs text-[var(--muted-foreground)] font-medium">
                       Item {idx + 1}
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(idx)}
+                    <Button
+                      variant="destructive"
+                      appearance="icon"
+                      onPress={() => removeItem(idx)}
                       aria-label="Remove item"
-                      className="p-1 rounded hover:bg-[var(--accent-red-light)] text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors"
                       title="Remove item"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    </Button>
                   </div>
                 )}
 
@@ -433,17 +433,13 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
                     label="Model"
                     options={modelOptions}
                     selectedKey={draft.modelId}
-                    onSelectionChange={key => { if (key != null) handleModelChange(idx, key as string) }}
+                    onSelectionChange={key => handleModelChange(idx, key)}
                     placeholder="Select a model…"
                   />
                   {onGoToInventory && idx === 0 && (
-                    <button
-                      type="button"
-                      onClick={onGoToInventory}
-                      className="text-xs text-[var(--accent-orange)] hover:underline flex items-center gap-1 pl-0.5"
-                    >
+                    <Button variant="secondary" appearance="plain" onPress={onGoToInventory} className="pl-0.5">
                       <span>＋</span> Add a new model
-                    </button>
+                    </Button>
                   )}
                   {r.calcCost !== null && (
                     <p className="text-xs text-[var(--muted-foreground)]">
@@ -467,19 +463,14 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
                             label={slotLabel}
                             options={filamentOptions}
                             selectedKey={slotId}
-                            onSelectionChange={key => { if (key != null) handleFilamentChange(idx, slotIdx, key as string) }}
+                            onSelectionChange={key => handleFilamentChange(idx, slotIdx, key)}
                             placeholder="Select a color…"
-                            isInvalid={slotError !== null}
-                            errorMessage={slotError ?? undefined}
+                                            errorMessage={slotError ?? undefined}
                           />
                           {slotIdx === 0 && onGoToInventory && idx === 0 && (
-                            <button
-                              type="button"
-                              onClick={onGoToInventory}
-                              className="text-xs text-[var(--accent-orange)] hover:underline flex items-center gap-1 pl-0.5"
-                            >
+                            <Button variant="secondary" appearance="plain" onPress={onGoToInventory} className="pl-0.5">
                               <span>＋</span> Add a new filament
-                            </button>
+                            </Button>
                           )}
                           {slotIdx === 0 && slotId === CUSTOM_COLOR_ID && (
                             <div className="space-y-2 pl-1 border-l-2 border-[var(--accent-orange)] ml-1">
@@ -524,7 +515,7 @@ export function WorkOrderForm({ initial, models, filaments, orders, onSave, onCa
         label="Status"
         options={STATUS_OPTIONS}
         selectedKey={status}
-        onSelectionChange={(key) => { if (key != null) setStatus(key as WorkOrderStatus) }}
+        onSelectionChange={(key) => setStatus(key as WorkOrderStatus)}
       />
 
       {/* Price */}

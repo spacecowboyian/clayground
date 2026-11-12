@@ -1,5 +1,9 @@
 import { useState } from 'react'
-import { Button, TextField, Select, NumberField } from '@gearhead/ui'
+import { NumberField } from '../WakataNumberField/WakataNumberField'
+import { Select } from '../WakataSelect/WakataSelect'
+import { TextField } from '../WakataTextField/WakataTextField'
+import { Button } from '../WakataButton/WakataButton'
+import { ColorPicker } from '../WakataColorPicker/WakataColorPicker'
 import type { Filament, FilamentInput, FilamentStatus } from '../../types/Inventory'
 
 const FILAMENT_STATUS_OPTIONS: Array<{ id: FilamentStatus; label: string }> = [
@@ -102,10 +106,8 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
             options={MATERIAL_OPTIONS}
             selectedKey={materialKey}
             onSelectionChange={key => {
-              if (key != null) {
-                setMaterialKey(key as string)
-                if (key !== 'Other') setCustomMaterial('')
-              }
+              setMaterialKey(key)
+              if (key !== 'Other') setCustomMaterial('')
             }}
           />
           {isOther && (
@@ -127,21 +129,7 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
           isRequired
           placeholder="e.g. Light Blue"
         />
-        <div className="flex flex-col gap-2">
-          <label className="text-sm text-[var(--foreground)]">Color Swatch</label>
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              value={colorHex || '#9ca3af'}
-              onChange={e => setColorHex(e.target.value)}
-              className="w-10 h-10 rounded cursor-pointer border border-[var(--border)] bg-transparent"
-              title="Pick a color"
-            />
-            <span className="text-xs text-[var(--muted-foreground)]">
-              {colorHex || 'No hex set'}
-            </span>
-          </div>
-        </div>
+        <ColorPicker label="Color Swatch" value={colorHex} onChange={setColorHex} />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -186,7 +174,7 @@ export function FilamentForm({ initial, onSave, onCancel }: FilamentFormProps) {
         label="Filament Status"
         options={FILAMENT_STATUS_OPTIONS}
         selectedKey={filamentStatus}
-        onSelectionChange={key => { if (key != null) setFilamentStatus(key as FilamentStatus) }}
+        onSelectionChange={key => setFilamentStatus(key as FilamentStatus)}
       />
       <p className="text-xs text-[var(--muted-foreground)]">
         Only in-stock filaments appear as color options when creating orders.

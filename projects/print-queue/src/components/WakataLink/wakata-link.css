@@ -1,0 +1,43 @@
+/* Project-local look for <wk-link>, matching the previous native anchors. */
+@layer components {
+  wk-link.pq-wk-link {
+    --wk-accent: var(--accent-blue);
+    --wk-focus: var(--ring, var(--accent-orange));
+  }
+  wk-link.pq-wk-link::part(link) { text-decoration: none; font-weight: 400; }
+  wk-link.pq-wk-link[data-pq-appearance='text']::part(link):hover { text-decoration: underline; }
+
+  wk-link.pq-wk-link[data-pq-appearance='icon'] {
+    --wk-accent: var(--muted-foreground);
+    --wk-radius: 0.25rem;
+    border-radius: 0.25rem;
+  }
+  wk-link.pq-wk-link[data-pq-appearance='icon']::part(link) {
+    display: flex;
+    padding: 0.375rem;
+    border-radius: 0.25rem;
+  }
+  wk-link.pq-wk-link[data-pq-appearance='icon']:hover {
+    --wk-accent: var(--accent-blue);
+    background: var(--accent-blue-light);
+  }
+
+  wk-link.pq-wk-link[data-pq-appearance='cta'] { display: block; width: 100%; --wk-radius: 0.5rem; }
+  wk-link.pq-wk-link[data-pq-appearance='cta']::part(link) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: var(--payment-link-foreground);
+    background: var(--payment-link);
+  }
+  wk-link.pq-wk-link[data-pq-appearance='cta']::part(link):hover { background: var(--payment-link-hover); }
+
+  wk-link.pq-wk-link[data-pq-appearance='media'] { display: block; }
+  wk-link.pq-wk-link[data-pq-appearance='media']::part(link) { display: block; }
+}
